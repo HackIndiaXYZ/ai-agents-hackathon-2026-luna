@@ -1,0 +1,42 @@
+canonical_name,alias,language,region,confidence
+Cotton,Kapas,hi,Maharashtra,1.0
+Cotton,कपास,hi,Madhya Pradesh,1.0
+Cotton,કપાસ,gu,Gujarat,1.0
+Cotton,పత్తి,te,Telangana,1.0
+Cotton,பருத்தி,ta,Tamil Nadu,1.0
+Cotton,कापूस,mr,Maharashtra,1.0
+Wheat,गेहूँ,hi,Uttar Pradesh,1.0
+Wheat,ઘઉં,gu,Gujarat,1.0
+Wheat,గోధుమ,te,Andhra Pradesh,1.0
+Wheat,கோதுமை,ta,Tamil Nadu,1.0
+Rice,चावल,hi,Bihar,1.0
+Rice,तांदूळ,mr,Maharashtra,1.0
+Rice,ચોખા,gu,Gujarat,1.0
+Rice,బియ్యం,te,Telangana,1.0
+Rice,அரிசி,ta,Tamil Nadu,1.0
+Soybean,सोयाबीन,hi,Madhya Pradesh,1.0
+Soybean,सोयाबिन,mr,Maharashtra,1.0
+Soybean,સોયાબીન,gu,Gujarat,1.0
+Turmeric,हल्दी,hi,Maharashtra,1.0
+Turmeric,हळद,mr,Maharashtra,1.0
+Turmeric,పసుపు,te,Telangana,1.0
+Turmeric,மஞ்சள்,ta,Tamil Nadu,1.0
+Chilli,मिर्ची,hi,Andhra Pradesh,1.0
+Chilli,मिरची,mr,Maharashtra,1.0
+Chilli,మిరపకాయ,te,Andhra Pradesh,1.0
+Chilli,மிளகாய்,ta,Tamil Nadu,1.0
+Groundnut,मूंगफली,hi,Gujarat,1.0
+Groundnut,భూమి చెనగ,te,Andhra Pradesh,1.0
+Groundnut,நிலக்கடலை,ta,Tamil Nadu,1.0
+Groundnut,શીંગદાણા,gu,Gujarat,1.0
+Sugarcane,गन्ना,hi,Uttar Pradesh,1.0
+Sugarcane,ऊस,mr,Maharashtra,1.0
+Sugarcane,શેરડી,gu,Gujarat,1.0
+Onion,प्याज़,hi,Maharashtra,1.0
+Onion,कांदा,mr,Maharashtra,1.0
+Onion,ఉల్లిపాయ,te,Karnataka,1.0
+Onion,வெங்காயம்,ta,Tamil Nadu,1.0
+Mustard,सरसों,hi,Rajasthan,1.0
+Mustard,rai,hi,Rajasthan,0.9
+Mustard,రాయి,te,Telangana,1.0
+Mustard,கடுகு,ta,Tamil Nadu,1.0

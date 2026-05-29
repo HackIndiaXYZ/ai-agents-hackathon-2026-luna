@@ -1,0 +1,16 @@
+corridor_id,origin_state,origin_mandi,destination_state,destination_mandi,commodity,avg_distance_km,typical_transit_days,route_type
+TC001,Maharashtra,Nagpur,Gujarat,Ahmedabad,Cotton,900,2,highway
+TC002,Madhya Pradesh,Indore,Maharashtra,Mumbai,Soybean,600,1,highway
+TC003,Uttar Pradesh,Lucknow,Delhi,Azadpur,Wheat,500,1,highway
+TC004,Andhra Pradesh,Guntur,Tamil Nadu,Chennai,Chilli,450,1,highway
+TC005,Rajasthan,Jaipur,Delhi,Azadpur,Mustard,280,1,highway
+TC006,Maharashtra,Nashik,Maharashtra,Mumbai,Onion,180,0.5,highway
+TC007,Karnataka,Hubli,Maharashtra,Mumbai,Groundnut,560,1,highway
+TC008,Telangana,Nizamabad,Maharashtra,Mumbai,Turmeric,680,2,highway
+TC009,Gujarat,Rajkot,Maharashtra,Mumbai,Groundnut,660,1,highway
+TC010,Bihar,Patna,West Bengal,Kolkata,Rice,580,1,highway
+TC011,Punjab,Ludhiana,Delhi,Azadpur,Wheat,320,1,highway
+TC012,Maharashtra,Pune,Karnataka,Bengaluru,Sugarcane,840,2,highway
+TC013,Tamil Nadu,Madurai,Kerala,Kochi,Rice,340,1,highway
+TC014,Gujarat,Junagadh,Rajasthan,Jodhpur,Groundnut,480,1,highway
+TC015,Madhya Pradesh,Ujjain,Gujarat,Ahmedabad,Soybean,420,1,highway

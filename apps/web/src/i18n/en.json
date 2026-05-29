@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "markets": "Markets",
+    "dispatch": "Dispatch",
+    "opportunities": "Opportunities"
+  },
+  "search": {
+    "placeholder": "Search commodity (e.g. Cotton, Kapas, कपास)",
+    "resolving": "Resolving...",
+    "didYouMean": "Did you mean"
+  },
+  "alerts": {
+    "demandSpike": "Demand Spike",
+    "priceAnomaly": "Price Anomaly"
+  }
+}
