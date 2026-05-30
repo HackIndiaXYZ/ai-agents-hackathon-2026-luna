@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useStore } from '../store';
 import { getOpportunities, postOpportunity } from '../lib/api';
+import { demoOpportunities } from '../data/demo';
+
+// UI components
+import PageHeader from '../components/ui/PageHeader';
+import Card from '../components/ui/Card';
+import StatCard from '../components/ui/StatCard';
+import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
+
+import { AnimatePresence, motion } from 'motion/react';
 import {
   PlusCircle,
   Truck,
@@ -12,61 +22,49 @@ import {
   RefreshCw,
   Clock,
   ArrowRightLeft,
+  X,
+  Calendar,
+  Filter
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const Opportunities = () => {
   const { isLoading, setIsLoading } = useStore();
 
-  const [oppsList, setOppsList] = useState([]);
-  
-  // Form fields
-  const [commodity, setCommodity] = useState('');
-  const [origin, setOrigin] = useState('Nagpur');
-  const [destination, setDestination] = useState('Mumbai');
-  const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState('tonnes');
-  const [isReturnLoad, setIsReturnLoad] = useState(false);
-  const [contactInfo, setContactInfo] = useState('');
+  const [opps, setOpps] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
+  // Filters
+  const [filterType, setFilterType] = useState('All'); // All | Forward | Return
+  const [filterCommodity, setFilterCommodity] = useState('All');
+
+  // Form Fields
+  const [formCommodity, setFormCommodity] = useState('Cotton');
+  const [formOrigin, setFormOrigin] = useState('Nagpur');
+  const [formDestination, setFormDestination] = useState('Mumbai');
+  const [formQuantity, setFormQuantity] = useState('');
+  const [formUnit, setFormUnit] = useState('quintals');
+  const [formAvailableFrom, setFormAvailableFrom] = useState('');
+  const [formIsReturnLoad, setFormIsReturnLoad] = useState(false);
+  const [formContactInfo, setFormContactInfo] = useState('');
+  const [submittingPost, setSubmittingPost] = useState(false);
 
   useEffect(() => {
-    fetchOpportunities();
+    fetchOpps();
   }, []);
 
-  const fetchOpportunities = async () => {
+  const fetchOpps = async () => {
     try {
       setIsLoading(true);
-      const list = await getOpportunities();
-      if (list) {
-        setOppsList(list);
+      const res = await getOpportunities();
+      if (res && res.length > 0) {
+        setOpps(res);
+      } else {
+        setOpps(demoOpportunities);
       }
-    } catch (e) {
-      console.error('Failed to load opportunities:', e);
-      // Fallback mocks
-      setOppsList([
-        {
-          id: '1',
-          commodity_name: 'Cotton',
-          origin: 'Nagpur',
-          destination: 'Ahmedabad',
-          quantity: 12,
-          unit: 'tonnes',
-          is_return_load: false,
-          contact_info: 'Rajesh Traders (+91 98230 45678)',
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          commodity_name: 'Soybean',
-          origin: 'Indore',
-          destination: 'Mumbai',
-          quantity: 25,
-          unit: 'tonnes',
-          is_return_load: true,
-          contact_info: 'Karan Transport (+91 88776 55443)',
-          created_at: new Date().toISOString(),
-        },
-      ]);
+    } catch (err) {
+      console.warn('Failed opportunities fetch, loading demo data');
+      setOpps(demoOpportunities);
     } finally {
       setIsLoading(false);
     }
@@ -74,269 +72,364 @@ export const Opportunities = () => {
 
   const handlePostOpportunity = async (e) => {
     e.preventDefault();
-    if (!commodity.trim() || !origin.trim() || !destination.trim() || !quantity || !contactInfo.trim()) {
+    if (!formCommodity || !formOrigin.trim() || !formDestination.trim() || !formQuantity || !formContactInfo.trim()) {
       toast.error('Please fill out all required fields');
       return;
     }
 
+    setSubmittingPost(true);
     try {
-      setIsLoading(true);
-      const res = await postOpportunity({
-        commodity: commodity.trim(),
-        origin: origin.trim(),
-        destination: destination.trim(),
-        quantity: parseFloat(quantity),
-        unit,
-        is_return_load: isReturnLoad,
-        contact_info: contactInfo.trim(),
-      });
+      const payload = {
+        commodity: formCommodity,
+        origin: formOrigin.trim(),
+        destination: formDestination.trim(),
+        quantity: parseFloat(formQuantity),
+        unit: formUnit,
+        is_return_load: formIsReturnLoad,
+        contact_info: formContactInfo.trim()
+      };
+
+      const res = await postOpportunity(payload);
       if (res && res.status === 'success') {
-        toast.success('Opportunity posted to marketplace!');
-        // Reset form
-        setCommodity('');
-        setQuantity('');
-        setContactInfo('');
-        setIsReturnLoad(false);
-        // Refresh list
-        fetchOpportunities();
+        toast.success('Opportunity posted successfully!');
+        setShowModal(false);
+        // Reset form fields
+        setFormQuantity('');
+        setFormContactInfo('');
+        setFormIsReturnLoad(false);
+        fetchOpps();
+      } else {
+        toast.error('Failed to post opportunity');
       }
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to post opportunity to server.');
+    } catch (e) {
+      // Fallback post logic for demo
+      const newOpp = {
+        id: `opp_${Date.now()}`,
+        commodity_name: formCommodity,
+        origin: formOrigin,
+        destination: formDestination,
+        quantity: parseFloat(formQuantity),
+        unit: formUnit,
+        is_return_load: formIsReturnLoad,
+        contact_info: formContactInfo,
+        created_at: new Date().toISOString(),
+        available_from: formAvailableFrom || new Date().toISOString().substring(0, 10)
+      };
+      setOpps(prev => [newOpp, ...prev]);
+      toast.success('Opportunity posted (Demo mode)');
+      setShowModal(false);
+      setFormQuantity('');
+      setFormContactInfo('');
+      setFormIsReturnLoad(false);
     } finally {
-      setIsLoading(false);
+      setSubmittingPost(false);
     }
   };
 
-  const handleMatch = (contact) => {
+  const handleMatchInterest = (contact) => {
     toast.success(`Matched! Contact: ${contact}`, {
       duration: 6000,
-      icon: '🤝',
+      icon: '🤝'
     });
   };
 
+  // Filter logic
+  const filteredOpps = opps.filter(opp => {
+    const matchesType = filterType === 'All' 
+      ? true 
+      : filterType === 'Return' 
+      ? opp.is_return_load 
+      : !opp.is_return_load;
+
+    const matchesCommodity = filterCommodity === 'All'
+      ? true
+      : opp.commodity_name?.toLowerCase() === filterCommodity.toLowerCase();
+
+    return matchesType && matchesCommodity;
+  });
+
+  const openLoadsCount = opps.filter(o => !o.is_return_load).length;
+  const returnLoadsCount = opps.filter(o => o.is_return_load).length;
+
+  const uniqueCommodities = [...new Set(opps.map(o => o.commodity_name))].sort();
+
   return (
-    <div className="space-y-8 animate-fade-in text-slate-100">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300 font-display">
-            Trucking & Return Load Opportunities
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Browse load availability postings, register cargo routes, and coordinate empty backhauls.
-          </p>
-        </div>
-        <button
-          onClick={fetchOpportunities}
-          disabled={isLoading}
-          className="p-2.5 bg-slate-800 hover:bg-slate-700 hover:text-white rounded-lg border border-slate-700/60 transition-all flex items-center gap-1.5 text-xs font-semibold select-none self-start md:self-auto"
-        >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh Board
-        </button>
+    <div className="space-y-8 animate-fade-in text-slate-700">
+      
+      {/* PageHeader */}
+      <PageHeader 
+        title="Trade Opportunities" 
+        subtitle="Find return loads and forward shipment matches."
+        actions={
+          <Button variant="secondary" size="sm" onClick={fetchOpps} disabled={isLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh Board
+          </Button>
+        }
+      />
+
+      {/* TOP ROW — TWO STAT CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <StatCard 
+          label="Open Opportunities (Forward Loads)" 
+          value={openLoadsCount} 
+          delta={`${openLoadsCount} active listings`}
+          icon={<Truck className="w-5 h-5" />} 
+          color="green" 
+        />
+        <StatCard 
+          label="Return Loads Available (Empty Backhauls)" 
+          value={returnLoadsCount} 
+          delta={`${returnLoadsCount} trucks waiting`}
+          icon={<ArrowRightLeft className="w-5 h-5" />} 
+          color="amber" 
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Form: Post Opportunity Form */}
-        <div className="lg:col-span-1 glass-card p-6 border border-slate-700/40 space-y-4 self-start">
-          <div className="flex items-center gap-2.5 pb-3 border-b border-slate-700/40">
-            <PlusCircle className="w-5 h-5 text-emerald-400" />
-            <h3 className="text-base font-bold text-white">Post Cargo / Empty Return</h3>
-          </div>
-
-          <form onSubmit={handlePostOpportunity} className="space-y-4 text-xs">
-            
-            {/* Commodity Name */}
-            <div className="space-y-1.5">
-              <label className="text-slate-400 font-bold uppercase tracking-wider block">
-                Commodity Name *
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Cotton, Soybean, Batata"
-                className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700/60 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-                value={commodity}
-                onChange={(e) => setCommodity(e.target.value)}
-              />
-            </div>
-
-            {/* Origin & Destination Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-slate-400 font-bold uppercase tracking-wider block">
-                  Origin *
-                </label>
-                <input
-                  type="text"
-                  placeholder="Origin City"
-                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700/60 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-                  value={origin}
-                  onChange={(e) => setOrigin(e.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-slate-400 font-bold uppercase tracking-wider block">
-                  Destination *
-                </label>
-                <input
-                  type="text"
-                  placeholder="Dest City"
-                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700/60 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Quantity & Unit */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="col-span-2 space-y-1.5">
-                <label className="text-slate-400 font-bold uppercase tracking-wider block">
-                  Quantity *
-                </label>
-                <input
-                  type="number"
-                  placeholder="Volume"
-                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700/60 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                />
-              </div>
-              <div className="col-span-1 space-y-1.5">
-                <label className="text-slate-400 font-bold uppercase tracking-wider block">
-                  Unit
-                </label>
-                <select
-                  className="w-full px-2 py-2.5 bg-slate-900 border border-slate-700/60 rounded-xl text-white focus:outline-none"
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                >
-                  <option value="tonnes">Tonnes</option>
-                  <option value="quintals">Quintals</option>
-                  <option value="trucks">Trucks</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Return load checkbox */}
-            <div className="flex items-center gap-2 py-1">
-              <input
-                type="checkbox"
-                id="returnLoad"
-                className="w-4 h-4 accent-emerald-500 bg-slate-900 border-slate-700/60 rounded focus:ring-0 focus:outline-none cursor-pointer"
-                checked={isReturnLoad}
-                onChange={(e) => setIsReturnLoad(e.target.checked)}
-              />
-              <label htmlFor="returnLoad" className="text-slate-300 font-semibold cursor-pointer select-none">
-                This is a Return Load (Empty backhaul)
-              </label>
-            </div>
-
-            {/* Contact details */}
-            <div className="space-y-1.5">
-              <label className="text-slate-400 font-bold uppercase tracking-wider block">
-                Contact Details *
-              </label>
-              <textarea
-                rows="2"
-                placeholder="e.g. Ramesh Singh (+91 94432 10101)"
-                className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700/60 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50 resize-none"
-                value={contactInfo}
-                onChange={(e) => setContactInfo(e.target.value)}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-[0.98]"
-            >
-              Post Opportunity
-            </button>
-
-          </form>
-        </div>
-
-        {/* Right Columns: Open Opportunities Board */}
-        <div className="lg:col-span-2 space-y-4">
+      {/* FILTER ROW */}
+      <Card className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
           <div className="flex items-center gap-2">
-            <Truck className="w-5 h-5 text-emerald-400" />
-            <h3 className="text-lg font-bold text-white">Active Cargo Listings</h3>
+            <Filter className="w-4 h-4 text-slate-400" />
+            <span className="text-slate-500">Filter Board:</span>
           </div>
 
-          <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-            {oppsList && oppsList.length > 0 ? (
-              oppsList.map((opp) => (
-                <div
-                  key={opp.id}
-                  className={`p-5 bg-slate-800/40 border rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-slate-500/50 transition-all ${
-                    opp.is_return_load 
-                      ? 'border-blue-500/25 bg-blue-500/5' 
-                      : 'border-slate-700/30'
-                  }`}
-                >
-                  <div className="space-y-2 flex-grow">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">
-                        📦 {opp.commodity_name}
-                      </span>
-                      {opp.is_return_load ? (
-                        <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-blue-500/10 border border-blue-500/20 text-blue-400 uppercase tracking-wider flex items-center gap-1">
-                          <ArrowRightLeft className="w-3 h-3" /> Return Load
-                        </span>
-                      ) : (
-                        <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                          Standard Cargo
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm font-bold text-white">
-                      <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>{opp.origin}</span>
-                      <ChevronRight className="w-4 h-4 text-slate-500 shrink-0" />
-                      <span>{opp.destination}</span>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-xs text-slate-400">
-                      <span className="flex items-center gap-1">
-                        <Scale className="w-3.5 h-3.5 text-slate-500" />
-                        Qty: <strong className="text-slate-300">{opp.quantity} {opp.unit}</strong>
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-500" />
-                        Listed: {new Date(opp.created_at).toLocaleDateString('en-IN')}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Match Button */}
-                  <div className="shrink-0 flex flex-col items-end gap-1 text-xs">
-                    <button
-                      onClick={() => handleMatch(opp.contact_info)}
-                      className="px-4 py-2.5 bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl transition-all flex items-center gap-1.5 group select-none"
-                    >
-                      🤝 Match Load
-                    </button>
-                    <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-1">
-                      <Phone className="w-3 h-3 text-slate-600" /> {opp.contact_info.split('(')[0].trim()}
-                    </span>
-                  </div>
-
-                </div>
-              ))
-            ) : (
-              <div className="p-12 text-center border border-slate-700/30 rounded-2xl bg-slate-800/20">
-                <p className="text-slate-400 font-semibold">No load opportunities available</p>
-                <p className="text-xs text-slate-500 mt-1">Be the first to list cargo and match dispatch trucks!</p>
-              </div>
-            )}
+          {/* Load Type */}
+          <div className="flex bg-slate-100 rounded-lg p-0.5 border" style={{ borderColor: 'var(--border)' }}>
+            {['All', 'Forward', 'Return'].map(type => (
+              <button
+                key={type}
+                onClick={() => setFilterType(type)}
+                className={`px-3 py-1 rounded-md transition-all ${
+                  filterType === type 
+                    ? 'bg-white shadow-sm text-slate-900 font-bold' 
+                    : 'text-slate-500 hover:text-slate-950'
+                }`}
+              >
+                {type === 'All' ? 'All Types' : type === 'Forward' ? 'Forward' : 'Return'}
+              </button>
+            ))}
           </div>
+
+          {/* Commodity Dropdown */}
+          <select
+            className="px-3 py-1.5 bg-white border rounded-lg text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            style={{ borderColor: 'var(--border)' }}
+            value={filterCommodity}
+            onChange={(e) => setFilterCommodity(e.target.value)}
+          >
+            <option value="All">All Commodities</option>
+            {uniqueCommodities.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
         </div>
 
+        {/* Post Trigger */}
+        <Button variant="primary" size="sm" onClick={() => setShowModal(true)}>
+          <PlusCircle className="w-4 h-4 mr-2" />
+          Post New Opportunity
+        </Button>
+      </Card>
+
+      {/* OPPORTUNITY CARDS GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {filteredOpps.length > 0 ? (
+          filteredOpps.map((opp) => (
+            <Card hover={true} key={opp.id} className="p-6 space-y-4">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Commodity Load</span>
+                  <h4 className="text-lg font-extrabold text-slate-950 font-display">
+                    {opp.commodity_name}
+                  </h4>
+                </div>
+                <Badge variant={opp.is_return_load ? "warning" : "success"}>
+                  {opp.is_return_load ? "Return Load" : "Forward Load"}
+                </Badge>
+              </div>
+
+              {/* Route */}
+              <div className="flex items-center gap-2.5 text-sm font-bold text-slate-800">
+                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                <span>{opp.origin}</span>
+                <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                <span>{opp.destination}</span>
+              </div>
+
+              {/* Specs */}
+              <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-500 bg-slate-50 p-3 rounded-lg border" style={{ borderColor: 'var(--border)' }}>
+                <div className="space-y-0.5">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Quantity</span>
+                  <span className="text-slate-800">{opp.quantity} {opp.unit || 'quintals'}</span>
+                </div>
+                <div className="space-y-0.5">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Available From</span>
+                  <span className="text-slate-800">{opp.available_from}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t text-xs font-semibold" style={{ borderColor: 'var(--border)' }}>
+                <span className="text-slate-400">
+                  Contact: <span className="text-slate-700 font-bold select-all">+{opp.contact_info.replace(/\+\d+\s/, '').substring(0, 5)}•••••</span>
+                </span>
+                
+                <Button variant="secondary" size="sm" onClick={() => handleMatchInterest(opp.contact_info)}>
+                  Express Interest
+                </Button>
+              </div>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-2 py-16 text-center text-slate-400 text-xs">
+            No active cargo opportunities found. Try resetting filters.
+          </div>
+        )}
       </div>
+
+      {/* POST OPPORTUNITY MODAL */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 30 }}
+              className="bg-white border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col justify-between"
+              style={{ borderColor: 'var(--border)' }}
+            >
+              {/* Modal Header */}
+              <div className="p-5 border-b flex justify-between items-center" style={{ borderColor: 'var(--border)' }}>
+                <h3 className="text-base font-extrabold text-slate-900 font-display">
+                  Post Trade Opportunity
+                </h3>
+                <button onClick={() => setShowModal(false)} className="p-1 rounded-lg border hover:bg-slate-50 text-slate-400 hover:text-slate-700">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handlePostOpportunity} className="p-5 space-y-4 text-xs">
+                
+                {/* Commodity */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Commodity Type *</label>
+                  <select
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500"
+                    style={{ borderColor: 'var(--border)' }}
+                    value={formCommodity}
+                    onChange={(e) => setFormCommodity(e.target.value)}
+                  >
+                    {['Cotton', 'Wheat', 'Soybean', 'Mustard', 'Potato', 'Onion'].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Origin / Destination Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Origin *</label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500"
+                      style={{ borderColor: 'var(--border)' }}
+                      value={formOrigin}
+                      onChange={(e) => setFormOrigin(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Destination *</label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500"
+                      style={{ borderColor: 'var(--border)' }}
+                      value={formDestination}
+                      onChange={(e) => setFormDestination(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Volume / Available From */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2 space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Quantity *</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500"
+                        style={{ borderColor: 'var(--border)' }}
+                        value={formQuantity}
+                        onChange={(e) => setFormQuantity(e.target.value)}
+                        required
+                      />
+                      <select
+                        className="px-2 py-2 border rounded-lg focus:outline-none"
+                        style={{ borderColor: 'var(--border)' }}
+                        value={formUnit}
+                        onChange={(e) => setFormUnit(e.target.value)}
+                      >
+                        <option value="quintals">Qtl</option>
+                        <option value="tonnes">Tonnes</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Date *</label>
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500"
+                      style={{ borderColor: 'var(--border)' }}
+                      value={formAvailableFrom}
+                      onChange={(e) => setFormAvailableFrom(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Return load toggle */}
+                <div className="flex items-center gap-2 py-1 select-none">
+                  <input
+                    type="checkbox"
+                    id="modalReturnLoad"
+                    className="w-4 h-4 accent-emerald-600 bg-slate-50 border-slate-300 rounded focus:ring-0 focus:outline-none cursor-pointer"
+                    checked={formIsReturnLoad}
+                    onChange={(e) => setFormIsReturnLoad(e.target.checked)}
+                  />
+                  <label htmlFor="modalReturnLoad" className="font-semibold text-slate-600 cursor-pointer">
+                    This listing represents an Empty Return load backhaul
+                  </label>
+                </div>
+
+                {/* Contact info */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Contact Details *</label>
+                  <textarea
+                    rows="2"
+                    placeholder="e.g. Ramesh Patil (+91 98765 43210)"
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 resize-none"
+                    style={{ borderColor: 'var(--border)' }}
+                    value={formContactInfo}
+                    onChange={(e) => setFormContactInfo(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-3">
+                  <Button variant="ghost" size="sm" onClick={() => setShowModal(false)}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" size="sm" type="submit" loading={submittingPost}>
+                    Post Opportunity
+                  </Button>
+                </div>
+
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 };

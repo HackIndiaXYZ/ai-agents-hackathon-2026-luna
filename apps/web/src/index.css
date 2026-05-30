@@ -3,49 +3,61 @@
 @tailwind utilities;
 
 /* ============================================
-   TradeNexus — Global Styles
+   TradeNexus — Global Styles (Light Mode First)
    ============================================ */
 
-@layer base {
-  * {
-    @apply border-surface-800;
-  }
+:root {
+  --brand-green: #16a34a;
+  --brand-green-light: #dcfce7;
+  --brand-green-dark: #14532d;
+  --amber: #d97706;
+  --amber-light: #fef3c7;
+  --rose: #e11d48;
+  --rose-light: #fff1f2;
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --surface: #ffffff;
+  --surface-alt: #f8fafc;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+}
 
+@layer base {
   body {
-    @apply bg-surface-950 text-surface-50 font-sans;
+    background-color: var(--surface-alt);
+    color: var(--text-secondary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+  
+  hr {
+    border-color: var(--border);
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-surface-900/60 backdrop-blur-xl border border-surface-700/50 rounded-2xl shadow-xl;
+  /* Scrollbar customization */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
   }
-
-  .btn-primary {
-    @apply px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium rounded-xl
-           transition-all duration-200 ease-out shadow-lg shadow-brand-600/20
-           hover:shadow-brand-500/30 active:scale-[0.98];
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
   }
-
-  .btn-ghost {
-    @apply px-4 py-2 text-surface-200 hover:text-white hover:bg-surface-800/60
-           rounded-xl transition-all duration-200;
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 4px;
   }
-
-  .input-field {
-    @apply w-full px-4 py-3 bg-surface-800/50 border border-surface-700/50
-           rounded-xl text-surface-50 placeholder-surface-200/40
-           focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50
-           transition-all duration-200;
-  }
-}
-
-@layer utilities {
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-400 to-emerald-300;
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
   }
 }

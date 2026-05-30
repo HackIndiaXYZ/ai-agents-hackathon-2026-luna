@@ -1,7 +1,18 @@
 import { create } from 'zustand';
 
 export const useStore = create((set) => ({
-  // Active states
+  // Authentication states
+  isAuthenticated: false,
+  setAuthenticated: (bool) => set({ isAuthenticated: bool }),
+
+  demoUser: { 
+    name: "Ramesh Patil", 
+    email: "ramesh@demo.com", 
+    region: "Vidarbha", 
+    language: "en" 
+  },
+
+  // Active configurations
   selectedCommodity: 'Cotton',
   setSelectedCommodity: (commodity) => set({ selectedCommodity: commodity }),
 
