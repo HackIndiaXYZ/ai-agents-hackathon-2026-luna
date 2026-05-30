@@ -8,6 +8,8 @@ delivering high-value trading advice to commodity traders.
 
 from typing import Optional
 from core.llm_provider import get_llm_provider
+from core.database import get_supabase_client
+from data_ingestion.datagov_client import DataGovClient
 from agents.adaptive_agent import CommodityIntelligenceAgent
 from agents.market_agent import MarketAgent
 from agents.dispatch_agent import DispatchAgent
@@ -20,7 +22,12 @@ class TradeAdvisorAgent:
     def __init__(self):
         self.llm = get_llm_provider()
         self.resolver = CommodityIntelligenceAgent()
-        self.market_agent = MarketAgent()
+        supabase = get_supabase_client()
+        self.market_agent = MarketAgent(
+            datagov_client=DataGovClient(),
+            llm_provider=self.llm,
+            supabase_client=supabase
+        )
         self.dispatch_agent = DispatchAgent()
         self.compliance_agent = ComplianceAgent()
 
