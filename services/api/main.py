@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import market, dispatch, opportunity, compliance, feedback
+from routers import market, dispatch, opportunity, compliance, feedback, advisor
 
 
 @asynccontextmanager
@@ -47,6 +47,7 @@ app.include_router(dispatch.router, prefix="/api/v1/dispatch", tags=["Dispatch"]
 app.include_router(opportunity.router, prefix="/api/v1/opportunity", tags=["Opportunity"])
 app.include_router(compliance.router, prefix="/api/v1/compliance", tags=["Compliance"])
 app.include_router(feedback.router, prefix="/api/v1/feedback", tags=["Feedback"])
+app.include_router(advisor.router, prefix="/api/v1/advisor", tags=["Advisor"])
 
 
 # --- Health Check ---

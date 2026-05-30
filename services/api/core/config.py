@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     # --- Nvidia API ---
     NVIDIA_API_KEY: str = ""
     NVIDIA_MODEL: str = "qwen/qwen3.5-397b-a17b"
+    LLM_PROVIDER: str = "nvidia"
+
+    # --- Security and Internal Keys ---
+    INTERNAL_KEY: str = ""
 
     # --- Data.gov.in API ---
     DATA_GOV_API_KEY: str = ""
@@ -29,8 +33,8 @@ class Settings(BaseSettings):
     # --- Adaption AI API ---
     ADAPTION_API_KEY: str = ""
 
-    # --- Google Maps Platform ---
-    GOOGLE_MAPS_API_KEY: str = ""
+    # --- Google Routes API ---
+    GOOGLE_ROUTES_API_KEY: str = ""
 
     # --- App Environment ---
     ENVIRONMENT: str = "development"
