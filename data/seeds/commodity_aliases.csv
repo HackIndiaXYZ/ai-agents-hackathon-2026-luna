@@ -1,42 +1,638 @@
-canonical_name,alias,language,region,confidence
-Cotton,Kapas,hi,Maharashtra,1.0
-Cotton,कपास,hi,Madhya Pradesh,1.0
-Cotton,કપાસ,gu,Gujarat,1.0
-Cotton,పత్తి,te,Telangana,1.0
-Cotton,பருத்தி,ta,Tamil Nadu,1.0
-Cotton,कापूस,mr,Maharashtra,1.0
-Wheat,गेहूँ,hi,Uttar Pradesh,1.0
-Wheat,ઘઉં,gu,Gujarat,1.0
-Wheat,గోధుమ,te,Andhra Pradesh,1.0
-Wheat,கோதுமை,ta,Tamil Nadu,1.0
-Rice,चावल,hi,Bihar,1.0
-Rice,तांदूळ,mr,Maharashtra,1.0
-Rice,ચોખા,gu,Gujarat,1.0
-Rice,బియ్యం,te,Telangana,1.0
-Rice,அரிசி,ta,Tamil Nadu,1.0
-Soybean,सोयाबीन,hi,Madhya Pradesh,1.0
-Soybean,सोयाबिन,mr,Maharashtra,1.0
-Soybean,સોયાબીન,gu,Gujarat,1.0
-Turmeric,हल्दी,hi,Maharashtra,1.0
-Turmeric,हळद,mr,Maharashtra,1.0
-Turmeric,పసుపు,te,Telangana,1.0
-Turmeric,மஞ்சள்,ta,Tamil Nadu,1.0
-Chilli,मिर्ची,hi,Andhra Pradesh,1.0
-Chilli,मिरची,mr,Maharashtra,1.0
-Chilli,మిరపకాయ,te,Andhra Pradesh,1.0
-Chilli,மிளகாய்,ta,Tamil Nadu,1.0
-Groundnut,मूंगफली,hi,Gujarat,1.0
-Groundnut,భూమి చెనగ,te,Andhra Pradesh,1.0
-Groundnut,நிலக்கடலை,ta,Tamil Nadu,1.0
-Groundnut,શીંગદાણા,gu,Gujarat,1.0
-Sugarcane,गन्ना,hi,Uttar Pradesh,1.0
-Sugarcane,ऊस,mr,Maharashtra,1.0
-Sugarcane,શેરડી,gu,Gujarat,1.0
-Onion,प्याज़,hi,Maharashtra,1.0
-Onion,कांदा,mr,Maharashtra,1.0
-Onion,ఉల్లిపాయ,te,Karnataka,1.0
-Onion,வெங்காயம்,ta,Tamil Nadu,1.0
-Mustard,सरसों,hi,Rajasthan,1.0
-Mustard,rai,hi,Rajasthan,0.9
-Mustard,రాయి,te,Telangana,1.0
-Mustard,கடுகு,ta,Tamil Nadu,1.0
+canonical_name,alias_text,language,region,confidence_score,source
+Cotton,Cotton,en,,1.0,seed
+Cotton,कपास,hi,Madhya Pradesh,1.0,seed
+Cotton,Kapas,hi,Maharashtra,1.0,seed
+Cotton,Kapaas,hi,Rajasthan,0.95,seed
+Cotton,कपासी,hi,Gujarat,0.9,seed
+Cotton,Kapasi,hi,Gujarat,0.9,seed
+Cotton,कापूस,mr,Maharashtra,1.0,seed
+Cotton,Kaapus,mr,Maharashtra,1.0,seed
+Cotton,કપાસ,gu,Gujarat,1.0,seed
+Cotton,Kapas,gu,Gujarat,0.95,seed
+Cotton,పత్తి,te,Telangana,1.0,seed
+Cotton,Patti,te,Andhra Pradesh,0.95,seed
+Cotton,பருத்தி,ta,Tamil Nadu,1.0,seed
+Cotton,Paruthi,ta,Tamil Nadu,0.95,seed
+Cotton,ਕਪਾਹ,pa,Punjab,1.0,seed
+Cotton,Kapaah,pa,Punjab,0.95,seed
+Cotton,তুলা,bn,West Bengal,1.0,seed
+Cotton,Tula,bn,West Bengal,0.95,seed
+Cotton,ಹತ್ತಿ,kn,Karnataka,1.0,seed
+Cotton,Hatti,kn,Karnataka,0.95,seed
+Cotton,Rui,hi,Uttar Pradesh,0.85,seed
+Cotton,रुई,hi,Uttar Pradesh,0.9,seed
+Cotton,Narma,hi,Rajasthan,0.85,seed
+Cotton,नरमा,hi,Rajasthan,0.9,seed
+Cotton,Baan,hi,Haryana,0.8,seed
+Cotton,Desi Kapas,en,Maharashtra,0.9,seed
+Cotton,White Gold,en,,0.7,seed
+Cotton,Ruiya,hi,Bihar,0.8,seed
+Cotton,Kappas,en,Karnataka,0.85,seed
+Pigeon Pea,Pigeon Pea,en,,1.0,seed
+Pigeon Pea,अरहर,hi,Uttar Pradesh,1.0,seed
+Pigeon Pea,Arhar,hi,Uttar Pradesh,1.0,seed
+Pigeon Pea,तूर,hi,Maharashtra,1.0,seed
+Pigeon Pea,Tur,hi,Maharashtra,1.0,seed
+Pigeon Pea,Toor,hi,Madhya Pradesh,0.95,seed
+Pigeon Pea,Toor Dal,en,,0.9,seed
+Pigeon Pea,तूर दाल,hi,Maharashtra,0.95,seed
+Pigeon Pea,Tur Dal,hi,Maharashtra,0.95,seed
+Pigeon Pea,Arhar Dal,hi,Uttar Pradesh,0.95,seed
+Pigeon Pea,तुवर,mr,Maharashtra,1.0,seed
+Pigeon Pea,Tuvar,mr,Maharashtra,1.0,seed
+Pigeon Pea,તુવેર,gu,Gujarat,1.0,seed
+Pigeon Pea,Tuver,gu,Gujarat,1.0,seed
+Pigeon Pea,కందిపప్పు,te,Telangana,1.0,seed
+Pigeon Pea,Kandipappu,te,Telangana,0.95,seed
+Pigeon Pea,துவரம் பருப்பு,ta,Tamil Nadu,1.0,seed
+Pigeon Pea,Thuvaram Paruppu,ta,Tamil Nadu,0.95,seed
+Pigeon Pea,ਅਰਹਰ,pa,Punjab,1.0,seed
+Pigeon Pea,অড়হর,bn,West Bengal,1.0,seed
+Pigeon Pea,Orohor,bn,West Bengal,0.9,seed
+Pigeon Pea,ತೊಗರಿ,kn,Karnataka,1.0,seed
+Pigeon Pea,Togari,kn,Karnataka,0.95,seed
+Pigeon Pea,Red Gram,en,,0.9,seed
+Pigeon Pea,Rahar,hi,Bihar,0.85,seed
+Pigeon Pea,Rahar Dal,hi,Bihar,0.85,seed
+Pigeon Pea,Daal,hi,Rajasthan,0.7,seed
+Pigeon Pea,Thuvarai,ta,Tamil Nadu,0.85,seed
+Chickpea,Chickpea,en,,1.0,seed
+Chickpea,चना,hi,Rajasthan,1.0,seed
+Chickpea,Chana,hi,Rajasthan,1.0,seed
+Chickpea,Channa,hi,Madhya Pradesh,0.95,seed
+Chickpea,चना दाल,hi,Madhya Pradesh,0.95,seed
+Chickpea,Chana Dal,hi,Madhya Pradesh,0.95,seed
+Chickpea,हरभरा,mr,Maharashtra,1.0,seed
+Chickpea,Harbhara,mr,Maharashtra,1.0,seed
+Chickpea,ચણા,gu,Gujarat,1.0,seed
+Chickpea,Chana,gu,Gujarat,0.95,seed
+Chickpea,శనగలు,te,Andhra Pradesh,1.0,seed
+Chickpea,Sanagalu,te,Andhra Pradesh,0.95,seed
+Chickpea,கொண்டைக்கடலை,ta,Tamil Nadu,1.0,seed
+Chickpea,Kondaikadalai,ta,Tamil Nadu,0.95,seed
+Chickpea,ਛੋਲੇ,pa,Punjab,1.0,seed
+Chickpea,Chhole,pa,Punjab,0.95,seed
+Chickpea,ছোলা,bn,West Bengal,1.0,seed
+Chickpea,Chhola,bn,West Bengal,0.95,seed
+Chickpea,ಕಡಲೆ,kn,Karnataka,1.0,seed
+Chickpea,Kadale,kn,Karnataka,0.95,seed
+Chickpea,Bengal Gram,en,,0.9,seed
+Chickpea,Gram,en,,0.85,seed
+Chickpea,Boot,hi,Bihar,0.8,seed
+Chickpea,बूट,hi,Bihar,0.85,seed
+Chickpea,Kabuli Chana,en,,0.85,seed
+Chickpea,Desi Chana,en,,0.85,seed
+Chickpea,Garbanzo,en,,0.7,seed
+Soybean,Soybean,en,,1.0,seed
+Soybean,सोयाबीन,hi,Madhya Pradesh,1.0,seed
+Soybean,Soyabean,hi,Madhya Pradesh,1.0,seed
+Soybean,Soyabeen,hi,Maharashtra,0.95,seed
+Soybean,Soya,en,,0.9,seed
+Soybean,सोया,hi,Maharashtra,0.95,seed
+Soybean,सोयाबिन,mr,Maharashtra,1.0,seed
+Soybean,Soyabin,mr,Maharashtra,1.0,seed
+Soybean,સોયાબીન,gu,Gujarat,1.0,seed
+Soybean,Soyabeen,gu,Gujarat,0.95,seed
+Soybean,సోయా చిక్కుడు,te,Telangana,1.0,seed
+Soybean,Soya Chikkudu,te,Telangana,0.9,seed
+Soybean,சோயா பீன்,ta,Tamil Nadu,1.0,seed
+Soybean,Soya Bean,ta,Tamil Nadu,0.95,seed
+Soybean,ਸੋਇਆਬੀਨ,pa,Punjab,1.0,seed
+Soybean,সয়াবিন,bn,West Bengal,1.0,seed
+Soybean,Soyabin,bn,West Bengal,0.9,seed
+Soybean,ಸೋಯಾಬೀನ್,kn,Karnataka,1.0,seed
+Soybean,Soyabeen,kn,Karnataka,0.9,seed
+Soybean,Bhat,hi,Rajasthan,0.8,seed
+Soybean,भट,hi,Rajasthan,0.8,seed
+Soybean,Soybean Seed,en,,0.85,seed
+Groundnut,Groundnut,en,,1.0,seed
+Groundnut,मूंगफली,hi,Gujarat,1.0,seed
+Groundnut,Moongfali,hi,Gujarat,1.0,seed
+Groundnut,Moongphali,hi,Rajasthan,0.95,seed
+Groundnut,Mungfali,hi,Uttar Pradesh,0.9,seed
+Groundnut,शेंगदाणा,mr,Maharashtra,1.0,seed
+Groundnut,Shengdana,mr,Maharashtra,1.0,seed
+Groundnut,શીંગદાણા,gu,Gujarat,1.0,seed
+Groundnut,Singdana,gu,Gujarat,0.95,seed
+Groundnut,Sing,gu,Gujarat,0.9,seed
+Groundnut,వేరుశెనగ,te,Andhra Pradesh,1.0,seed
+Groundnut,Verusenaga,te,Andhra Pradesh,0.95,seed
+Groundnut,நிலக்கடலை,ta,Tamil Nadu,1.0,seed
+Groundnut,Nilakadalai,ta,Tamil Nadu,0.95,seed
+Groundnut,ਮੂੰਗਫਲੀ,pa,Punjab,1.0,seed
+Groundnut,চীনাবাদাম,bn,West Bengal,1.0,seed
+Groundnut,Chinabadam,bn,West Bengal,0.95,seed
+Groundnut,ಕಡಲೆಕಾಯಿ,kn,Karnataka,1.0,seed
+Groundnut,Kadalekayi,kn,Karnataka,0.95,seed
+Groundnut,Peanut,en,,0.95,seed
+Groundnut,భూమి చెనగ,te,Andhra Pradesh,0.9,seed
+Groundnut,Bhoomi Chenaga,te,Andhra Pradesh,0.85,seed
+Groundnut,Phalli,hi,Madhya Pradesh,0.8,seed
+Groundnut,फल्ली,hi,Madhya Pradesh,0.85,seed
+Groundnut,Vilayati Badam,hi,Bihar,0.75,seed
+Wheat,Wheat,en,,1.0,seed
+Wheat,गेहूँ,hi,Uttar Pradesh,1.0,seed
+Wheat,Gehun,hi,Uttar Pradesh,1.0,seed
+Wheat,Gehu,hi,Punjab,0.95,seed
+Wheat,Gehoon,hi,Haryana,0.95,seed
+Wheat,गव्हाचे,mr,Maharashtra,1.0,seed
+Wheat,Gavhache,mr,Maharashtra,0.95,seed
+Wheat,गहू,mr,Maharashtra,1.0,seed
+Wheat,Gahu,mr,Maharashtra,0.95,seed
+Wheat,ઘઉં,gu,Gujarat,1.0,seed
+Wheat,Ghau,gu,Gujarat,0.95,seed
+Wheat,గోధుమ,te,Andhra Pradesh,1.0,seed
+Wheat,Godhuma,te,Andhra Pradesh,0.95,seed
+Wheat,கோதுமை,ta,Tamil Nadu,1.0,seed
+Wheat,Gothumai,ta,Tamil Nadu,0.95,seed
+Wheat,ਕਣਕ,pa,Punjab,1.0,seed
+Wheat,Kanak,pa,Punjab,1.0,seed
+Wheat,গম,bn,West Bengal,1.0,seed
+Wheat,Gom,bn,West Bengal,0.95,seed
+Wheat,ಗೋಧಿ,kn,Karnataka,1.0,seed
+Wheat,Godhi,kn,Karnataka,0.95,seed
+Wheat,Atta,hi,Rajasthan,0.85,seed
+Wheat,आटा,hi,Rajasthan,0.85,seed
+Wheat,Maida,hi,Delhi,0.7,seed
+Wheat,Kanak Gehun,hi,Madhya Pradesh,0.85,seed
+Rice,Rice,en,,1.0,seed
+Rice,चावल,hi,Bihar,1.0,seed
+Rice,Chawal,hi,Bihar,1.0,seed
+Rice,Chaawal,hi,Uttar Pradesh,0.95,seed
+Rice,Chaval,hi,Madhya Pradesh,0.9,seed
+Rice,तांदूळ,mr,Maharashtra,1.0,seed
+Rice,Tandool,mr,Maharashtra,0.95,seed
+Rice,Tandul,mr,Maharashtra,0.95,seed
+Rice,ચોખા,gu,Gujarat,1.0,seed
+Rice,Chokha,gu,Gujarat,0.95,seed
+Rice,బియ్యం,te,Telangana,1.0,seed
+Rice,Biyyam,te,Telangana,0.95,seed
+Rice,அரிசி,ta,Tamil Nadu,1.0,seed
+Rice,Arisi,ta,Tamil Nadu,0.95,seed
+Rice,ਚੌਲ,pa,Punjab,1.0,seed
+Rice,Chaul,pa,Punjab,0.95,seed
+Rice,ভাত,bn,West Bengal,1.0,seed
+Rice,Bhaat,bn,West Bengal,0.95,seed
+Rice,Chaal,bn,West Bengal,0.9,seed
+Rice,ಅಕ್ಕಿ,kn,Karnataka,1.0,seed
+Rice,Akki,kn,Karnataka,0.95,seed
+Rice,Dhan,hi,Bihar,0.85,seed
+Rice,धान,hi,Bihar,0.9,seed
+Rice,Paddy,en,,0.9,seed
+Rice,Basmati,en,,0.8,seed
+Rice,Sona Masoori,en,,0.8,seed
+Rice,Ponni,ta,Tamil Nadu,0.8,seed
+Maize,Maize,en,,1.0,seed
+Maize,मक्का,hi,Bihar,1.0,seed
+Maize,Makka,hi,Bihar,1.0,seed
+Maize,Makkai,hi,Uttar Pradesh,0.95,seed
+Maize,Bhutta,hi,Madhya Pradesh,0.9,seed
+Maize,भुट्टा,hi,Madhya Pradesh,0.9,seed
+Maize,मका,mr,Maharashtra,1.0,seed
+Maize,Maka,mr,Maharashtra,0.95,seed
+Maize,મકાઈ,gu,Gujarat,1.0,seed
+Maize,Makai,gu,Gujarat,0.95,seed
+Maize,మొక్కజొన్న,te,Andhra Pradesh,1.0,seed
+Maize,Mokkajonna,te,Andhra Pradesh,0.95,seed
+Maize,மக்காச்சோளம்,ta,Tamil Nadu,1.0,seed
+Maize,Makkachoolam,ta,Tamil Nadu,0.95,seed
+Maize,ਮੱਕੀ,pa,Punjab,1.0,seed
+Maize,Makki,pa,Punjab,0.95,seed
+Maize,ভুট্টা,bn,West Bengal,1.0,seed
+Maize,Bhutta,bn,West Bengal,0.9,seed
+Maize,ಮೆಕ್ಕೆ ಜೋಳ,kn,Karnataka,1.0,seed
+Maize,Mekke Jola,kn,Karnataka,0.95,seed
+Maize,Corn,en,,0.95,seed
+Maize,Cholam,ta,Tamil Nadu,0.8,seed
+Maize,Junari,mr,Maharashtra,0.8,seed
+Sorghum,Sorghum,en,,1.0,seed
+Sorghum,ज्वार,hi,Maharashtra,1.0,seed
+Sorghum,Jowar,hi,Maharashtra,1.0,seed
+Sorghum,Jwar,hi,Rajasthan,0.95,seed
+Sorghum,Jwari,hi,Karnataka,0.9,seed
+Sorghum,ज्वारी,mr,Maharashtra,1.0,seed
+Sorghum,Jwari,mr,Maharashtra,1.0,seed
+Sorghum,જુવાર,gu,Gujarat,1.0,seed
+Sorghum,Juvar,gu,Gujarat,0.95,seed
+Sorghum,జొన్నలు,te,Telangana,1.0,seed
+Sorghum,Jonnalu,te,Telangana,0.95,seed
+Sorghum,சோளம்,ta,Tamil Nadu,1.0,seed
+Sorghum,Cholam,ta,Tamil Nadu,0.95,seed
+Sorghum,ਜਵਾਰ,pa,Punjab,1.0,seed
+Sorghum,জোয়ার,bn,West Bengal,1.0,seed
+Sorghum,Joyar,bn,West Bengal,0.9,seed
+Sorghum,ಜೋಳ,kn,Karnataka,1.0,seed
+Sorghum,Jola,kn,Karnataka,0.95,seed
+Sorghum,Milo,en,,0.7,seed
+Sorghum,Great Millet,en,,0.75,seed
+Pearl Millet,Pearl Millet,en,,1.0,seed
+Pearl Millet,बाजरा,hi,Rajasthan,1.0,seed
+Pearl Millet,Bajra,hi,Rajasthan,1.0,seed
+Pearl Millet,Baajra,hi,Gujarat,0.95,seed
+Pearl Millet,Bajri,hi,Gujarat,0.95,seed
+Pearl Millet,बाजरी,mr,Maharashtra,1.0,seed
+Pearl Millet,Bajri,mr,Maharashtra,1.0,seed
+Pearl Millet,બાજરી,gu,Gujarat,1.0,seed
+Pearl Millet,Bajri,gu,Gujarat,0.95,seed
+Pearl Millet,సజ్జలు,te,Telangana,1.0,seed
+Pearl Millet,Sajjalu,te,Telangana,0.95,seed
+Pearl Millet,கம்பு,ta,Tamil Nadu,1.0,seed
+Pearl Millet,Kambu,ta,Tamil Nadu,0.95,seed
+Pearl Millet,ਬਾਜਰਾ,pa,Punjab,1.0,seed
+Pearl Millet,বাজরা,bn,West Bengal,1.0,seed
+Pearl Millet,Bajra,bn,West Bengal,0.9,seed
+Pearl Millet,ಸಜ್ಜೆ,kn,Karnataka,1.0,seed
+Pearl Millet,Sajje,kn,Karnataka,0.95,seed
+Pearl Millet,Gantilu,te,Andhra Pradesh,0.8,seed
+Mustard,Mustard,en,,1.0,seed
+Mustard,सरसों,hi,Rajasthan,1.0,seed
+Mustard,Sarson,hi,Rajasthan,1.0,seed
+Mustard,Sarso,hi,Uttar Pradesh,0.95,seed
+Mustard,Rai,hi,Rajasthan,0.9,seed
+Mustard,राई,hi,Rajasthan,0.9,seed
+Mustard,मोहरी,mr,Maharashtra,1.0,seed
+Mustard,Mohari,mr,Maharashtra,0.95,seed
+Mustard,રાઈ,gu,Gujarat,1.0,seed
+Mustard,Rai,gu,Gujarat,0.95,seed
+Mustard,ఆవాలు,te,Andhra Pradesh,1.0,seed
+Mustard,Aavalu,te,Andhra Pradesh,0.95,seed
+Mustard,கடுகு,ta,Tamil Nadu,1.0,seed
+Mustard,Kadugu,ta,Tamil Nadu,0.95,seed
+Mustard,ਸਰ੍ਹੋਂ,pa,Punjab,1.0,seed
+Mustard,Sarhon,pa,Punjab,0.95,seed
+Mustard,সর্ষে,bn,West Bengal,1.0,seed
+Mustard,Sorshe,bn,West Bengal,0.95,seed
+Mustard,ಸಾಸಿವೆ,kn,Karnataka,1.0,seed
+Mustard,Sasive,kn,Karnataka,0.95,seed
+Mustard,Toria,hi,Rajasthan,0.85,seed
+Mustard,तोरिया,hi,Rajasthan,0.85,seed
+Mustard,Mustard Seed,en,,0.95,seed
+Mustard,Yellow Mustard,en,,0.8,seed
+Sunflower,Sunflower,en,,1.0,seed
+Sunflower,सूरजमुखी,hi,Karnataka,1.0,seed
+Sunflower,Surajmukhi,hi,Karnataka,1.0,seed
+Sunflower,सूर्यफूल,mr,Maharashtra,1.0,seed
+Sunflower,Suryaphool,mr,Maharashtra,0.95,seed
+Sunflower,સૂર્યમુખી,gu,Gujarat,1.0,seed
+Sunflower,Suryamukhi,gu,Gujarat,0.95,seed
+Sunflower,ప్రొద్దుతిరుగుడు,te,Andhra Pradesh,1.0,seed
+Sunflower,Proddutirugudi,te,Andhra Pradesh,0.9,seed
+Sunflower,சூரியகாந்தி,ta,Tamil Nadu,1.0,seed
+Sunflower,Suriyakanthi,ta,Tamil Nadu,0.95,seed
+Sunflower,ਸੂਰਜਮੁਖੀ,pa,Punjab,1.0,seed
+Sunflower,সূর্যমুখী,bn,West Bengal,1.0,seed
+Sunflower,Surjomukhi,bn,West Bengal,0.9,seed
+Sunflower,ಸೂರ್ಯಕಾಂತಿ,kn,Karnataka,1.0,seed
+Sunflower,Suryakanthi,kn,Karnataka,0.95,seed
+Sunflower,Sunflower Seed,en,,0.9,seed
+Onion,Onion,en,,1.0,seed
+Onion,प्याज़,hi,Maharashtra,1.0,seed
+Onion,Pyaaz,hi,Maharashtra,1.0,seed
+Onion,Pyaj,hi,Uttar Pradesh,0.95,seed
+Onion,Piyaz,hi,Rajasthan,0.9,seed
+Onion,कांदा,mr,Maharashtra,1.0,seed
+Onion,Kanda,mr,Maharashtra,1.0,seed
+Onion,ડુંગળી,gu,Gujarat,1.0,seed
+Onion,Dungli,gu,Gujarat,0.95,seed
+Onion,Dungali,gu,Gujarat,0.9,seed
+Onion,ఉల్లిపాయ,te,Karnataka,1.0,seed
+Onion,Ullipaaya,te,Karnataka,0.95,seed
+Onion,வெங்காயம்,ta,Tamil Nadu,1.0,seed
+Onion,Vengaayam,ta,Tamil Nadu,0.95,seed
+Onion,ਪਿਆਜ਼,pa,Punjab,1.0,seed
+Onion,পেঁয়াজ,bn,West Bengal,1.0,seed
+Onion,Peyaj,bn,West Bengal,0.95,seed
+Onion,ಈರುಳ್ಳಿ,kn,Karnataka,1.0,seed
+Onion,Eerulli,kn,Karnataka,0.95,seed
+Onion,Lasun,hi,Madhya Pradesh,0.6,seed
+Onion,Nashik Kanda,mr,Maharashtra,0.85,seed
+Onion,Red Onion,en,,0.9,seed
+Onion,White Onion,en,,0.85,seed
+Onion,Sambar Onion,en,Tamil Nadu,0.8,seed
+Tomato,Tomato,en,,1.0,seed
+Tomato,टमाटर,hi,Madhya Pradesh,1.0,seed
+Tomato,Tamatar,hi,Madhya Pradesh,1.0,seed
+Tomato,Tamaatar,hi,Karnataka,0.95,seed
+Tomato,टोमॅटो,mr,Maharashtra,1.0,seed
+Tomato,Tomato,mr,Maharashtra,0.95,seed
+Tomato,ટામેટા,gu,Gujarat,1.0,seed
+Tomato,Tameta,gu,Gujarat,0.95,seed
+Tomato,టమాటా,te,Andhra Pradesh,1.0,seed
+Tomato,Tamaata,te,Andhra Pradesh,0.95,seed
+Tomato,தக்காளி,ta,Tamil Nadu,1.0,seed
+Tomato,Thakkali,ta,Tamil Nadu,0.95,seed
+Tomato,ਟਮਾਟਰ,pa,Punjab,1.0,seed
+Tomato,টমেটো,bn,West Bengal,1.0,seed
+Tomato,Tometo,bn,West Bengal,0.9,seed
+Tomato,ಟೊಮೆಟೊ,kn,Karnataka,1.0,seed
+Tomato,Tometo,kn,Karnataka,0.9,seed
+Tomato,Vilayati Baingan,hi,Bihar,0.7,seed
+Tomato,Cherry Tomato,en,,0.8,seed
+Potato,Potato,en,,1.0,seed
+Potato,आलू,hi,Uttar Pradesh,1.0,seed
+Potato,Aloo,hi,Uttar Pradesh,1.0,seed
+Potato,Aaloo,hi,Bihar,0.95,seed
+Potato,Alu,hi,Punjab,0.95,seed
+Potato,बटाटा,mr,Maharashtra,1.0,seed
+Potato,Batata,mr,Maharashtra,1.0,seed
+Potato,બટાટા,gu,Gujarat,1.0,seed
+Potato,Batata,gu,Gujarat,0.95,seed
+Potato,ఆలుగడ్డ,te,Telangana,1.0,seed
+Potato,Aalugadda,te,Telangana,0.95,seed
+Potato,உருளைக்கிழங்கு,ta,Tamil Nadu,1.0,seed
+Potato,Urulaikizhangu,ta,Tamil Nadu,0.95,seed
+Potato,ਆਲੂ,pa,Punjab,1.0,seed
+Potato,আলু,bn,West Bengal,1.0,seed
+Potato,Alu,bn,West Bengal,0.95,seed
+Potato,ಆಲೂಗಡ್ಡೆ,kn,Karnataka,1.0,seed
+Potato,Aalugadde,kn,Karnataka,0.95,seed
+Potato,Batato,gu,Saurashtra,0.85,seed
+Potato,Spud,en,,0.6,seed
+Turmeric,Turmeric,en,,1.0,seed
+Turmeric,हल्दी,hi,Maharashtra,1.0,seed
+Turmeric,Haldi,hi,Maharashtra,1.0,seed
+Turmeric,Haladi,hi,Rajasthan,0.9,seed
+Turmeric,हळद,mr,Maharashtra,1.0,seed
+Turmeric,Halad,mr,Maharashtra,1.0,seed
+Turmeric,હળદર,gu,Gujarat,1.0,seed
+Turmeric,Haldar,gu,Gujarat,0.95,seed
+Turmeric,పసుపు,te,Telangana,1.0,seed
+Turmeric,Pasupu,te,Telangana,0.95,seed
+Turmeric,மஞ்சள்,ta,Tamil Nadu,1.0,seed
+Turmeric,Manjal,ta,Tamil Nadu,0.95,seed
+Turmeric,ਹਲਦੀ,pa,Punjab,1.0,seed
+Turmeric,Holdi,pa,Punjab,0.9,seed
+Turmeric,হলুদ,bn,West Bengal,1.0,seed
+Turmeric,Holud,bn,West Bengal,0.95,seed
+Turmeric,ಅರಿಶಿನ,kn,Karnataka,1.0,seed
+Turmeric,Arishina,kn,Karnataka,0.95,seed
+Turmeric,Erode Haldi,en,Tamil Nadu,0.85,seed
+Turmeric,Salem Manjal,ta,Tamil Nadu,0.85,seed
+Turmeric,Lakadong Turmeric,en,Meghalaya,0.8,seed
+Chilli,Chilli,en,,1.0,seed
+Chilli,मिर्ची,hi,Andhra Pradesh,1.0,seed
+Chilli,Mirchi,hi,Andhra Pradesh,1.0,seed
+Chilli,Mirch,hi,Rajasthan,0.95,seed
+Chilli,Lal Mirch,hi,Rajasthan,0.95,seed
+Chilli,लाल मिर्च,hi,Rajasthan,0.95,seed
+Chilli,Hari Mirch,hi,Uttar Pradesh,0.85,seed
+Chilli,हरी मिर्च,hi,Uttar Pradesh,0.85,seed
+Chilli,मिरची,mr,Maharashtra,1.0,seed
+Chilli,Mirchi,mr,Maharashtra,0.95,seed
+Chilli,મરચાં,gu,Gujarat,1.0,seed
+Chilli,Marcha,gu,Gujarat,0.95,seed
+Chilli,మిరపకాయ,te,Andhra Pradesh,1.0,seed
+Chilli,Mirapakaya,te,Andhra Pradesh,0.95,seed
+Chilli,மிளகாய்,ta,Tamil Nadu,1.0,seed
+Chilli,Milagai,ta,Tamil Nadu,0.95,seed
+Chilli,ਮਿਰਚ,pa,Punjab,1.0,seed
+Chilli,Mirch,pa,Punjab,0.9,seed
+Chilli,মরিচ,bn,West Bengal,1.0,seed
+Chilli,Morich,bn,West Bengal,0.95,seed
+Chilli,ಮೆಣಸಿನಕಾಯಿ,kn,Karnataka,1.0,seed
+Chilli,Menasinakaayi,kn,Karnataka,0.95,seed
+Chilli,Guntur Mirchi,en,Andhra Pradesh,0.85,seed
+Chilli,Byadgi Chilli,en,Karnataka,0.85,seed
+Chilli,Kashmiri Mirch,en,Jammu Kashmir,0.85,seed
+Chilli,Red Chilli,en,,0.9,seed
+Chilli,Green Chilli,en,,0.85,seed
+Cumin,Cumin,en,,1.0,seed
+Cumin,जीरा,hi,Rajasthan,1.0,seed
+Cumin,Jeera,hi,Rajasthan,1.0,seed
+Cumin,Jira,hi,Gujarat,0.95,seed
+Cumin,Zeera,hi,Madhya Pradesh,0.9,seed
+Cumin,जिरे,mr,Maharashtra,1.0,seed
+Cumin,Jire,mr,Maharashtra,0.95,seed
+Cumin,જીરું,gu,Gujarat,1.0,seed
+Cumin,Jirun,gu,Gujarat,0.95,seed
+Cumin,జీలకర్ర,te,Telangana,1.0,seed
+Cumin,Jilakarra,te,Telangana,0.95,seed
+Cumin,சீரகம்,ta,Tamil Nadu,1.0,seed
+Cumin,Seeragam,ta,Tamil Nadu,0.95,seed
+Cumin,ਜੀਰਾ,pa,Punjab,1.0,seed
+Cumin,Jira,pa,Punjab,0.9,seed
+Cumin,জিরা,bn,West Bengal,1.0,seed
+Cumin,Jira,bn,West Bengal,0.9,seed
+Cumin,ಜೀರಿಗೆ,kn,Karnataka,1.0,seed
+Cumin,Jeerige,kn,Karnataka,0.95,seed
+Cumin,Cumin Seed,en,,0.9,seed
+Cumin,Unjal Jeera,en,Gujarat,0.8,seed
+Coriander,Coriander,en,,1.0,seed
+Coriander,धनिया,hi,Rajasthan,1.0,seed
+Coriander,Dhaniya,hi,Rajasthan,1.0,seed
+Coriander,Dhania,hi,Madhya Pradesh,0.95,seed
+Coriander,Hara Dhaniya,hi,Uttar Pradesh,0.85,seed
+Coriander,हरा धनिया,hi,Uttar Pradesh,0.85,seed
+Coriander,धने,mr,Maharashtra,1.0,seed
+Coriander,Dhane,mr,Maharashtra,0.95,seed
+Coriander,ધાણા,gu,Gujarat,1.0,seed
+Coriander,Dhana,gu,Gujarat,0.95,seed
+Coriander,ధనియాలు,te,Andhra Pradesh,1.0,seed
+Coriander,Dhaniyalu,te,Andhra Pradesh,0.95,seed
+Coriander,கொத்தமல்லி,ta,Tamil Nadu,1.0,seed
+Coriander,Kothamalli,ta,Tamil Nadu,0.95,seed
+Coriander,ਧਨੀਆ,pa,Punjab,1.0,seed
+Coriander,Dhania,pa,Punjab,0.9,seed
+Coriander,ধনে,bn,West Bengal,1.0,seed
+Coriander,Dhone,bn,West Bengal,0.9,seed
+Coriander,ಕೊತ್ತಂಬರಿ,kn,Karnataka,1.0,seed
+Coriander,Kothambari,kn,Karnataka,0.95,seed
+Coriander,Coriander Seed,en,,0.9,seed
+Coriander,Cilantro,en,,0.8,seed
+Sesame,Sesame,en,,1.0,seed
+Sesame,तिल,hi,Rajasthan,1.0,seed
+Sesame,Til,hi,Rajasthan,1.0,seed
+Sesame,तीळ,mr,Maharashtra,1.0,seed
+Sesame,Teel,mr,Maharashtra,0.95,seed
+Sesame,તલ,gu,Gujarat,1.0,seed
+Sesame,Tal,gu,Gujarat,0.95,seed
+Sesame,నువ్వులు,te,Andhra Pradesh,1.0,seed
+Sesame,Nuvvulu,te,Andhra Pradesh,0.95,seed
+Sesame,எள்,ta,Tamil Nadu,1.0,seed
+Sesame,Yel,ta,Tamil Nadu,0.95,seed
+Sesame,Ellu,ta,Tamil Nadu,0.9,seed
+Sesame,ਤਿਲ,pa,Punjab,1.0,seed
+Sesame,Til,pa,Punjab,0.9,seed
+Sesame,তিল,bn,West Bengal,1.0,seed
+Sesame,Til,bn,West Bengal,0.9,seed
+Sesame,ಎಳ್ಳು,kn,Karnataka,1.0,seed
+Sesame,Ellu,kn,Karnataka,0.95,seed
+Sesame,Sesame Seed,en,,0.9,seed
+Sesame,Gingelly,en,Tamil Nadu,0.8,seed
+Sesame,Safed Til,hi,Rajasthan,0.85,seed
+Sesame,Black Sesame,en,,0.85,seed
+Sugarcane,Sugarcane,en,,1.0,seed
+Sugarcane,गन्ना,hi,Uttar Pradesh,1.0,seed
+Sugarcane,Ganna,hi,Uttar Pradesh,1.0,seed
+Sugarcane,Ganne,hi,Maharashtra,0.95,seed
+Sugarcane,ऊस,mr,Maharashtra,1.0,seed
+Sugarcane,Oos,mr,Maharashtra,0.95,seed
+Sugarcane,શેરડી,gu,Gujarat,1.0,seed
+Sugarcane,Sherdi,gu,Gujarat,0.95,seed
+Sugarcane,చెరకు,te,Andhra Pradesh,1.0,seed
+Sugarcane,Cheraku,te,Andhra Pradesh,0.95,seed
+Sugarcane,கரும்பு,ta,Tamil Nadu,1.0,seed
+Sugarcane,Karumbu,ta,Tamil Nadu,0.95,seed
+Sugarcane,ਗੰਨਾ,pa,Punjab,1.0,seed
+Sugarcane,Ganna,pa,Punjab,0.9,seed
+Sugarcane,আখ,bn,West Bengal,1.0,seed
+Sugarcane,Aakh,bn,West Bengal,0.9,seed
+Sugarcane,ಕಬ್ಬು,kn,Karnataka,1.0,seed
+Sugarcane,Kabbu,kn,Karnataka,0.95,seed
+Sugarcane,Ikshu,hi,Madhya Pradesh,0.7,seed
+Sugarcane,Sugar Cane,en,,0.9,seed
+Lentil,Lentil,en,,1.0,seed
+Lentil,मसूर,hi,Uttar Pradesh,1.0,seed
+Lentil,Masoor,hi,Uttar Pradesh,1.0,seed
+Lentil,Masur,hi,Madhya Pradesh,0.95,seed
+Lentil,Masoor Dal,hi,Bihar,0.95,seed
+Lentil,मसूर दाल,hi,Bihar,0.95,seed
+Lentil,मसूर,mr,Maharashtra,1.0,seed
+Lentil,Masur,mr,Maharashtra,0.95,seed
+Lentil,મસૂર,gu,Gujarat,1.0,seed
+Lentil,Masur,gu,Gujarat,0.9,seed
+Lentil,మసూరు పప్పు,te,Telangana,1.0,seed
+Lentil,Masooru Pappu,te,Telangana,0.9,seed
+Lentil,பருப்பு,ta,Tamil Nadu,1.0,seed
+Lentil,Paruppu,ta,Tamil Nadu,0.95,seed
+Lentil,ਮਸੂਰ,pa,Punjab,1.0,seed
+Lentil,মসুর,bn,West Bengal,1.0,seed
+Lentil,Mosur,bn,West Bengal,0.9,seed
+Lentil,ಮಸೂರ,kn,Karnataka,1.0,seed
+Lentil,Masoor,kn,Karnataka,0.9,seed
+Lentil,Red Lentil,en,,0.9,seed
+Lentil,Malka Masoor,hi,Madhya Pradesh,0.85,seed
+Mung Bean,Mung Bean,en,,1.0,seed
+Mung Bean,मूंग,hi,Rajasthan,1.0,seed
+Mung Bean,Moong,hi,Rajasthan,1.0,seed
+Mung Bean,Moong Dal,hi,Maharashtra,0.95,seed
+Mung Bean,मूंग दाल,hi,Maharashtra,0.95,seed
+Mung Bean,मूग,mr,Maharashtra,1.0,seed
+Mung Bean,Mug,mr,Maharashtra,0.95,seed
+Mung Bean,મગ,gu,Gujarat,1.0,seed
+Mung Bean,Mag,gu,Gujarat,0.95,seed
+Mung Bean,పెసలు,te,Andhra Pradesh,1.0,seed
+Mung Bean,Pesalu,te,Andhra Pradesh,0.95,seed
+Mung Bean,பாசிப்பயறு,ta,Tamil Nadu,1.0,seed
+Mung Bean,Paasipayaru,ta,Tamil Nadu,0.95,seed
+Mung Bean,ਮੂੰਗ,pa,Punjab,1.0,seed
+Mung Bean,মুগ,bn,West Bengal,1.0,seed
+Mung Bean,Mug,bn,West Bengal,0.9,seed
+Mung Bean,ಹೆಸರುಕಾಳು,kn,Karnataka,1.0,seed
+Mung Bean,Hesarukalu,kn,Karnataka,0.95,seed
+Mung Bean,Green Gram,en,,0.9,seed
+Mung Bean,Pachai Payaru,ta,Tamil Nadu,0.85,seed
+Black Gram,Black Gram,en,,1.0,seed
+Black Gram,उड़द,hi,Madhya Pradesh,1.0,seed
+Black Gram,Urad,hi,Madhya Pradesh,1.0,seed
+Black Gram,Urad Dal,hi,Maharashtra,0.95,seed
+Black Gram,उड़द दाल,hi,Maharashtra,0.95,seed
+Black Gram,उडीद,mr,Maharashtra,1.0,seed
+Black Gram,Udid,mr,Maharashtra,0.95,seed
+Black Gram,અડદ,gu,Gujarat,1.0,seed
+Black Gram,Adad,gu,Gujarat,0.95,seed
+Black Gram,మినుములు,te,Telangana,1.0,seed
+Black Gram,Minumulu,te,Telangana,0.95,seed
+Black Gram,உளுந்து,ta,Tamil Nadu,1.0,seed
+Black Gram,Ulundhu,ta,Tamil Nadu,0.95,seed
+Black Gram,ਉੜਦ,pa,Punjab,1.0,seed
+Black Gram,মাষকলাই,bn,West Bengal,1.0,seed
+Black Gram,Mashkalai,bn,West Bengal,0.9,seed
+Black Gram,ಉದ್ದು,kn,Karnataka,1.0,seed
+Black Gram,Uddu,kn,Karnataka,0.95,seed
+Black Gram,Maa Urad,hi,Rajasthan,0.8,seed
+Jute,Jute,en,,1.0,seed
+Jute,जूट,hi,West Bengal,1.0,seed
+Jute,Joot,hi,West Bengal,0.95,seed
+Jute,ताग,mr,Maharashtra,0.9,seed
+Jute,Taag,mr,Maharashtra,0.85,seed
+Jute,શણ,gu,Gujarat,1.0,seed
+Jute,Shan,gu,Gujarat,0.9,seed
+Jute,జనపనార,te,Andhra Pradesh,1.0,seed
+Jute,Janapanara,te,Andhra Pradesh,0.9,seed
+Jute,சணல்,ta,Tamil Nadu,1.0,seed
+Jute,Sanal,ta,Tamil Nadu,0.9,seed
+Jute,ਜੂਟ,pa,Punjab,1.0,seed
+Jute,পাট,bn,West Bengal,1.0,seed
+Jute,Paat,bn,West Bengal,0.95,seed
+Jute,ಸೆಣಬು,kn,Karnataka,1.0,seed
+Jute,Senabu,kn,Karnataka,0.9,seed
+Jute,Pat,bn,Bihar,0.9,seed
+Jute,Raw Jute,en,,0.9,seed
+Castor,Castor,en,,1.0,seed
+Castor,अरंडी,hi,Gujarat,1.0,seed
+Castor,Arandi,hi,Gujarat,1.0,seed
+Castor,Erandi,hi,Rajasthan,0.95,seed
+Castor,एरंडी,mr,Maharashtra,1.0,seed
+Castor,Erandi,mr,Maharashtra,0.95,seed
+Castor,એરંડા,gu,Gujarat,1.0,seed
+Castor,Eranda,gu,Gujarat,0.95,seed
+Castor,ఆముదం,te,Andhra Pradesh,1.0,seed
+Castor,Aamudam,te,Andhra Pradesh,0.9,seed
+Castor,ஆமணக்கு,ta,Tamil Nadu,1.0,seed
+Castor,Aamanakku,ta,Tamil Nadu,0.9,seed
+Castor,ਅਰੰਡੀ,pa,Punjab,1.0,seed
+Castor,ভেরেণ্ডা,bn,West Bengal,1.0,seed
+Castor,Bherenda,bn,West Bengal,0.9,seed
+Castor,ಹರಳು,kn,Karnataka,1.0,seed
+Castor,Haralu,kn,Karnataka,0.95,seed
+Castor,Castor Seed,en,,0.9,seed
+Castor,Redi,hi,Bihar,0.8,seed
+Cardamom,Cardamom,en,,1.0,seed
+Cardamom,इलायची,hi,Kerala,1.0,seed
+Cardamom,Elaichi,hi,Kerala,1.0,seed
+Cardamom,Ilaichi,hi,Rajasthan,0.95,seed
+Cardamom,वेलची,mr,Maharashtra,1.0,seed
+Cardamom,Velchi,mr,Maharashtra,0.95,seed
+Cardamom,એલચી,gu,Gujarat,1.0,seed
+Cardamom,Elchi,gu,Gujarat,0.95,seed
+Cardamom,ఏలకులు,te,Andhra Pradesh,1.0,seed
+Cardamom,Elakulu,te,Andhra Pradesh,0.9,seed
+Cardamom,ஏலக்காய்,ta,Tamil Nadu,1.0,seed
+Cardamom,Elakkaai,ta,Tamil Nadu,0.95,seed
+Cardamom,ਇਲਾਇਚੀ,pa,Punjab,1.0,seed
+Cardamom,এলাচ,bn,West Bengal,1.0,seed
+Cardamom,Elach,bn,West Bengal,0.9,seed
+Cardamom,ಏಲಕ್ಕಿ,kn,Karnataka,1.0,seed
+Cardamom,Elakki,kn,Karnataka,0.95,seed
+Cardamom,Green Cardamom,en,,0.9,seed
+Cardamom,Choti Elaichi,hi,Uttar Pradesh,0.85,seed
+Cardamom,Badi Elaichi,hi,Sikkim,0.8,seed
+Coconut,Coconut,en,,1.0,seed
+Coconut,नारियल,hi,Kerala,1.0,seed
+Coconut,Nariyal,hi,Kerala,1.0,seed
+Coconut,Naryal,hi,Maharashtra,0.95,seed
+Coconut,नारळ,mr,Maharashtra,1.0,seed
+Coconut,Naral,mr,Maharashtra,0.95,seed
+Coconut,નાળિયેર,gu,Gujarat,1.0,seed
+Coconut,Nalier,gu,Gujarat,0.9,seed
+Coconut,కొబ్బరి,te,Andhra Pradesh,1.0,seed
+Coconut,Kobbari,te,Andhra Pradesh,0.95,seed
+Coconut,தேங்காய்,ta,Tamil Nadu,1.0,seed
+Coconut,Thengaai,ta,Tamil Nadu,0.95,seed
+Coconut,ਨਾਰੀਅਲ,pa,Punjab,1.0,seed
+Coconut,নারকেল,bn,West Bengal,1.0,seed
+Coconut,Narkel,bn,West Bengal,0.95,seed
+Coconut,ತೆಂಗಿನಕಾಯಿ,kn,Karnataka,1.0,seed
+Coconut,Tenginakayi,kn,Karnataka,0.95,seed
+Coconut,Copra,en,,0.85,seed
+Coconut,Khopra,hi,Maharashtra,0.85,seed
+Banana,Banana,en,,1.0,seed
+Banana,केला,hi,Maharashtra,1.0,seed
+Banana,Kela,hi,Maharashtra,1.0,seed
+Banana,केळे,mr,Maharashtra,1.0,seed
+Banana,Kele,mr,Maharashtra,0.95,seed
+Banana,કેળા,gu,Gujarat,1.0,seed
+Banana,Kela,gu,Gujarat,0.9,seed
+Banana,అరటి,te,Andhra Pradesh,1.0,seed
+Banana,Arati,te,Andhra Pradesh,0.95,seed
+Banana,வாழைப்பழம்,ta,Tamil Nadu,1.0,seed
+Banana,Vaazhaipazham,ta,Tamil Nadu,0.95,seed
+Banana,ਕੇਲਾ,pa,Punjab,1.0,seed
+Banana,কলা,bn,West Bengal,1.0,seed
+Banana,Kola,bn,West Bengal,0.95,seed
+Banana,ಬಾಳೆಹಣ್ಣು,kn,Karnataka,1.0,seed
+Banana,Baalehannu,kn,Karnataka,0.95,seed
+Banana,Plantain,en,,0.85,seed
+Banana,Poovan,ta,Tamil Nadu,0.8,seed
+Banana,Robusta,en,Tamil Nadu,0.8,seed

@@ -1,47 +1,70 @@
 """
 TradeNexus — Build Embedding Index Script.
 
-Queries the commodity_aliases table, computes local multilingual embeddings,
-and stores them back in Supabase pgvector columns.
+Standalone script. Run once after seeding, and again after each
+Adaptive Data import, to embed all un-indexed commodity aliases.
+
+Usage:
+    cd services/api
+    python scripts/build_embedding_index.py
 """
 
 import sys
 import os
+import time
 
-# Append api to path so we can import core modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Ensure services/api is on sys.path so core.* imports work
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.database import get_supabase_client
 from core.embedding_service import get_embedding_service
+from core.database import get_client
 
 
-def rebuild_index():
-    """Download mappings, compute embeddings locally, and update Supabase vector store."""
-    print("[Pipeline] Rebuilding embedding index...")
-    supabase = get_supabase_client()
-    embedding_service = get_embedding_service()
+def main():
+    print("=" * 60)
+    print("TradeNexus — Embedding Index Builder")
+    print("=" * 60)
 
-    # 1. Fetch aliases lacking embeddings
+    t0 = time.time()
+
+    # Ensure DB connection is live
     try:
-        response = supabase.table("commodity_aliases").select("id, alias").execute()
-        records = response.data
-        print(f"[Pipeline] Found {len(records)} commodity aliases to process.")
-        
-        # 2. Iterate and generate vector embeddings
-        for record in records:
-            alias_id = record["id"]
-            alias_text = record["alias"]
-            vector = embedding_service.get_embedding(alias_text)
-            
-            # 3. Update pgvector column in Supabase
-            supabase.table("commodity_aliases").update({
-                "embedding": vector
-            }).eq("id", alias_id).execute()
-            
-        print("[Pipeline] Successfully rebuilt embedding index.")
-    except Exception as e:
-        print(f"[Pipeline] Error building embedding index: {e}")
+        sb = get_client()
+        total_res = (
+            sb.table("commodity_aliases")
+            .select("id", count="exact")
+            .execute()
+        )
+        total_aliases = total_res.count if total_res.count is not None else len(total_res.data or [])
+        print(f"Total aliases in database: {total_aliases}")
+    except Exception as exc:
+        print(f"Database connection failed: {exc}")
+        print("Ensure SUPABASE_URL and SUPABASE_KEY are set in .env")
+        sys.exit(1)
+
+    svc = get_embedding_service()
+    indexed = svc.index_all_unembedded()
+
+    elapsed = round(time.time() - t0, 2)
+
+    # Fetch final count of indexed rows
+    try:
+        indexed_res = (
+            sb.table("commodity_aliases")
+            .select("id", count="exact")
+            .not_.is_("embedding", "null")
+            .execute()
+        )
+        total_indexed = indexed_res.count if indexed_res.count is not None else "?"
+    except Exception:
+        total_indexed = "?"
+
+    print()
+    print("-" * 60)
+    print(f"Indexed {indexed} aliases. Total indexed: {total_indexed}")
+    print(f"Elapsed: {elapsed}s")
+    print("-" * 60)
 
 
 if __name__ == "__main__":
-    rebuild_index()
+    main()

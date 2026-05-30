@@ -1,16 +1,21 @@
-corridor_id,origin_state,origin_mandi,destination_state,destination_mandi,commodity,avg_distance_km,typical_transit_days,route_type
-TC001,Maharashtra,Nagpur,Gujarat,Ahmedabad,Cotton,900,2,highway
-TC002,Madhya Pradesh,Indore,Maharashtra,Mumbai,Soybean,600,1,highway
-TC003,Uttar Pradesh,Lucknow,Delhi,Azadpur,Wheat,500,1,highway
-TC004,Andhra Pradesh,Guntur,Tamil Nadu,Chennai,Chilli,450,1,highway
-TC005,Rajasthan,Jaipur,Delhi,Azadpur,Mustard,280,1,highway
-TC006,Maharashtra,Nashik,Maharashtra,Mumbai,Onion,180,0.5,highway
-TC007,Karnataka,Hubli,Maharashtra,Mumbai,Groundnut,560,1,highway
-TC008,Telangana,Nizamabad,Maharashtra,Mumbai,Turmeric,680,2,highway
-TC009,Gujarat,Rajkot,Maharashtra,Mumbai,Groundnut,660,1,highway
-TC010,Bihar,Patna,West Bengal,Kolkata,Rice,580,1,highway
-TC011,Punjab,Ludhiana,Delhi,Azadpur,Wheat,320,1,highway
-TC012,Maharashtra,Pune,Karnataka,Bengaluru,Sugarcane,840,2,highway
-TC013,Tamil Nadu,Madurai,Kerala,Kochi,Rice,340,1,highway
-TC014,Gujarat,Junagadh,Rajasthan,Jodhpur,Groundnut,480,1,highway
-TC015,Madhya Pradesh,Ujjain,Gujarat,Ahmedabad,Soybean,420,1,highway
+origin_region,destination_region,origin_state,destination_state,distance_km,typical_duration_hours,reliability_score
+Nagpur,Ahmedabad,Maharashtra,Gujarat,900,18,0.75
+Indore,Mumbai,Madhya Pradesh,Maharashtra,600,12,0.80
+Lucknow,Azadpur Delhi,Uttar Pradesh,Delhi,530,10,0.85
+Guntur,Chennai,Andhra Pradesh,Tamil Nadu,450,8,0.80
+Jaipur,Azadpur Delhi,Rajasthan,Delhi,280,5.5,0.90
+Nashik,Mumbai,Maharashtra,Maharashtra,180,4,0.92
+Hubli,Mumbai,Karnataka,Maharashtra,560,10.5,0.72
+Nizamabad,Mumbai,Telangana,Maharashtra,680,13,0.70
+Rajkot,Mumbai,Gujarat,Maharashtra,660,12.5,0.78
+Patna,Kolkata,Bihar,West Bengal,580,11.5,0.70
+Ludhiana,Azadpur Delhi,Punjab,Delhi,320,6,0.88
+Pune,Bengaluru,Maharashtra,Karnataka,840,16,0.74
+Madurai,Kochi,Tamil Nadu,Kerala,340,7,0.76
+Junagadh,Jodhpur,Gujarat,Rajasthan,480,9,0.72
+Ujjain,Ahmedabad,Madhya Pradesh,Gujarat,420,8.5,0.78
+Amritsar,Azadpur Delhi,Punjab,Delhi,450,8,0.86
+Warangal,Visakhapatnam,Telangana,Andhra Pradesh,500,10,0.68
+Raipur,Nagpur,Chhattisgarh,Maharashtra,280,5.5,0.82
+Kurnool,Hyderabad,Andhra Pradesh,Telangana,220,4.5,0.84
+Bhopal,Indore,Madhya Pradesh,Madhya Pradesh,190,3.5,0.90
