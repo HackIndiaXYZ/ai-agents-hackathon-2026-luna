@@ -24,14 +24,30 @@ router = APIRouter()
 
 class CounterpartyCreateRequest(BaseModel):
     name: str = Field(..., description="Counterparty name")
-    city: Optional[str] = None
-    state: Optional[str] = None
-    type: str = Field("both", description="'buyer', 'seller', or 'both'")
-    gstin: Optional[str] = None
-    pan: Optional[str] = None
-    contact_name: Optional[str] = None
-    contact_phone: Optional[str] = None
-    credit_limit: float = 0
+    city: str = Field(..., description="City location")
+    state: str = Field(..., description="State location")
+    type: str = Field("both", description="Counterparty type: 'buyer', 'seller', or 'both'")
+    gstin: Optional[str] = Field(None, description="GST identification number")
+    pan: Optional[str] = Field(None, description="PAN card number")
+    contact_name: Optional[str] = Field(None, description="Primary contact name")
+    contact_phone: Optional[str] = Field(None, description="Primary contact phone number")
+    credit_limit: float = Field(0, description="Credit limit in Rupees, defaults to 0")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "name": "Ramesh Enterprises",
+                "city": "Nagpur",
+                "state": "Maharashtra",
+                "type": "buyer",
+                "gstin": "27AAAAA1111A1Z1",
+                "pan": "ABCDE1234F",
+                "contact_name": "Ramesh Sharma",
+                "contact_phone": "+919876543210",
+                "credit_limit": 500000.0
+            }
+        }
+    }
 
 
 # --- Singleton Agent Cache ---

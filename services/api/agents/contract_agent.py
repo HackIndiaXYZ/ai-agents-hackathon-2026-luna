@@ -135,19 +135,29 @@ class ContractAgent:
     ) -> dict:
         """
         Transition contract status with strict validation.
+        Supports querying by UUID or contract_number.
         """
         # Fetch current contract
-        res = (
-            self.sb.table("contracts")
-            .select("*")
-            .eq("id", contract_id)
-            .limit(1)
-            .execute()
-        )
+        is_uuid = False
+        try:
+            from uuid import UUID
+            UUID(contract_id)
+            is_uuid = True
+        except ValueError:
+            is_uuid = False
+
+        query = self.sb.table("contracts").select("*")
+        if is_uuid:
+            query = query.eq("id", contract_id)
+        else:
+            query = query.eq("contract_number", contract_id)
+
+        res = query.limit(1).execute()
         if not res.data:
             raise ValueError(f"Contract {contract_id} not found.")
 
         contract = res.data[0]
+        real_contract_id = contract["id"]
         current_status = contract["status"]
 
         # Validate transition
@@ -164,7 +174,7 @@ class ContractAgent:
             disp_res = (
                 self.sb.table("dispatches")
                 .select("id", count="exact")
-                .eq("contract_id", contract_id)
+                .eq("contract_id", real_contract_id)
                 .execute()
             )
             dispatch_count = disp_res.count if disp_res.count is not None else 0
@@ -182,7 +192,7 @@ class ContractAgent:
         upd_res = (
             self.sb.table("contracts")
             .update(update_data)
-            .eq("id", contract_id)
+            .eq("id", real_contract_id)
             .execute()
         )
         updated = upd_res.data[0] if upd_res.data else {**contract, **update_data}
@@ -195,7 +205,7 @@ class ContractAgent:
                 f"{current_status} → {new_status}"
             ),
             detail={
-                "contract_id": contract_id,
+                "contract_id": real_contract_id,
                 "from": current_status,
                 "to": new_status,
                 "notes": notes,
@@ -212,7 +222,7 @@ class ContractAgent:
     async def get_contracts(self, filters: dict = None) -> List[dict]:
         """
         Retrieve contracts with joined commodity & counterparty names
-        and the latest P&L snapshot.
+        and the latest P&L snapshot. Supports filtering by name or ID.
         """
         filters = filters or {}
 
@@ -222,10 +232,63 @@ class ContractAgent:
 
         if filters.get("status"):
             query = query.eq("status", filters["status"])
-        if filters.get("commodity_id"):
-            query = query.eq("commodity_id", filters["commodity_id"])
-        if filters.get("counterparty_id"):
-            query = query.eq("counterparty_id", filters["counterparty_id"])
+
+        # Resolve commodity if it's a name instead of UUID
+        commodity_val = filters.get("commodity_id") or filters.get("commodity")
+        if commodity_val:
+            is_uuid = False
+            try:
+                from uuid import UUID
+                UUID(commodity_val)
+                is_uuid = True
+            except ValueError:
+                is_uuid = False
+
+            if not is_uuid:
+                try:
+                    res_commodity = await self.commodity_agent.resolve(str(commodity_val))
+                    if res_commodity and res_commodity.commodity_id:
+                        commodity_val = res_commodity.commodity_id
+                    else:
+                        commodity_val = None
+                except Exception as e:
+                    logger.warning(f"Failed to resolve commodity name {commodity_val}: {e}")
+                    commodity_val = None
+
+            if commodity_val:
+                query = query.eq("commodity_id", commodity_val)
+
+        # Resolve counterparty if it's a name instead of UUID
+        counterparty_val = filters.get("counterparty_id") or filters.get("counterparty")
+        if counterparty_val:
+            is_uuid = False
+            try:
+                from uuid import UUID
+                UUID(counterparty_val)
+                is_uuid = True
+            except ValueError:
+                is_uuid = False
+
+            if not is_uuid:
+                try:
+                    cp_res = (
+                        self.sb.table("counterparties")
+                        .select("id")
+                        .ilike("name", f"%{counterparty_val}%")
+                        .limit(1)
+                        .execute()
+                    )
+                    if cp_res.data:
+                        counterparty_val = cp_res.data[0]["id"]
+                    else:
+                        counterparty_val = None
+                except Exception as e:
+                    logger.warning(f"Failed to resolve counterparty name {counterparty_val}: {e}")
+                    counterparty_val = None
+
+            if counterparty_val:
+                query = query.eq("counterparty_id", counterparty_val)
+
         if filters.get("date_from"):
             query = query.gte("contract_date", filters["date_from"])
         if filters.get("date_to"):
@@ -269,26 +332,35 @@ class ContractAgent:
     async def get_contract_detail(self, contract_id: str) -> dict:
         """
         Full contract detail with dispatches, quality lots, P&L history,
-        and compliance status.
+        and compliance status. Supports querying by UUID or contract_number.
         """
         # Core contract
-        res = (
-            self.sb.table("contracts")
-            .select("*, commodities(canonical_name, category), counterparties(*)")
-            .eq("id", contract_id)
-            .limit(1)
-            .execute()
-        )
+        is_uuid = False
+        try:
+            from uuid import UUID
+            UUID(contract_id)
+            is_uuid = True
+        except ValueError:
+            is_uuid = False
+
+        query = self.sb.table("contracts").select("*, commodities(canonical_name, category), counterparties(*)")
+        if is_uuid:
+            query = query.eq("id", contract_id)
+        else:
+            query = query.eq("contract_number", contract_id)
+
+        res = query.limit(1).execute()
         if not res.data:
             raise ValueError(f"Contract {contract_id} not found.")
 
         contract = res.data[0]
+        real_contract_id = contract["id"]
 
         # Dispatches
         disp_res = (
             self.sb.table("dispatches")
             .select("*")
-            .eq("contract_id", contract_id)
+            .eq("contract_id", real_contract_id)
             .order("dispatch_date", desc=True)
             .execute()
         )
@@ -297,7 +369,7 @@ class ContractAgent:
         lots_res = (
             self.sb.table("quality_lots")
             .select("*")
-            .eq("contract_id", contract_id)
+            .eq("contract_id", real_contract_id)
             .order("created_at", desc=True)
             .execute()
         )
@@ -306,7 +378,7 @@ class ContractAgent:
         pnl_res = (
             self.sb.table("pnl_snapshots")
             .select("*")
-            .eq("contract_id", contract_id)
+            .eq("contract_id", real_contract_id)
             .order("snapshot_date", desc=True)
             .limit(7)
             .execute()
@@ -342,6 +414,7 @@ class ContractAgent:
         """
         Use LLM to extract contract fields from natural language.
         Returns extracted fields as a dict (not saved yet).
+        Guarantees schema compliance and type safety across both Mock and Production.
         """
         system_prompt = (
             "You are a contract parser for an Indian agricultural commodity trading platform.\n"
@@ -368,23 +441,80 @@ class ContractAgent:
         )
 
         parsed = _safe_json(raw)
-        if not parsed:
-            return {
-                "type": None,
-                "commodity": None,
-                "quantity": None,
-                "unit": "quintal",
-                "price": None,
-                "counterparty": None,
-                "delivery_date": None,
-                "delivery_location": None,
-                "payment_terms": None,
-                "raw_text": raw_text,
-                "parse_error": "Could not extract structured data from the text.",
-            }
+        
+        # Build normalized schema response to guarantee exact identical fields & types across environments
+        normalized = {
+            "type": None,
+            "commodity": None,
+            "quantity": None,
+            "unit": "quintal",
+            "price": None,
+            "counterparty": None,
+            "delivery_date": None,
+            "delivery_location": None,
+            "payment_terms": None,
+            "raw_text": raw_text,
+        }
 
-        parsed["raw_text"] = raw_text
-        return parsed
+        if parsed and isinstance(parsed, dict):
+            # 1. Type
+            ctype = parsed.get("type")
+            if ctype:
+                ctype_str = str(ctype).strip().lower()
+                if "sell" in ctype_str or "sale" in ctype_str:
+                    normalized["type"] = "sell"
+                elif "buy" in ctype_str or "purchase" in ctype_str:
+                    normalized["type"] = "buy"
+            
+            # 2. Commodity
+            comm = parsed.get("commodity")
+            if comm:
+                normalized["commodity"] = str(comm).strip().title()
+            
+            # 3. Quantity
+            qty = parsed.get("quantity")
+            if qty is not None:
+                try:
+                    normalized["quantity"] = float(qty)
+                except (ValueError, TypeError):
+                    pass
+            
+            # 4. Unit
+            unit = parsed.get("unit")
+            if unit:
+                normalized["unit"] = str(unit).strip().lower()
+            
+            # 5. Price
+            price = parsed.get("price")
+            if price is not None:
+                try:
+                    normalized["price"] = float(price)
+                except (ValueError, TypeError):
+                    pass
+            
+            # 6. Counterparty
+            cp = parsed.get("counterparty")
+            if cp:
+                normalized["counterparty"] = str(cp).strip().title()
+            
+            # 7. Delivery Date
+            dd = parsed.get("delivery_date")
+            if dd:
+                normalized["delivery_date"] = str(dd).strip()
+            
+            # 8. Delivery Location
+            loc = parsed.get("delivery_location")
+            if loc:
+                normalized["delivery_location"] = str(loc).strip()
+            
+            # 9. Payment Terms
+            pt = parsed.get("payment_terms")
+            if pt:
+                normalized["payment_terms"] = str(pt).strip()
+        else:
+            normalized["parse_error"] = "Could not extract structured data from the text."
+
+        return normalized
 
     # ------------------------------------------------------------------
     # Helpers

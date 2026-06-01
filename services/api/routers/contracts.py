@@ -28,29 +28,65 @@ router = APIRouter()
 
 
 class ContractCreateRequest(BaseModel):
-    type: str = Field(..., description="'buy' or 'sell'")
-    commodity: str = Field(..., description="Commodity name or ID")
+    type: str = Field(..., description="Contract type: 'buy' or 'sell'")
+    commodity: str = Field(..., description="Commodity name, alias, or ID")
     counterparty_id: Optional[str] = None
-    quantity: float = Field(..., gt=0)
-    unit: str = "quintal"
-    price_per_unit: Optional[float] = None
-    price_type: str = "fixed"
-    formula_basis: Optional[str] = None
-    formula_premium_pct: float = 0
-    contract_date: Optional[str] = None
-    delivery_date: Optional[str] = None
-    delivery_location: Optional[str] = None
-    payment_terms: Optional[str] = None
-    notes: Optional[str] = None
+    quantity: float = Field(..., gt=0, description="Quantity in specified unit")
+    unit: str = Field("quintal", description="Unit of measurement, defaults to quintal")
+    price_per_unit: Optional[float] = Field(None, description="Price per unit (required if price_type is fixed)")
+    price_type: str = Field("fixed", description="Pricing mechanism: 'fixed' or 'formula'")
+    formula_basis: Optional[str] = Field(None, description="Formula basis: 'mandi_modal' or 'spot'")
+    formula_premium_pct: float = Field(0, description="Formula premium percentage")
+    contract_date: Optional[str] = Field(None, description="Contract date in YYYY-MM-DD format")
+    delivery_date: Optional[str] = Field(None, description="Delivery date in YYYY-MM-DD format")
+    delivery_location: Optional[str] = Field(None, description="Delivery location")
+    payment_terms: Optional[str] = Field(None, description="Payment terms details")
+    notes: Optional[str] = Field(None, description="Optional contract notes")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "type": "buy",
+                "commodity": "Cotton",
+                "counterparty_id": "d3b07384-d113-49c5-a55b-4c2f1b8a5d3f",
+                "quantity": 100.0,
+                "unit": "quintal",
+                "price_per_unit": 6500.0,
+                "price_type": "fixed",
+                "contract_date": "2026-06-02",
+                "delivery_date": "2026-06-15",
+                "delivery_location": "Yavatmal Mandi",
+                "payment_terms": "Net 15",
+                "notes": "Premium quality cotton"
+            }
+        }
+    }
 
 
 class StatusUpdateRequest(BaseModel):
-    status: str = Field(..., description="New status value")
-    notes: Optional[str] = None
+    status: str = Field(..., description="New status value: draft, confirmed, in_transit, delivered, settled, cancelled")
+    notes: Optional[str] = Field(None, description="Optional transition notes")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "status": "confirmed",
+                "notes": "Contract signed by both parties."
+            }
+        }
+    }
 
 
 class ParseRequest(BaseModel):
     raw_text: str = Field(..., description="Natural language contract description")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "raw_text": "Ramesh se 40 quintal cotton liya, 6400 rupaye, delivery Friday"
+            }
+        }
+    }
 
 
 # --- Singleton Agent Cache ---

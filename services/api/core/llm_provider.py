@@ -9,6 +9,8 @@ Defines the base LLMProvider interface and concrete implementations:
 import time
 import logging
 import asyncio
+import json
+import re
 from abc import ABC, abstractmethod
 import httpx
 from core.config import get_settings
@@ -147,6 +149,70 @@ class MockProvider(LLMProvider):
                 return '{"permits": ["APMC Transit Permit", "FSSAI Food Safety License"], "cess_fee": "1.5% of trade value", "quality_checklist": ["Moisture < 12%", "No discoloration"]}'
             if "synthesis" in system_prompt.lower() or "lucy" in system_prompt.lower():
                 return '{"response_text": "Hello! Welcome to **TradeNexus**, your autonomous trade operations copilot. I am **LUCY**, ready to assist you today.\\n\\nHere is a quick snapshot of your current inventory:\\n\\n| Commodity | Quantity (Quintal) |\\n| :--- | :--- |\\n| **Cotton** | 600.0 |\\n| **Onion** | 200.0 |\\n| **Wheat** | 150.0 |\\n| **Soybean** | 120.0 |\\n| **Pigeon Pea** | 80.0 |\\n\\nHow can I assist you today? You can ask me to check market prices, initiate a deal, or analyze trends for any of these commodities.", "voice_response": "Hello! Welcome to TradeNexus. I am LUCY, your autonomous trade operations copilot. Here is your current inventory: Cotton 600 quintal, Onion 200 quintal, Wheat 150 quintal, Soybean 120 quintal, Pigeon Pea 80 quintal. How can I assist you today?"}'
+            if "contract parser" in system_prompt.lower() or "contract details" in system_prompt.lower():
+                text = user_prompt.lower()
+                ctype = "buy"
+                if "diya" in text or "sell" in text or "sold" in text:
+                    ctype = "sell"
+                elif "liya" in text or "buy" in text or "bought" in text or "purchase" in text:
+                    ctype = "buy"
+                
+                commodity = None
+                for c in ["cotton", "onion", "wheat", "soybean", "pigeon pea", "paddy"]:
+                    if c in text:
+                        commodity = c.title()
+                        break
+                
+                counterparty = None
+                cp_match = re.search(r'([a-zA-Z]+)\s+se', user_prompt)
+                if cp_match:
+                    counterparty = cp_match.group(1).strip().title()
+                else:
+                    cp_match = re.search(r'(?:with|to|from)\s+([a-zA-Z]+)', user_prompt, re.IGNORECASE)
+                    if cp_match:
+                        counterparty = cp_match.group(1).strip().title()
+                
+                quantity = None
+                unit = "quintal"
+                qty_match = re.search(r'(\d+(?:\.\d+)?)\s*(quintal|quintals|q|kg|kgs|ton|tons)?', text)
+                if qty_match:
+                    quantity = float(qty_match.group(1))
+                    if qty_match.group(2):
+                        u = qty_match.group(2)
+                        if u in ["kg", "kgs"]:
+                            unit = "kg"
+                        elif u in ["ton", "tons"]:
+                            unit = "ton"
+                        else:
+                            unit = "quintal"
+                
+                price = None
+                price_match = re.search(r'(?:rs\.?|rupaye|rupees|inr|@)\s*(\d+(?:\.\d+)?)', text)
+                if not price_match:
+                    price_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:rs\.?|rupaye|rupees|inr)', text)
+                if price_match:
+                    price = float(price_match.group(1))
+                
+                delivery_date = None
+                if "friday" in text:
+                    delivery_date = "2026-06-05"
+                elif "tomorrow" in text:
+                    delivery_date = "2026-06-03"
+                elif "monday" in text:
+                    delivery_date = "2026-06-08"
+                
+                res_dict = {
+                    "type": ctype,
+                    "commodity": commodity,
+                    "quantity": quantity,
+                    "unit": unit,
+                    "price": price,
+                    "counterparty": counterparty,
+                    "delivery_date": delivery_date,
+                    "delivery_location": None,
+                    "payment_terms": None
+                }
+                return json.dumps(res_dict)
             return '{"canonical_name": "Cotton", "confidence": 0.95}'
         
         return (
