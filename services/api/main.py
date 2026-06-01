@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers import market, dispatch, opportunity, compliance, feedback, advisor, copilot, lucy
+from routers import contracts, counterparties, dispatches
 
 
 @asynccontextmanager
@@ -50,6 +51,9 @@ app.include_router(feedback.router, prefix="/api/v1/feedback", tags=["Feedback"]
 app.include_router(advisor.router, prefix="/api/v1/advisor", tags=["Advisor"])
 app.include_router(copilot.router, prefix="/api/v1/copilot", tags=["Copilot"])
 app.include_router(lucy.router, prefix="/api/v1/lucy", tags=["Lucy"])
+app.include_router(contracts.router, prefix="/api/v1", tags=["Contracts"])
+app.include_router(counterparties.router, prefix="/api/v1", tags=["Counterparties"])
+app.include_router(dispatches.router, prefix="/api/v1", tags=["Dispatches"])
 
 
 # --- Health Check ---

@@ -10,3 +10,5 @@ apscheduler>=3.11.0
 sentence-transformers>=3.0.0
 numpy>=1.24.0
 adaption>=0.1.0
+python-multipart>=0.0.9
+aiofiles>=24.1.0
