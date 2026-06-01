@@ -9,7 +9,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers import market, dispatch, opportunity, compliance, feedback, advisor, copilot, lucy
-from routers import contracts, counterparties, dispatches
+from routers import contracts, counterparties, dispatches, risk
+from tasks.risk_scheduler import start_scheduler, shutdown_scheduler
 
 
 @asynccontextmanager
@@ -17,9 +18,11 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle manager."""
     # --- Startup ---
     print("[TradeNexus] API starting up...")
+    start_scheduler()
     yield
     # --- Shutdown ---
     print("[TradeNexus] API shutting down...")
+    shutdown_scheduler()
 
 
 app = FastAPI(
@@ -54,6 +57,7 @@ app.include_router(lucy.router, prefix="/api/v1/lucy", tags=["Lucy"])
 app.include_router(contracts.router, prefix="/api/v1", tags=["Contracts"])
 app.include_router(counterparties.router, prefix="/api/v1", tags=["Counterparties"])
 app.include_router(dispatches.router, prefix="/api/v1", tags=["Dispatches"])
+app.include_router(risk.router, prefix="/api/v1", tags=["Risk"])
 
 
 # --- Health Check ---
