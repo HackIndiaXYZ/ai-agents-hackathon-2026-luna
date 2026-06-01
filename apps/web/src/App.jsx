@@ -7,6 +7,10 @@ import { useStore } from './store';
 // Layouts
 import AppLayout from './components/layout/AppLayout';
 
+// Lucy (Global Autonomous Operations OS)
+import LucyButton from './components/lucy/LucyButton';
+import LucyMode from './components/lucy/LucyMode';
+
 // Pages
 import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
@@ -150,6 +154,10 @@ export const App = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>
+
+      {/* Global AI Lucy OS Layer */}
+      <LucyButton />
+      <LucyMode />
 
     </div>
   );

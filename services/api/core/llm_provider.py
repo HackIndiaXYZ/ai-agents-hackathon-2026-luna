@@ -95,7 +95,13 @@ class NvidiaProvider(LLMProvider):
                         
                     response.raise_for_status()
                     data = response.json()
-                    content = data["choices"][0]["message"]["content"]
+                    choice = data.get("choices", [{}])[0]
+                    message = choice.get("message", {})
+                    content = message.get("content") or message.get("reasoning_content", "")
+                    
+                    if not content:
+                        logger.warning(f"LLM response missing content. Full response: {data}")
+                        raise RuntimeError("LLM response missing content field")
                     
                     # Log model, input token estimate, and latency
                     latency = time.perf_counter() - start_time
@@ -135,12 +141,14 @@ class MockProvider(LLMProvider):
         logger.info(f"[LLM-Mock] Input token est: {(len(system_prompt) + len(user_prompt)) // 4} | Latency: {latency:.4f}s")
         
         if expect_json:
-            # Let's return plausible JSON for various scenarios
+            if "intent classifier" in system_prompt.lower():
+                return '{"intent": "GREETING", "commodity": null, "quantity": null, "unit": null, "origin": null, "destination": null, "deal_details": null, "language": "en", "confidence": 0.95}'
             if "compliance" in user_prompt.lower() or "compliance" in system_prompt.lower():
                 return '{"permits": ["APMC Transit Permit", "FSSAI Food Safety License"], "cess_fee": "1.5% of trade value", "quality_checklist": ["Moisture < 12%", "No discoloration"]}'
+            if "synthesis" in system_prompt.lower() or "lucy" in system_prompt.lower():
+                return '{"response_text": "Hello! Welcome to **TradeNexus**, your autonomous trade operations copilot. I am **LUCY**, ready to assist you today.\\n\\nHere is a quick snapshot of your current inventory:\\n\\n| Commodity | Quantity (Quintal) |\\n| :--- | :--- |\\n| **Cotton** | 600.0 |\\n| **Onion** | 200.0 |\\n| **Wheat** | 150.0 |\\n| **Soybean** | 120.0 |\\n| **Pigeon Pea** | 80.0 |\\n\\nHow can I assist you today? You can ask me to check market prices, initiate a deal, or analyze trends for any of these commodities.", "voice_response": "Hello! Welcome to TradeNexus. I am LUCY, your autonomous trade operations copilot. Here is your current inventory: Cotton 600 quintal, Onion 200 quintal, Wheat 150 quintal, Soybean 120 quintal, Pigeon Pea 80 quintal. How can I assist you today?"}'
             return '{"canonical_name": "Cotton", "confidence": 0.95}'
         
-        # Plain text plausible trading insights
         return (
             "The Cotton market in Maharashtra shows resilient demand, with modal prices at Yavatmal "
             "reaching ₹7,500/Quintal, which is 8% above the 10-day average. Regional traders should consider prioritizing "

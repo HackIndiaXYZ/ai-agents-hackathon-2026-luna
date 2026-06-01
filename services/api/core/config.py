@@ -47,8 +47,10 @@ class Settings(BaseSettings):
     # --- Google Routes API ---
     GOOGLE_ROUTES_API_KEY: str = ""
 
-    # --- App Environment ---
+# --- App Environment ---
+    # Options: development, staging, production
     ENVIRONMENT: str = "development"
+    LLM_PROVIDER: str = "mock"  # Use mock for development, "nvidia" for production
 
     model_config = {
         "env_file": str(_env_file_path),

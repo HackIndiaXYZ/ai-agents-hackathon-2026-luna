@@ -1,0 +1,31 @@
+name,type,city,state,lat,lng,commodities_needed,typical_volume_quintals,contact_placeholder,verified
+Nagpur Cotton Co.,cotton_mill,Nagpur,Maharashtra,21.1458,79.0882,Cotton,1200,Contact via TradeNexus,true
+Akola Fibers,cotton_mill,Akola,Maharashtra,20.7002,77.0082,Cotton,800,Contact via TradeNexus,true
+Amravati Spinning,cotton_mill,Amravati,Maharashtra,20.9320,77.7523,Cotton,950,Contact via TradeNexus,false
+Nagpur Textile Hub,cotton_mill,Nagpur,Maharashtra,21.1500,79.0900,Cotton,1500,Contact via TradeNexus,true
+Central India Cotton,cotton_mill,Nagpur,Maharashtra,21.1400,79.0800,Cotton,600,Contact via TradeNexus,false
+Nagpur Weaving Ltd,cotton_mill,Nagpur,Maharashtra,21.1600,79.1000,Cotton,1100,Contact via TradeNexus,true
+Vidarbha Cotton Ginning,cotton_mill,Nagpur,Maharashtra,21.1300,79.0700,Cotton,750,Contact via TradeNexus,true
+Akola Cotton Mills,cotton_mill,Akola,Maharashtra,20.7100,77.0200,Cotton,1000,Contact via TradeNexus,true
+Amravati Weaving,cotton_mill,Amravati,Maharashtra,20.9400,77.7600,Cotton,500,Contact via TradeNexus,false
+Nagpur Spinning Mills,cotton_mill,Nagpur,Maharashtra,21.1700,79.1100,Cotton,1300,Contact via TradeNexus,true
+Latur Dal Processors,dal_mill,Latur,Maharashtra,18.4088,76.5630,Pigeon Pea|Chickpea|Lentil,850,Contact via TradeNexus,true
+Indore Pulse Co.,dal_mill,Indore,Madhya Pradesh,22.7196,75.8577,Chickpea|Pigeon Pea|Mung Bean,900,Contact via TradeNexus,true
+Latur Agro Industries,dal_mill,Latur,Maharashtra,18.4100,76.5700,Pigeon Pea|Black Gram,600,Contact via TradeNexus,false
+Indore Dal Mill,dal_mill,Indore,Madhya Pradesh,22.7200,75.8600,Chickpea|Lentil,750,Contact via TradeNexus,true
+Latur Pulses Ltd,dal_mill,Latur,Maharashtra,18.4000,76.5500,Pigeon Pea|Mung Bean,1100,Contact via TradeNexus,true
+Indore Grain Processors,dal_mill,Indore,Madhya Pradesh,22.7300,75.8700,Chickpea|Black Gram,500,Contact via TradeNexus,false
+Latur Pulse Junction,dal_mill,Latur,Maharashtra,18.4200,76.5800,Pigeon Pea|Chickpea,950,Contact via TradeNexus,true
+Pune Food Tech,food_processor,Pune,Maharashtra,18.5204,73.8567,Tomato|Onion|Potato,1000,Contact via TradeNexus,true
+Ahmedabad Agro Foods,food_processor,Ahmedabad,Gujarat,23.0225,72.5714,Potato|Wheat|Maize,1200,Contact via TradeNexus,true
+Pune Fruit & Vegetable Processors,food_processor,Pune,Maharashtra,18.5300,73.8600,Banana|Coconut|Tomato,400,Contact via TradeNexus,false
+Ahmedabad Foodways,food_processor,Ahmedabad,Gujarat,23.0300,72.5800,Potato|Onion|Soybean,800,Contact via TradeNexus,true
+Pune Organic Foods,food_processor,Pune,Maharashtra,18.5100,73.8400,Wheat|Rice|Pigeon Pea,650,Contact via TradeNexus,true
+Mumbai Global Trades,exporter,Mumbai,Maharashtra,19.0760,72.8777,Soybean|Turmeric|Chilli|Cumin,2000,Contact via TradeNexus,true
+Surat Export House,exporter,Surat,Gujarat,21.1702,72.8311,Cotton|Onion|Sesame,1500,Contact via TradeNexus,true
+Mumbai Agro Overseas,exporter,Mumbai,Maharashtra,19.0800,72.8800,Coriander|Cardamom|Chilli,800,Contact via TradeNexus,true
+Surat Textile & Agro Export,exporter,Surat,Gujarat,21.1800,72.8400,Cotton|Groundnut,1200,Contact via TradeNexus,false
+Mumbai Harbor Exports,exporter,Mumbai,Maharashtra,19.0700,72.8700,Rice|Wheat|Sugarcane,2500,Contact via TradeNexus,true
+Mumbai Gateway Trade,exporter,Mumbai,Maharashtra,19.0900,72.8900,Groundnut|Sesame|Mustard,1400,Contact via TradeNexus,false
+Delhi Mega Retail,retailer,New Delhi,Delhi,28.6139,77.2090,Onion|Potato|Tomato|Rice|Wheat,3000,Contact via TradeNexus,true
+Delhi Agro Aggregators,retailer,New Delhi,Delhi,28.6200,77.2100,Pigeon Pea|Chickpea|Mustard,1800,Contact via TradeNexus,true

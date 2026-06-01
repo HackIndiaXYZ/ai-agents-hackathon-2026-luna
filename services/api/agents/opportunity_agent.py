@@ -15,9 +15,9 @@ from agents.dispatch_agent import DispatchAgent
 class OpportunityAgent:
     """Agent responsible for identifying trade opportunities."""
 
-    def __init__(self):
-        self.market_agent = MarketAgent()
-        self.dispatch_agent = DispatchAgent()
+    def __init__(self, market_agent: MarketAgent, dispatch_agent: DispatchAgent):
+        self.market_agent = market_agent
+        self.dispatch_agent = dispatch_agent
         
         # Load trade corridors from seed CSV
         self.corridors = self._load_corridors()

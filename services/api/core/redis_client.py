@@ -8,6 +8,12 @@ import httpx
 from core.config import get_settings
 
 
+import json
+import urllib.parse
+import httpx
+from core.config import get_settings
+
+
 class UpstashRedis:
     """Lightweight Upstash Redis REST client."""
 
@@ -17,25 +23,26 @@ class UpstashRedis:
         self.token = settings.UPSTASH_REDIS_REST_TOKEN
         self.headers = {"Authorization": f"Bearer {self.token}"}
 
-    async def _request(self, *args: str) -> dict:
+    async def _request(self, method: str, *args: str) -> dict:
         """Send a command to the Upstash Redis REST API."""
         url = f"{self.base_url}/{'/'.join(args)}"
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=self.headers)
+            response = await client.request(method, url, headers=self.headers)
             response.raise_for_status()
             return response.json()
 
     async def get(self, key: str) -> str | None:
         """Get a value by key."""
-        result = await self._request("get", key)
+        result = await self._request("GET", "get", key)
         return result.get("result")
 
     async def set(self, key: str, value: str, ex: int | None = None) -> str:
         """Set a key-value pair with optional expiry in seconds."""
+        encoded_value = urllib.parse.quote(value)
         if ex is not None:
-            result = await self._request("set", key, value, "EX", str(ex))
+            result = await self._request("GET", "set", key, encoded_value, "EX", str(ex))
         else:
-            result = await self._request("set", key, value)
+            result = await self._request("GET", "set", key, encoded_value)
         return result.get("result")
 
     async def delete(self, key: str) -> int:

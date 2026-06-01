@@ -158,3 +158,36 @@ CREATE TABLE IF NOT EXISTS feedback_events (
     is_positive     BOOLEAN,
     created_at      TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ---------------------------------------------------------------------------
+-- 9. user_inventory — Demo user commodity stock levels
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS user_inventory (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    commodity_id UUID NOT NULL REFERENCES commodities(id) ON DELETE CASCADE,
+    quantity     NUMERIC(10,2) NOT NULL,
+    unit         TEXT DEFAULT 'quintal',
+    notes        TEXT,
+    updated_at   TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT uq_inventory_commodity UNIQUE (commodity_id)
+);
+
+-- ---------------------------------------------------------------------------
+-- 10. buyers — Seeded buyer network (TradeNexus Buyer Network Beta)
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS buyers (
+    id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name                     TEXT NOT NULL,
+    type                     TEXT NOT NULL,           -- cotton_mill|dal_mill|food_processor|exporter|retailer
+    city                     TEXT NOT NULL,
+    state                    TEXT NOT NULL,
+    lat                      NUMERIC(9,6),
+    lng                      NUMERIC(9,6),
+    commodities_needed       TEXT[],                  -- array of canonical commodity names
+    typical_volume_quintals  INTEGER,
+    contact_placeholder      TEXT DEFAULT 'Contact via TradeNexus',
+    verified                 BOOLEAN DEFAULT FALSE,
+    created_at               TIMESTAMPTZ DEFAULT NOW()
+);
