@@ -204,3 +204,155 @@ async def get_agent_activity():
     except Exception as e:
         logger.error("Error retrieving agent activity logs: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# --- ML-Powered Endpoints ---
+
+_ml_agent = None
+
+
+def _get_ml_agent():
+    """Retrieve the cached MLInferenceAgent singleton."""
+    global _ml_agent
+    if _ml_agent is None:
+        from agents.ml_inference_agent import MLInferenceAgent
+        _ml_agent = MLInferenceAgent(supabase_client=get_client())
+    return _ml_agent
+
+
+@router.get("/risk/forecast/{commodity}")
+async def get_price_forecast(commodity: str, days: int = Query(7, ge=1, le=7)):
+    """
+    Get LSTM-based price forecast for a commodity.
+    Returns predicted prices with confidence bands for charting.
+    """
+    try:
+        agent = _get_ml_agent()
+
+        # Resolve commodity name (support aliases)
+        canonical = commodity.replace("_", " ").title()
+        forecast = await agent.forecast_price(canonical, days=days)
+
+        if forecast is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No forecast model available for '{commodity}'. "
+                       f"Run training scripts first: python scripts/collect_price_data.py && "
+                       f"python ../ml/train_price_models.py",
+            )
+
+        return forecast
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error generating price forecast for '%s': %s", commodity, e, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/risk/counterparty-risk/{counterparty_id}")
+async def get_counterparty_risk(counterparty_id: str):
+    """
+    Get XGBoost-based default risk prediction for a counterparty.
+    Builds feature vector from counterparty record and contract history.
+    """
+    try:
+        sb = get_client()
+
+        # Fetch counterparty record
+        cp_res = (
+            sb.table("counterparties")
+            .select("*")
+            .eq("id", counterparty_id)
+            .limit(1)
+            .execute()
+        )
+        if not cp_res.data:
+            raise HTTPException(status_code=404, detail=f"Counterparty {counterparty_id} not found.")
+
+        cp = cp_res.data[0]
+
+        # Fetch contract stats for this counterparty
+        contracts_res = (
+            sb.table("contracts")
+            .select("price_per_unit, quantity, delivery_date, status")
+            .eq("counterparty_id", counterparty_id)
+            .neq("status", "cancelled")
+            .execute()
+        )
+        contracts = contracts_res.data or []
+
+        # Calculate aggregate features
+        total_value = sum(
+            float(c.get("price_per_unit") or 0) * float(c.get("quantity") or 0)
+            for c in contracts
+        )
+
+        # Average days to delivery from open contracts
+        from datetime import date as dt_date
+        today = dt_date.today()
+        days_list = []
+        for c in contracts:
+            dd = c.get("delivery_date")
+            if dd and c.get("status") in ("draft", "confirmed", "in_transit"):
+                try:
+                    days_left = (dt_date.fromisoformat(dd) - today).days
+                    days_list.append(max(days_left, 0))
+                except Exception:
+                    pass
+        avg_days_to_delivery = sum(days_list) / len(days_list) if days_list else 14
+
+        # Current month and harvest season
+        current_month = today.month
+        is_harvest = 1 if current_month in [10, 11, 12] else 0
+
+        # Get average corridor reliability for this counterparty's dispatches
+        dispatch_res = (
+            sb.table("dispatches")
+            .select("trade_corridors(reliability_score)")
+            .execute()
+        )
+        corridor_scores = [
+            float(d["trade_corridors"]["reliability_score"])
+            for d in (dispatch_res.data or [])
+            if d.get("trade_corridors") and d["trade_corridors"].get("reliability_score")
+        ]
+        avg_corridor_reliability = sum(corridor_scores) / len(corridor_scores) if corridor_scores else 0.7
+
+        # Build feature dict
+        features = {
+            "payment_history_score": float(cp.get("payment_history_score") or 0.8),
+            "corridor_reliability": avg_corridor_reliability,
+            "contract_value": total_value / max(len(contracts), 1),
+            "month": current_month,
+            "is_harvest_season": is_harvest,
+            "days_to_delivery": avg_days_to_delivery,
+            "counterparty_total_trades": int(cp.get("total_trades") or 0),
+        }
+
+        agent = _get_ml_agent()
+        result = await agent.predict_default_risk(features)
+
+        if result is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Default risk model not available. Run: python ../ml/train_default_model.py",
+            )
+
+        # Enrich with counterparty info
+        result["counterparty"] = {
+            "id": cp["id"],
+            "name": cp["name"],
+            "city": cp.get("city"),
+            "state": cp.get("state"),
+            "total_contracts": len(contracts),
+        }
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error predicting counterparty risk: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+

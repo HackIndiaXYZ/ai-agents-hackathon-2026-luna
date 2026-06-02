@@ -1,0 +1,14 @@
+{
+  "feature_names": [
+    "payment_history_score",
+    "corridor_reliability",
+    "contract_value",
+    "month",
+    "is_harvest_season",
+    "days_to_delivery",
+    "counterparty_total_trades"
+  ],
+  "data_source": "synthetic",
+  "samples_used": 200,
+  "trained_at": "2026-06-02T15:05:31.565679"
+}
