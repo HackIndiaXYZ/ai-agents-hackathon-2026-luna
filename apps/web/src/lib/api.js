@@ -94,4 +94,15 @@ export const postAlertFeedback = async (alertId, isPositive) => {
   return response.data;
 };
 
+export const getModelInfo = async (commodity) => {
+  const response = await api.get(`/api/v1/risk/model-info/${commodity}`);
+  return response.data;
+};
+
+export const getDataQuality = async () => {
+  const response = await api.get('/api/v1/risk/data-quality');
+  return response.data;
+};
+
 export default api;
+

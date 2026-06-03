@@ -8,6 +8,8 @@ import PageHeader from '../components/ui/PageHeader';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
+import ModelCredibilityBadge from '../components/ui/ModelCredibilityBadge';
+
 
 import {
   LineChart,
@@ -371,7 +373,11 @@ export const MarketPrices = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
+          <div className="pt-2 flex justify-center">
+            <ModelCredibilityBadge commodity={selectedComm} compact />
+          </div>
         </Card>
+
 
         {/* Right: Top 5 Mandis by Price bar chart */}
         <Card className="p-6 space-y-4">

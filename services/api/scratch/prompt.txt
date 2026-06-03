@@ -1,0 +1,86 @@
+<USER_REQUEST>
+CONTEXT:
+Prompt 4 has been implemented. LSTM, XGBoost, training scripts, 
+ML inference agent, and forecast endpoints all exist and work.
+DO NOT break any of these. This prompt upgrades the data pipeline 
+and model selection logic only.
+
+Backward compatibility is mandatory:
+  - ml_inference_agent.py API surface: unchanged
+  - /api/v1/risk/forecast/{commodity}: unchanged response shape
+  - /api/v1/risk/counterparty-risk/{id}: unchanged
+  - model_registry.json: extended (new fields added, none removed)
+
+ADD to requirements.txt (only if not already present):
+  prophet>=1.1.5
+  torch>=2.0.0        (for Chronos)
+  transformers>=4.40.0  (for Chronos)
+  boto3               (Chronos via HuggingFace — NOT AWS, 
+                       pip install git+https://github.com/amazon-science/chronos-forecasting.git)
+  lightgbm>=4.0.0
+
+══════════════════════════════════════════════════════════
+PART 1 — HISTORICAL DATA INGESTION
+══════════════════════════════════════════════════════════
+
+FILE: services/api/scripts/collect_price_data.py
+(REPLACE the existing file completely)
+
+This script builds the real historical price dataset.
+It runs BEFORE model training. It is the single source of truth 
+for all training data.
+
+COMMODITY_CONFIG dict — maps canonical name to search variants:
+{
+  "Cotton": {
+    "datagov_names": ["Cotton", "Kapas", "Cotton(Lint)"],
+    "ceda_name": "Cotton",
+    "min_rows_for_lstm": 365,
+    "min_rows_for_prophet": 90,
+    "min_rows_for_xgboost": 30
+  },
+  "Soybean": {
+    "datagov_names": ["Soyabean", "Soybean"],
+    "ceda_name": "Soyabean",
+    "min_rows_for_lstm": 365, ...
+  },
+  "Pigeon Pea": {
+    "datagov_names": ["Arhar(Tur/Red Gram)", "Tur", "Pigeon Pea"],
+    "ceda_name": "Arhar(Tur/Red Gram)", ...
+  },
+  "Chickpea": {
+    "datagov_names": ["Gram(Whole)", "C
+<truncated 24224 bytes>
+try.json'))
+  for k,v in reg.items():
+    if 'credibility_statement' in v:
+      print(v['credibility_statement'])
+  "
+  
+  This is what you read to a judge verbatim. If CEDA cache files are not present,
+continue execution without error and rely on:
+- data.gov.in paginated history
+- existing mandi_prices table
+
+Emit warning instead of failing.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-06-02T23:22:28+05:30.
+
+The user's current state is as follows:
+Active Document: c:\Users\Aarushi Sachdeva\OneDrive\Desktop\ai-agents-hackathon-2026-luna\services\ml\train_price_models.py (LANGUAGE_PYTHON)
+Cursor is on line: 5
+Other open documents:
+- c:\Users\Aarushi Sachdeva\OneDrive\Desktop\ai-agents-hackathon-2026-luna\services\ml\train_default_model.py (LANGUAGE_PYTHON)
+- c:\Users\Aarushi Sachdeva\OneDrive\Desktop\ai-agents-hackathon-2026-luna\services\api\agents\ml_inference_agent.py (LANGUAGE_PYTHON)
+- c:\Users\Aarushi Sachdeva\OneDrive\Desktop\ai-agents-hackathon-2026-luna\services\api\routers\lucy.py (LANGUAGE_PYTHON)
+- c:\Users\Aarushi Sachdeva\OneDrive\Desktop\ai-agents-hackathon-2026-luna\data\schema.sql (LANGUAGE_SQL)
+- c:\Users\Aarushi Sachdeva\OneDrive\Desktop\ai-agents-hackathon-2026-luna\services\ml\train_price_models.py (LANGUAGE_PYTHON)
+Running terminal commands:
+- npm run dev (in c:\Users\Aarushi Sachdeva\OneDrive\Desktop\ai-agents-hackathon-2026-luna\apps\web, running for 24h50m14s)
+- uvicorn main:app --reload (in c:\Users\Aarushi Sachdeva\OneDrive\Desktop\ai-agents-hackathon-2026-luna\services, running for 24h46m22s)
+- uvicorn main:app --reload (in c:\Users\Aarushi Sachdeva\OneDrive\Desktop\ai-agents-hackathon-2026-luna\services\api, running for 24h42m52s)
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from Gemini 3.5 Flash (High) to Claude Opus 4.6 (Thinking). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>

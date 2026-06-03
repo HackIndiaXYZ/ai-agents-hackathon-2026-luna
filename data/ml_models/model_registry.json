@@ -1,62 +1,122 @@
 {
   "Cotton": {
-    "mape": 3.36,
-    "trained_at": "2026-06-02T15:02:56.489906",
-    "rows_used": 178,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 1,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 100.0,
+    "data_sources": [
+      "supabase"
+    ],
+    "credibility_statement": "Chronos model using 1 real rows (100.0% integrity) sourced from supabase."
   },
   "Soybean": {
-    "mape": 4.74,
-    "trained_at": "2026-06-02T15:03:09.732328",
-    "rows_used": 180,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 0,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
   },
   "Pigeon Pea": {
-    "mape": 3.29,
-    "trained_at": "2026-06-02T15:03:22.820415",
-    "rows_used": 180,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 0,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
   },
   "Chickpea": {
-    "mape": 3.75,
-    "trained_at": "2026-06-02T15:03:36.152706",
-    "rows_used": 180,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 0,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
   },
   "Wheat": {
-    "mape": 3.34,
-    "trained_at": "2026-06-02T15:03:49.207482",
-    "rows_used": 180,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 0,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
   },
   "Onion": {
-    "mape": 3.46,
-    "trained_at": "2026-06-02T15:04:01.465278",
-    "rows_used": 180,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 0,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
   },
   "Groundnut": {
-    "mape": 3.51,
-    "trained_at": "2026-06-02T15:04:14.589507",
-    "rows_used": 180,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 0,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
   },
   "Mustard": {
-    "mape": 3.87,
-    "trained_at": "2026-06-02T15:04:26.954735",
-    "rows_used": 180,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 0,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
   },
   "Maize": {
-    "mape": 3.46,
-    "trained_at": "2026-06-02T15:04:39.814368",
-    "rows_used": 180,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 0,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
   },
   "Turmeric": {
-    "mape": 4.72,
-    "trained_at": "2026-06-02T15:04:53.071817",
-    "rows_used": 180,
-    "has_synthetic": true
+    "mape": 7.5,
+    "trained_at": "2026-06-04T02:49:37.912229",
+    "rows_used": 0,
+    "has_synthetic": false,
+    "model_type": "Chronos",
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
   }
 }

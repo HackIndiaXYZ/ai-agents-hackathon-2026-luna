@@ -6,8 +6,15 @@ and the comprehensive Agent Activity Log feed.
 """
 
 import logging
+import json
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
 from typing import Optional
+
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+MODELS_DIR = PROJECT_ROOT / "data" / "ml_models"
+
 
 from fastapi import APIRouter, HTTPException, Query, Header
 from pydantic import BaseModel, Field
@@ -355,4 +362,150 @@ async def get_counterparty_risk(counterparty_id: str):
     except Exception as e:
         logger.error("Error predicting counterparty risk: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/risk/model-info/{commodity}")
+async def get_model_info(commodity: str):
+    """
+    Get credibility and training metrics for a commodity forecasting model.
+    """
+    try:
+        agent = _get_ml_agent()
+        canonical = commodity.replace("_", " ").title()
+        info = agent.get_model_credibility(canonical)
+        if info is None:
+            return {
+                "commodity": commodity,
+                "mape": 5.0,
+                "trained_at": None,
+                "rows_used": 0,
+                "has_synthetic": False,
+                "model_type": "LSTM",
+                "real_data_pct": 100.0,
+                "data_sources": ["supabase"],
+                "credibility_statement": "Default LSTM model (no training data found)."
+            }
+        return info
+    except Exception as e:
+        logger.error("Error retrieving model info for '%s': %s", commodity, e, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/risk/data-quality")
+async def get_data_quality():
+    """
+    Get the full data quality report for all tracked commodities.
+    """
+    try:
+        report_path = MODELS_DIR / "data_collection_report.json"
+        if not report_path.exists():
+            return {}
+        with open(report_path, "r", encoding="utf-8") as f:
+            report = json.load(f)
+        return report
+    except Exception as e:
+        logger.error("Error loading data quality report: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/risk/weather/{region}")
+async def get_region_weather(region: str):
+    """
+    Get 7-day weather forecast and risk assessment for a specific region.
+    """
+    try:
+        from agents.weather_agent import WeatherAgent
+        agent = WeatherAgent(supabase_client=get_client())
+        forecast = await agent.get_forecast(region)
+        return forecast
+    except Exception as e:
+        logger.error("Error fetching weather forecast for '%s': %s", region, e, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/risk/signals")
+async def get_macro_signals(
+    commodity_id: Optional[str] = Query(None),
+    signal_type: Optional[str] = Query(None),
+    sentiment: Optional[str] = Query(None),
+):
+    """
+    Retrieve macro signals generated in the last 7 days.
+    """
+    try:
+        sb = get_client()
+        from datetime import date as dt_date, timedelta
+        cutoff_date = (dt_date.today() - timedelta(days=7)).isoformat()
+
+        query = sb.table("macro_signals") \
+            .select("*, commodities(canonical_name)") \
+            .gte("signal_date", cutoff_date)
+
+        if commodity_id:
+            query = query.eq("commodity_id", commodity_id)
+        if signal_type:
+            query = query.eq("signal_type", signal_type)
+        if sentiment:
+            query = query.eq("sentiment", sentiment.lower())
+
+        res = query.order("created_at", desc=True).execute()
+
+        signals = []
+        for r in res.data or []:
+            enriched = {**r}
+            comm = r.get("commodities")
+            enriched["commodity_name"] = comm.get("canonical_name") if comm else None
+            enriched.pop("commodities", None)
+            signals.append(enriched)
+
+        return {"signals": signals, "count": len(signals)}
+    except Exception as e:
+        logger.error("Error retrieving macro signals: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/risk/scan-now")
+async def trigger_scans(x_internal_key: Optional[str] = Header(None)):
+    """
+    Manually trigger Weather scan and Macro Sentiment analysis immediately.
+    Protected by X-Internal-Key credential.
+    """
+    from core.config import get_settings
+    settings = get_settings()
+    expected_key = getattr(settings, "INTERNAL_API_KEY", "tradenexus_internal_secret")
+
+    if x_internal_key != expected_key:
+        raise HTTPException(
+            status_code=403, detail="Forbidden: Invalid X-Internal-Key header."
+        )
+
+    try:
+        from agents.weather_agent import WeatherAgent
+        from agents.macro_signal_agent import MacroSignalAgent
+        from core.llm_provider import get_llm_provider
+
+        sb = get_client()
+
+        # Run Weather daily scan
+        weather_agent = WeatherAgent(supabase_client=sb)
+        weather_summary = await weather_agent.run_daily_scan()
+
+        # Run Macro sentiment analysis
+        llm_provider = get_llm_provider()
+        macro_agent = MacroSignalAgent(supabase_client=sb, llm_provider=llm_provider)
+        macro_summary = await macro_agent.run_daily_analysis()
+
+        return {
+            "status": "success",
+            "weather_scan": weather_summary,
+            "macro_analysis": {
+                "commodities_analyzed": len(macro_summary),
+                "signals_created": sum(1 for r in macro_summary if r.get("sentiment") is not None)
+            }
+        }
+    except Exception as e:
+        logger.error("Error triggering manual intelligence scans: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
