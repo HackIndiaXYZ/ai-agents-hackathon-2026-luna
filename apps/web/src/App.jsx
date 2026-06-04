@@ -26,6 +26,8 @@ import Opportunities from './pages/Opportunities';
 import Advisor from './pages/Advisor';
 import Compliance from './pages/Compliance';
 import Quality from './pages/app/Quality';
+import Network from './pages/app/Network';
+import Analytics from './pages/app/Analytics';
 import Settings from './pages/Settings';
 
 // Protected Route Guard
@@ -149,6 +151,26 @@ export const App = () => {
               <ProtectedRoute>
                 <PageTransition>
                   <Inventory />
+                </PageTransition>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/app/network" 
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <Network />
+                </PageTransition>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/app/analytics" 
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <Analytics />
                 </PageTransition>
               </ProtectedRoute>
             } 

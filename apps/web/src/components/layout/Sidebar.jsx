@@ -12,6 +12,8 @@ import {
   LogOut,
   Compass,
   ClipboardCheck,
+  Network,
+  BarChart3,
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -22,6 +24,8 @@ export const Sidebar = () => {
   const navItems = [
     { path: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/app/markets', label: 'Markets', icon: TrendingUp },
+    { path: '/app/network', label: 'Network', icon: Network },
+    { path: '/app/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/app/dispatch', label: 'Dispatch', icon: Truck },
     { path: '/app/opportunities', label: 'Opportunities', icon: Handshake },
     { path: '/app/compliance', label: 'Compliance', icon: FileText },

@@ -548,6 +548,11 @@ export const postLucyChat = async (message, sessionId, languageHint = 'en') => {
   return response.data;
 };
 
+export const getNetworkGraph = async () => {
+  const response = await api.get('/api/v1/network/graph');
+  return response.data;
+};
+
 export default api;
 
 

@@ -14,7 +14,13 @@ import {
   Handshake, 
   FileCheck, 
   Compass, 
-  CheckCircle2 
+  CheckCircle2,
+  Table,
+  Cpu,
+  Smartphone,
+  Check,
+  X,
+  Database
 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import StatCard from '../components/ui/StatCard';
@@ -22,6 +28,7 @@ import Button from '../components/ui/Button';
 
 export const Landing = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [marketSizeCounter, setMarketSizeCounter] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,6 +36,29 @@ export const Landing = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Market size counter animation (counting up to 50,000)
+  useEffect(() => {
+    let start = 0;
+    const end = 50000;
+    const duration = 1500; // 1.5 seconds
+    const range = end - start;
+    const stepTime = 15;
+    const increments = duration / stepTime;
+    const stepValue = range / increments;
+    
+    const timer = setInterval(() => {
+      start += stepValue;
+      if (start >= end) {
+        setMarketSizeCounter(end);
+        clearInterval(timer);
+      } else {
+        setMarketSizeCounter(Math.floor(start));
+      }
+    }, stepTime);
+
+    return () => clearInterval(timer);
   }, []);
 
   // Landing page animations configurations
@@ -52,59 +82,59 @@ export const Landing = () => {
     {
       num: "01",
       icon: Search,
-      title: "Enter commodity",
-      desc: "Type Cotton, Kapas, कपास, or any regional dialect. Our 4-tier cascade resolves it instantly."
+      title: "Sync Mandis & Inventory",
+      desc: "Connect user warehouses directly to 3,000+ live APMC mandi price feeds instantly using adaptive mapping."
     },
     {
       num: "02",
-      icon: BarChart3,
-      title: "Real mandi prices",
-      desc: "Live prices from data.gov.in across 3,000+ mandis. Anomalies detected automatically."
+      icon: Brain,
+      title: "Evaluate Real-Time Risk",
+      desc: "Run live Mark-to-Market (MtM) calculations, exposure tracking, and basis risk evaluations over your books."
     },
     {
       num: "03",
-      icon: Navigation,
-      title: "Route reliability",
-      desc: "Google Routes API + corridor reports tells you if the road to your buyer is reliable today."
+      icon: Route,
+      title: "Optimize Dispatch Logs",
+      desc: "Score transit corridors for delays and monitor monsoons using route telemetry before routing drivers."
     },
     {
       num: "04",
-      icon: Brain,
-      title: "AI recommendation",
-      desc: "Qwen synthesizes everything into a clear, specific trading recommendation in your language."
+      icon: Handshake,
+      title: "Trade & Liquidate",
+      desc: "Post opportunities, match buyers, extract invoices via compliance OCR, and log notes in regional languages."
     }
   ];
 
   const features = [
     {
-      icon: Globe,
-      title: "Multilingual Resolution",
-      desc: "Kapas = Cotton. Automatically. Our 4-tier cascade resolves regional commodity names across Hindi, Marathi, Gujarati, Telugu, Tamil and 238 other languages. No manual mapping required."
-    },
-    {
       icon: TrendingUp,
-      title: "Live Mandi Intelligence",
-      desc: "Price spikes before your competitors see them. Anomaly detection fires when modal prices deviate 1.5σ from the 10-day average. Get alerts, not noise."
+      title: "Mark-to-Market Ledger",
+      desc: "Ditch manual spreadsheets. Get instant portfolio valuation updates, worst-performer summaries, and live basis risk tables."
     },
     {
       icon: Route,
-      title: "Route Confidence",
-      desc: "Know before you dispatch. Real-time route scoring combines Google Routes API data with user-reported corridor delays. Confidence score, not just ETA."
+      title: "Logistics Corridor Scoring",
+      desc: "Google Maps routing telemetry combined with live weather overlays. Auto-detect flood risks along transit roads."
     },
     {
-      icon: Sparkles,
-      title: "Adaptive Learning",
-      desc: "Gets smarter with every trade. Every correction teaches the system. Processed through Adaption's multilingual AI platform. The corpus grows daily."
-    },
-    {
-      icon: Handshake,
-      title: "Trade Matching",
-      desc: "Turn empty trucks into profit. Post return loads, find forward opportunities. Simple matching for real traders."
+      icon: Brain,
+      title: "Linguistic Resolve Cascade",
+      desc: "Type in English, Hindi, or Hinglish. Our 4-tier model translates 'Narma' and 'Kapas' back to Cotton automatically."
     },
     {
       icon: FileCheck,
-      title: "Compliance Ready",
-      desc: "Invoice → structured data in seconds. Upload a PDF invoice. Get extracted GST, HSN codes, and e-way bill fields instantly."
+      title: "Automated GST Invoicing",
+      desc: "Drag-and-drop OCR scans trade invoices, validates GSTINs/HSNs, computes tax splits, and generates printable bills."
+    },
+    {
+      icon: Sparkles,
+      title: "Live ML Forecasting",
+      desc: "180 days of historical patterns feed our LSTM networks to output a 7-day outlook with confidence interval bands."
+    },
+    {
+      icon: Compass,
+      title: "Interactive Network Graph",
+      desc: "A fully custom D3 force-directed visualization graphing your warehouse hubs, open opportunities, and buyer nodes."
     }
   ];
 
@@ -123,11 +153,15 @@ export const Landing = () => {
           <span className="text-xl font-extrabold text-slate-900 tracking-tight font-display">
             TradeNexus
           </span>
+          <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+            CTRM
+          </span>
         </div>
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
           <a href="#product" className="hover:text-slate-950 transition-colors">Product</a>
-          <a href="#how-it-works" className="hover:text-slate-950 transition-colors">How It Works</a>
+          <a href="#comparison" className="hover:text-slate-950 transition-colors">Differentiation</a>
+          <a href="#market" className="hover:text-slate-950 transition-colors">Opportunity</a>
           <a href="#features" className="hover:text-slate-950 transition-colors">Features</a>
         </nav>
 
@@ -157,7 +191,7 @@ export const Landing = () => {
             style={{ backgroundColor: 'var(--brand-green-light)', color: 'var(--brand-green)', borderColor: 'var(--border)' }}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>AI-Powered • Multilingual • Adaptive Learning</span>
+            <span>AI-Driven CTRM Operating System for Indian Ag-Commodities</span>
           </motion.div>
 
           {/* Heading */}
@@ -168,9 +202,9 @@ export const Landing = () => {
             className="space-y-1"
           >
             <h1 className="text-4xl sm:text-6xl tracking-tight text-slate-900 font-display leading-none">
-              <motion.span variants={itemVariants} className="block font-normal">India's Smartest</motion.span>
-              <motion.span variants={itemVariants} className="block font-extrabold" style={{ color: 'var(--brand-green)' }}>Commodity Trading</motion.span>
-              <motion.span variants={itemVariants} className="block font-normal">Intelligence</motion.span>
+              <motion.span variants={itemVariants} className="block font-normal">India's First Intelligent</motion.span>
+              <motion.span variants={itemVariants} className="block font-extrabold" style={{ color: 'var(--brand-green)' }}>Commodity Trading & Risk</motion.span>
+              <motion.span variants={itemVariants} className="block font-normal">Management Platform</motion.span>
             </h1>
           </motion.div>
 
@@ -181,7 +215,7 @@ export const Landing = () => {
             transition={{ duration: 0.4, delay: 0.3 }}
             className="text-base sm:text-lg text-slate-500 font-medium max-w-2xl leading-relaxed"
           >
-            From mandi prices to route confidence — TradeNexus gives commodity traders in India the intelligence to decide where to sell, when to dispatch, and how much to earn.
+            Bridge physical grain logistics with real-time portfolio risk management. Monitor mandi spreads, track basis risk, predict crop prices, and automate regional trade records.
           </motion.p>
 
           {/* CTAs */}
@@ -193,7 +227,7 @@ export const Landing = () => {
           >
             <Link to="/auth/signup">
               <Button variant="primary" size="lg">
-                Start Trading Smarter <ArrowRight className="w-4 h-4 ml-2 shrink-0" />
+                Access CTRM Console <ArrowRight className="w-4 h-4 ml-2 shrink-0" />
               </Button>
             </Link>
             <Link to="/app/dashboard">
@@ -208,10 +242,10 @@ export const Landing = () => {
             transition={{ duration: 0.4, delay: 0.5 }}
             className="pt-4 flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-xs font-semibold text-slate-400"
           >
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> 20 Commodity Types</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> 242 Languages</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> 3,000+ Mandis</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Real-Time Prices</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Multi-mandi Spreads</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Real-time MtM Valuation</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Multilingual Resolvers</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> First-Mile Quality Capture</span>
           </motion.div>
         </div>
 
@@ -228,10 +262,10 @@ export const Landing = () => {
             className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 border rounded-2xl bg-white shadow-md relative z-10"
             style={{ borderColor: 'var(--border)' }}
           >
-            <StatCard label="Cotton, Nagpur" value="₹7,250" delta="+18% spike" color="green" />
-            <StatCard label="Route Reliability" value="87%" delta="Amravati→Nagpur" color="blue" />
-            <StatCard label="Aliases Learned" value="47" delta="+14 this week" color="amber" />
-            <StatCard label="Active Alerts" value="3" delta="High spikes" color="rose" />
+            <StatCard label="Total Portfolio Value" value="₹4.73 Cr" delta="Live Mark-to-Market" color="green" />
+            <StatCard label="Net Basis Risk" value="+4.15%" delta="Weighted Average spread" color="blue" />
+            <StatCard label="Moisture Deficit Penalities" value="₹1.48L" delta="First-mile lot metrics" color="amber" />
+            <StatCard label="Corridor Transit Alerts" value="2 active" delta="Vidarbha monsoon risk" color="rose" />
           </motion.div>
         </motion.div>
       </section>
@@ -239,24 +273,24 @@ export const Landing = () => {
       {/* SECTION C — SOCIAL PROOF TICKER */}
       <section className="py-3 overflow-hidden text-xs font-bold text-white uppercase tracking-wider relative select-none flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--brand-green-dark)' }}>
         <div className="flex gap-16 animate-pulse-soft whitespace-nowrap">
-          <span>• Cotton prices live from 3,000+ mandis</span>
-          <span>• Resolves Kapas, कपास, Narma automatically</span>
-          <span>• Route reliability updated hourly</span>
-          <span>• Powered by Adaption multilingual AI</span>
-          <span>• 242 Indian languages supported</span>
+          <span>• Dedicated Ag-CTRM Tooling</span>
+          <span>• Indian Mandi & APMC Price Feeds Sync</span>
+          <span>• Live Basis Risk computations</span>
+          <span>• First-Mile moisture & weight penalties</span>
+          <span>• D3 Supply Chain flow visualizations</span>
         </div>
       </section>
 
       {/* SECTION D — HOW IT WORKS */}
-      <section id="how-it-works" className="py-24 bg-white border-y" style={{ borderColor: 'var(--border)' }}>
+      <section id="product" className="py-24 bg-white border-b" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-6xl mx-auto px-6 space-y-12">
           
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight font-display">
-              From Raw Signal to Clear Decision
+              CTRM Architecture Built For Ag-Markets
             </h2>
             <p className="text-slate-500 font-medium text-sm">
-              Four steps. One recommendation.
+              Standard CTRMs focus on paper markets. TradeNexus tracks the physical, first-mile reality.
             </p>
           </div>
 
@@ -303,16 +337,145 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* SECTION E — FEATURE HIGHLIGHTS */}
+      {/* SECTION E — COMPARISON TABLE */}
+      <section id="comparison" className="py-24 bg-white border-b" style={{ borderColor: 'var(--border)' }}>
+        <div className="max-w-5xl mx-auto px-6 space-y-12">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight font-display">
+              Differentiation Matrix
+            </h2>
+            <p className="text-slate-500 font-medium text-sm">
+              How TradeNexus stacks up against traditional systems and manual tracking
+            </p>
+          </div>
+
+          <div className="overflow-x-auto border rounded-2xl shadow-sm bg-white" style={{ borderColor: 'var(--border)' }}>
+            <table className="w-full text-left border-collapse text-xs md:text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b font-bold text-slate-500" style={{ borderColor: 'var(--border)' }}>
+                  <th className="p-4">Feature</th>
+                  <th className="p-4 bg-emerald-50 text-emerald-800 font-black">TradeNexus</th>
+                  <th className="p-4">Eka / Mindsprint</th>
+                  <th className="p-4">Spreadsheets</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y font-semibold text-slate-600" style={{ borderColor: 'var(--border)' }}>
+                {[
+                  { name: 'Target User', tn: 'Indian Traders / SMEs', alt1: 'Global Corporates', alt2: 'Everyone' },
+                  { name: 'Mobile-First Design', tn: true, alt1: false, alt2: 'Partial' },
+                  { name: 'Hindi & Regional Support', tn: true, alt1: false, alt2: false },
+                  { name: 'AI Copilot (Lucy)', tn: true, alt1: false, alt2: false },
+                  { name: 'First-Mile Quality Capture', tn: true, alt1: false, alt2: 'Manual Entry' },
+                  { name: 'Setup Time', tn: 'Under 10 Minutes', alt1: '3-6 Months', alt2: 'Instant but messy' },
+                  { name: 'Pricing model', tn: 'Pay-As-You-Grow', alt1: '₹20L+ annual contract', alt2: 'Free' }
+                ].map((row, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/50">
+                    <td className="p-4 font-bold text-slate-800">{row.name}</td>
+                    
+                    {/* TradeNexus Column (highlighted) */}
+                    <td className="p-4 bg-emerald-50/40 text-emerald-800 font-bold border-x border-emerald-100">
+                      {typeof row.tn === 'boolean' ? (
+                        row.tn ? <span className="inline-flex items-center gap-1 text-emerald-700 font-black"><Check className="w-4 h-4" /> Yes</span> : <X className="w-4 h-4 text-slate-400" />
+                      ) : row.tn}
+                    </td>
+
+                    <td className="p-4">
+                      {typeof row.alt1 === 'boolean' ? (
+                        row.alt1 ? <Check className="w-4 h-4 text-emerald-500" /> : <span className="inline-flex items-center gap-1 text-rose-500"><X className="w-4 h-4" /> No</span>
+                      ) : row.alt1}
+                    </td>
+                    
+                    <td className="p-4">
+                      {typeof row.alt2 === 'boolean' ? (
+                        row.alt2 ? <Check className="w-4 h-4 text-emerald-500" /> : <span className="inline-flex items-center gap-1 text-rose-500"><X className="w-4 h-4" /> No</span>
+                      ) : row.alt2}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION F — MARKET SIZE SECTION */}
+      <section id="market" className="py-24 bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-950 text-white relative overflow-hidden">
+        {/* Decorative backdrop elements */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-emerald-500/10 rounded-full blur-[120px] -z-10" />
+
+        <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span>Market Opportunity</span>
+            </div>
+            
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight font-display leading-tight">
+              The Market Eka Can't Serve — We Can.
+            </h2>
+            
+            <p className="text-slate-300 font-medium text-sm leading-relaxed">
+              India has over 400,000 active ag-commodity trading enterprises. Enterprise CTRM systems require millions in licensing fees and months of integration. As a result, 98% of mid-market traders rely on fragmented WhatsApp threads and manual spreadsheets. TradeNexus changes this.
+            </p>
+
+            <div className="space-y-4 pt-2">
+              <div className="flex items-start gap-3">
+                <div className="p-1 rounded bg-emerald-500/20 text-emerald-400 mt-0.5">
+                  <Check className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">400,000+ Addressable Traders</p>
+                  <p className="text-[11px] text-slate-400 font-semibold mt-0.5">A completely unserved ag-trading customer segment across Tier 2 and Tier 3 markets.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="p-1 rounded bg-emerald-500/20 text-emerald-400 mt-0.5">
+                  <Check className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">Zero Enterprise Licensing Barriers</p>
+                  <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Mobile-first, cloud-native deployments that require no IT staff or expensive upfront retainers.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side: Animated counter visual */}
+          <Card className="bg-white/5 border-white/10 backdrop-blur-sm p-8 text-center space-y-6">
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Total Addressable Market</p>
+              
+              {/* Counter Display */}
+              <div className="text-4xl md:text-5xl font-black font-display text-white tracking-tight">
+                ₹{marketSizeCounter.toLocaleString('en-IN')}+ Cr
+              </div>
+              <p className="text-xs text-slate-400 font-semibold">Annual physical commodity trading turnover across SME networks</p>
+            </div>
+
+            <div className="border-t border-white/10 pt-6 grid grid-cols-2 gap-4">
+              <div className="text-center space-y-1">
+                <p className="text-lg font-bold text-white">4,00,000</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Active Traders</p>
+              </div>
+              <div className="text-center space-y-1">
+                <p className="text-lg font-bold text-white">98%</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Excel / Manual Dependent</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* SECTION G — FEATURE HIGHLIGHTS */}
       <section id="features" className="py-24 bg-slate-50">
         <div className="max-w-6xl mx-auto px-6 space-y-12">
           
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight font-display">
-              Everything a trader needs. Nothing they don't.
+              Enterprise Power. App Simplicity.
             </h2>
             <p className="text-slate-500 font-medium text-sm">
-              Modern tooling engineered for India's physical ag-trading networks.
+              Modern CTRM tooling engineered for India's physical ag-trading networks.
             </p>
           </div>
 
@@ -347,32 +510,14 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* SECTION F — LIVE STATS TICKER */}
-      <section className="py-16 text-white relative overflow-hidden" style={{ backgroundColor: 'var(--text-primary)' }}>
-        <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <div className="space-y-1">
-            <h3 className="text-4xl font-extrabold tracking-tight text-white font-display">3,247+</h3>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Mandis Monitored</p>
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-4xl font-extrabold tracking-tight text-white font-display">242</h3>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Languages Mapped</p>
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-4xl font-extrabold tracking-tight text-white font-display">82%</h3>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Data Quality Lift via Adaptive Loop</p>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION G — CTA SECTION */}
+      {/* SECTION H — CTA SECTION */}
       <section className="py-24 px-6 text-center space-y-6 relative overflow-hidden bg-gradient-to-b from-white to-emerald-50/30">
         <div className="max-w-xl mx-auto space-y-4">
           <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight font-display">
             Ready to trade smarter?
           </h2>
           <p className="text-sm text-slate-500 font-semibold leading-relaxed">
-            Join commodity traders across India who use TradeNexus to make better decisions, faster.
+            Equip your enterprise with the pricing models, logistics scorers, and risk ledgers to maximize margins.
           </p>
           <div className="pt-2 flex justify-center gap-3">
             <Link to="/auth/signup">
@@ -385,7 +530,7 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* SECTION H — FOOTER */}
+      {/* SECTION I — FOOTER */}
       <footer className="mt-auto py-12 px-6 bg-slate-900 text-slate-400 border-t border-slate-800 text-xs font-medium">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-slate-800">
           <div className="space-y-3">
@@ -394,37 +539,38 @@ export const Landing = () => {
               <span className="text-base font-extrabold tracking-tight font-display">TradeNexus</span>
             </div>
             <p className="text-[11px] leading-relaxed text-slate-500">
-              Built for Indian commodity traders. Bridging real-time logistics corridors, pricing metrics, and multilingual intelligence.
+              Dedicated CTRM Platform for Indian ag-commodity markets. Tracking live mandis, corridor risks, tax compliance, and portfolio exposures.
             </p>
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Product</h4>
+            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">CTRM Suite</h4>
             <ul className="space-y-2">
-              <li><Link to="/app/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
-              <li><Link to="/app/markets" className="hover:text-white transition-colors">Markets Index</Link></li>
-              <li><Link to="/app/dispatch" className="hover:text-white transition-colors">Dispatch Telemetry</Link></li>
-              <li><Link to="/app/opportunities" className="hover:text-white transition-colors">Opportunities</Link></li>
+              <li><Link to="/app/dashboard" className="hover:text-white transition-colors">Command Center</Link></li>
+              <li><Link to="/app/risk" className="hover:text-white transition-colors">Risk Ledger</Link></li>
+              <li><Link to="/app/network" className="hover:text-white transition-colors">Supply Network Graph</Link></li>
+              <li><Link to="/app/analytics" className="hover:text-white transition-colors">Analytics & P&L</Link></li>
+              <li><Link to="/app/inventory" className="hover:text-white transition-colors">Physical Storage</Link></li>
             </ul>
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Technology</h4>
+            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Logistics & Operations</h4>
+            <ul className="space-y-2">
+              <li><Link to="/app/dispatch" className="hover:text-white transition-colors">Dispatch & Corridors</Link></li>
+              <li><Link to="/app/markets" className="hover:text-white transition-colors">Market Prices</Link></li>
+              <li><Link to="/app/compliance" className="hover:text-white transition-colors">Compliance Assistant</Link></li>
+              <li><Link to="/app/quality" className="hover:text-white transition-colors">Quality Standards</Link></li>
+            </ul>
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Technology Stack</h4>
             <ul className="space-y-2">
               <li className="hover:text-white transition-colors cursor-pointer">Adaptive Data Cascade</li>
-              <li className="hover:text-white transition-colors cursor-pointer">NVIDIA Qwen 3.5 LLM</li>
-              <li className="hover:text-white transition-colors cursor-pointer">data.gov.in API Sync</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Google Routes Telemetry</li>
-            </ul>
-          </div>
-
-          <div className="space-y-3">
-            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Hackathon Context</h4>
-            <ul className="space-y-2">
-              <li><a href="#" className="hover:text-white transition-colors">AI Agents Hackathon 2026</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Adaption AI Track</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">GitHub Repository</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">HuggingFace Dataset</a></li>
+              <li className="hover:text-white transition-colors cursor-pointer">D3.js Force Simulation</li>
+              <li className="hover:text-white transition-colors cursor-pointer">Live Mandi API Sync</li>
+              <li className="hover:text-white transition-colors cursor-pointer">Weather Routing Telemetry</li>
             </ul>
           </div>
         </div>

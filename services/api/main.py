@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers import market, dispatch, opportunity, compliance, feedback, advisor, copilot, lucy
-from routers import contracts, counterparties, dispatches, risk
+from routers import contracts, counterparties, dispatches, risk, network
 from tasks.risk_scheduler import start_scheduler, shutdown_scheduler
 
 
@@ -58,6 +58,7 @@ app.include_router(contracts.router, prefix="/api/v1", tags=["Contracts"])
 app.include_router(counterparties.router, prefix="/api/v1", tags=["Counterparties"])
 app.include_router(dispatches.router, prefix="/api/v1", tags=["Dispatches"])
 app.include_router(risk.router, prefix="/api/v1", tags=["Risk"])
+app.include_router(network.router, prefix="/api/v1", tags=["Network"])
 
 
 # --- Health Check ---
