@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Compass,
+  ClipboardCheck,
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -24,6 +25,7 @@ export const Sidebar = () => {
     { path: '/app/dispatch', label: 'Dispatch', icon: Truck },
     { path: '/app/opportunities', label: 'Opportunities', icon: Handshake },
     { path: '/app/compliance', label: 'Compliance', icon: FileText },
+    { path: '/app/quality', label: 'Quality Lots', icon: ClipboardCheck },
     { path: '/app/advisor', label: 'Trade Advisor', icon: Brain },
   ];
 

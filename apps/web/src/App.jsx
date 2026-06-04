@@ -25,6 +25,7 @@ import MarketPrices from './pages/MarketPrices';
 import Opportunities from './pages/Opportunities';
 import Advisor from './pages/Advisor';
 import Compliance from './pages/Compliance';
+import Quality from './pages/app/Quality';
 import Settings from './pages/Settings';
 
 // Protected Route Guard
@@ -178,6 +179,16 @@ export const App = () => {
               <ProtectedRoute>
                 <PageTransition>
                   <Compliance />
+                </PageTransition>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/app/quality" 
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <Quality />
                 </PageTransition>
               </ProtectedRoute>
             } 

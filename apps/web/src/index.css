@@ -61,3 +61,27 @@
     background: var(--text-muted);
   }
 }
+
+/* Print utilities for generating invoices directly in-browser */
+@media print {
+  aside, 
+  nav, 
+  button, 
+  select, 
+  .no-print, 
+  .sidebar,
+  .topbar, 
+  header div:has(button) {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  main, .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+}
+
