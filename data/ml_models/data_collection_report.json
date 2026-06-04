@@ -1,0 +1,132 @@
+{
+  "Cotton": {
+    "total_rows": 1,
+    "real_rows": 1,
+    "synthetic_rows": 0,
+    "real_data_pct": 100.0,
+    "data_sources": [
+      "supabase"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 1 real rows (100.0% integrity) sourced from supabase."
+  },
+  "Soybean": {
+    "total_rows": 0,
+    "real_rows": 0,
+    "synthetic_rows": 0,
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
+  },
+  "Pigeon Pea": {
+    "total_rows": 0,
+    "real_rows": 0,
+    "synthetic_rows": 0,
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
+  },
+  "Chickpea": {
+    "total_rows": 0,
+    "real_rows": 0,
+    "synthetic_rows": 0,
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
+  },
+  "Wheat": {
+    "total_rows": 0,
+    "real_rows": 0,
+    "synthetic_rows": 0,
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
+  },
+  "Onion": {
+    "total_rows": 0,
+    "real_rows": 0,
+    "synthetic_rows": 0,
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
+  },
+  "Groundnut": {
+    "total_rows": 0,
+    "real_rows": 0,
+    "synthetic_rows": 0,
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
+  },
+  "Mustard": {
+    "total_rows": 0,
+    "real_rows": 0,
+    "synthetic_rows": 0,
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
+  },
+  "Maize": {
+    "total_rows": 0,
+    "real_rows": 0,
+    "synthetic_rows": 0,
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
+  },
+  "Turmeric": {
+    "total_rows": 0,
+    "real_rows": 0,
+    "synthetic_rows": 0,
+    "real_data_pct": 0.0,
+    "data_sources": [
+      "synthetic"
+    ],
+    "missing_dates_filled": 0,
+    "outliers_removed": 0,
+    "recommended_model": "Chronos",
+    "credibility_statement": "Chronos model using 0 real rows (0.0% integrity) sourced from synthetic."
+  }
+}

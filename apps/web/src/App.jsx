@@ -15,7 +15,9 @@ import LucyMode from './components/lucy/LucyMode';
 import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/app/Dashboard';
+import Contracts from './pages/app/Contracts';
+import ContractForm from './pages/app/ContractForm';
 import MarketPrices from './pages/MarketPrices';
 import DispatchIntelligence from './pages/DispatchIntelligence';
 import Opportunities from './pages/Opportunities';
@@ -84,6 +86,26 @@ export const App = () => {
               <ProtectedRoute>
                 <PageTransition>
                   <Dashboard />
+                </PageTransition>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/app/contracts" 
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <Contracts />
+                </PageTransition>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/app/contracts/new" 
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <ContractForm />
                 </PageTransition>
               </ProtectedRoute>
             } 
