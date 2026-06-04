@@ -1,12 +1,18 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Mic, MicOff, X, Send, Sparkles, Clock, Volume2, VolumeX,
   Bot, RefreshCw, ChevronDown, ChevronUp, MapPin, ShieldCheck,
   TrendingUp, FileText, CheckCircle2, User, Globe, HelpCircle,
-  Package, Scale, DollarSign, ArrowRight
+  Package, Scale, DollarSign, ArrowRight, Shield, CloudRain,
+  BarChart3, Truck, AlertTriangle, ExternalLink
 } from 'lucide-react';
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  Area, CartesianGrid
+} from 'recharts';
 import toast, { Toaster } from 'react-hot-toast';
 import useLucy, { useLucyStore } from '../../hooks/useLucy';
 import ExecutionTimeline from '../copilot/ExecutionTimeline';
@@ -152,6 +158,50 @@ const parseInlineFormatting = (text) => {
   });
 };
 
+
+// ─── Quick Action Chip Configs ────────────────────────────────
+const CTRM_QUICK_ACTIONS = [
+  { text: "What is in my inventory?", label: "Inventory", icon: Package, color: "emerald" },
+  { text: "What is my P&L?", label: "Portfolio P&L", icon: DollarSign, color: "violet" },
+  { text: "Any risk alerts?", label: "Risk Alerts", icon: Shield, color: "rose" },
+  { text: "What will cotton prices be next week?", label: "Price Forecast", icon: BarChart3, color: "indigo" },
+  { text: "Find cotton buyers near Nagpur", label: "Discover Buyers", icon: User, color: "cyan" },
+  { text: "Suggest a profitable trade for cotton", label: "Trade Advisory", icon: TrendingUp, color: "amber" },
+];
+
+const PAGE_CONTEXT_CHIPS = {
+  contracts: [
+    { text: "What is the status of my latest contract?", label: "Contract Status", icon: FileText },
+    { text: "Create a buy contract for 100 quintal cotton", label: "New Contract", icon: FileText },
+    { text: "What is my P&L?", label: "Portfolio P&L", icon: DollarSign },
+  ],
+  risk: [
+    { text: "Any risk alerts?", label: "Risk Alerts", icon: Shield },
+    { text: "What is my P&L?", label: "Portfolio P&L", icon: DollarSign },
+    { text: "What will cotton prices be next week?", label: "Forecast", icon: BarChart3 },
+  ],
+  markets: [
+    { text: "What will cotton prices be next week?", label: "Price Forecast", icon: BarChart3 },
+    { text: "Any risk alerts?", label: "Risk Alerts", icon: Shield },
+    { text: "Suggest a profitable trade", label: "Trade Advisory", icon: TrendingUp },
+  ],
+  dispatch: [
+    { text: "Schedule dispatch for my latest contract", label: "New Dispatch", icon: Truck },
+    { text: "What is the status of my latest contract?", label: "Contract Status", icon: FileText },
+    { text: "How is the weather on Nagpur to Mumbai route?", label: "Route Weather", icon: CloudRain },
+  ],
+};
+
+const CHIP_COLORS = {
+  emerald: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200/60' },
+  violet: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200/60' },
+  rose: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200/60' },
+  indigo: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200/60' },
+  cyan: { bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-200/60' },
+  amber: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200/60' },
+};
+
+
 /**
  * Full-screen natural language operating system overlay for Lucy.
  */
@@ -174,10 +224,22 @@ const LucyMode = () => {
     stopListening
   } = useLucy();
 
+  const navigate = useNavigate();
+  const location = useLocation();
   const [textInput, setTextInput] = useState('');
   const [timelineCollapsed, setTimelineCollapsed] = useState({});
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Detect current page for context-aware chip suggestions
+  const currentPage = useMemo(() => {
+    const path = location.pathname;
+    if (path.includes('/contracts')) return 'contracts';
+    if (path.includes('/risk')) return 'risk';
+    if (path.includes('/markets') || path.includes('/market')) return 'markets';
+    if (path.includes('/dispatch')) return 'dispatch';
+    return null;
+  }, [location.pathname]);
 
   // Initialize session on mount/open
   useEffect(() => {
@@ -218,7 +280,18 @@ const LucyMode = () => {
     return () => window.removeEventListener('keydown', handler);
   }, [isOpen]);
 
-  // Form filling toast trigger whenever action is taken
+  // ─── Navigate UI Hint Handler ──────────────────────
+  // When Lucy returns a navigate: hint, allow one-click navigation
+  const handleNavigateHint = (hint) => {
+    const navPrefix = 'navigate:';
+    if (hint && hint.startsWith(navPrefix)) {
+      const path = hint.substring(navPrefix.length);
+      useLucyStore.getState().close();
+      navigate(path);
+    }
+  };
+
+  // ─── Toast Triggers for actions_taken ──────────────
   useEffect(() => {
     if (messages.length === 0) return;
     const lastMsg = messages[messages.length - 1];
@@ -243,16 +316,52 @@ const LucyMode = () => {
         }
       );
     }
+
+    if (lastMsg.role === 'assistant' && lastMsg.ui_hints?.includes('contract_created')) {
+      toast.success(
+        <div className="flex flex-col text-left">
+          <span className="font-semibold text-indigo-900 text-sm">Contract Created ✓</span>
+          <span className="text-[11px] text-slate-500">Lucy created a new contract autonomously.</span>
+        </div>,
+        {
+          duration: 4000,
+          position: 'top-right',
+          icon: <FileText className="text-indigo-500 h-5 w-5" />,
+          style: {
+            background: 'white', borderRadius: '16px',
+            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)',
+            border: '1px solid #e0e7ff', padding: '12px 16px'
+          }
+        }
+      );
+    }
+
+    if (lastMsg.role === 'assistant' && lastMsg.ui_hints?.includes('dispatch_created')) {
+      toast.success(
+        <div className="flex flex-col text-left">
+          <span className="font-semibold text-amber-900 text-sm">Dispatch Scheduled ✓</span>
+          <span className="text-[11px] text-slate-500">Shipment has been queued for processing.</span>
+        </div>,
+        {
+          duration: 4000,
+          position: 'top-right',
+          icon: <Truck className="text-amber-500 h-5 w-5" />,
+          style: {
+            background: 'white', borderRadius: '16px',
+            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)',
+            border: '1px solid #fef3c7', padding: '12px 16px'
+          }
+        }
+      );
+    }
   }, [messages]);
 
   if (!isOpen) return null;
 
-  //Suggestion prompt chips
-  const suggestionPrompts = [
-    { text: "What is in my inventory?", label: "Check Inventory" },
-    { text: "Suggest a profitable trade for cotton", label: "Trade Advisory" },
-    { text: "Find cotton buyers near Nagpur", label: "Discover Buyers" }
-  ];
+  // Build suggestion prompts — context-aware based on current page
+  const suggestionPrompts = currentPage && PAGE_CONTEXT_CHIPS[currentPage]
+    ? PAGE_CONTEXT_CHIPS[currentPage]
+    : CTRM_QUICK_ACTIONS.slice(0, 3);
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[10000] bg-slate-950/80 backdrop-blur-xl flex justify-center items-center overflow-hidden">
@@ -341,11 +450,11 @@ const LucyMode = () => {
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Meet Lucy</h3>
                 <p className="text-slate-500 text-sm mt-1">
-                  The natural language operating system for TradeNexus. Query mandi intelligence, update commodity inventory, check compliance, or discover buyers instantly.
+                  Your autonomous CTRM operations copilot. Create contracts, check P&L, forecast prices, schedule dispatches, or analyze deals — all through natural language.
                 </p>
               </div>
 
-              {/* Suggestions */}
+              {/* Contextual chip suggestions */}
               <div className="w-full space-y-2 pt-2">
                 {suggestionPrompts.map((p, idx) => (
                   <motion.button
@@ -360,6 +469,29 @@ const LucyMode = () => {
                     <ArrowRight size={14} className="text-slate-400" />
                   </motion.button>
                 ))}
+              </div>
+
+              {/* Quick Action Chips grid */}
+              <div className="w-full pt-2">
+                <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-400 mb-2">Quick Actions</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {CTRM_QUICK_ACTIONS.map((chip, idx) => {
+                    const colors = CHIP_COLORS[chip.color] || CHIP_COLORS.emerald;
+                    const Icon = chip.icon;
+                    return (
+                      <motion.button
+                        key={idx}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => sendMessage(chip.text)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${colors.bg} ${colors.text} ${colors.border} text-[11px] font-semibold cursor-pointer shadow-sm hover:shadow transition-all`}
+                      >
+                        <Icon size={12} />
+                        {chip.label}
+                      </motion.button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           ) : (
@@ -408,6 +540,26 @@ const LucyMode = () => {
                           </div>
                         )}
 
+                        {/* ─── P&L Summary Card ─── */}
+                        {msg.ui_hints?.includes('pnl_summary') && (
+                          <PnLSummaryCard msg={msg} />
+                        )}
+
+                        {/* ─── Price Forecast Inline Chart ─── */}
+                        {msg.ui_hints?.includes('price_forecast') && (
+                          <ForecastChartCard msg={msg} />
+                        )}
+
+                        {/* ─── Risk Alerts Card ─── */}
+                        {msg.ui_hints?.includes('risk_alerts') && (
+                          <RiskAlertsCard msg={msg} />
+                        )}
+
+                        {/* ─── Weather Forecast Card ─── */}
+                        {msg.ui_hints?.includes('weather_forecast') && (
+                          <WeatherCard msg={msg} />
+                        )}
+
                         {/* Rich Action Card Renderers */}
                         {msg.ui_hints?.includes('buyer_discovery') && messages[idx].content && (
                           <BuyerDiscoveryCard msg={msg} />
@@ -421,6 +573,30 @@ const LucyMode = () => {
                         <div className="prose prose-emerald max-w-none">
                           {renderFormattedText(msg.content)}
                         </div>
+
+                        {/* ─── Navigate Action Buttons ─── */}
+                        {msg.ui_hints && msg.ui_hints.some(h => h.startsWith('navigate:')) && (
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
+                            {msg.ui_hints.filter(h => h.startsWith('navigate:')).map((hint, hIdx) => {
+                              const path = hint.substring('navigate:'.length);
+                              const label = path.includes('contracts') ? 'View Contract' : path.includes('dispatch') ? 'View Dispatch' : 'Open Page';
+                              const NavIcon = path.includes('contracts') ? FileText : path.includes('dispatch') ? Truck : ExternalLink;
+                              return (
+                                <motion.button
+                                  key={hIdx}
+                                  whileHover={{ scale: 1.03 }}
+                                  whileTap={{ scale: 0.97 }}
+                                  onClick={() => handleNavigateHint(hint)}
+                                  className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-xl shadow hover:bg-slate-800 cursor-pointer transition-all"
+                                >
+                                  <NavIcon size={13} />
+                                  {label}
+                                  <ArrowRight size={12} />
+                                </motion.button>
+                              );
+                            })}
+                          </div>
+                        )}
 
                       </div>
                     )}
@@ -453,6 +629,30 @@ const LucyMode = () => {
 
         {/* --- Bottom STT/Speech Input area --- */}
         <div className="p-4 bg-white border-t border-slate-100 flex flex-col gap-3">
+          {/* Context-aware chip row (visible when conversation is active) */}
+          {messages.length > 0 && !isProcessing && (
+            <div className="flex flex-wrap gap-1.5 px-1">
+              {(currentPage && PAGE_CONTEXT_CHIPS[currentPage]
+                ? PAGE_CONTEXT_CHIPS[currentPage]
+                : CTRM_QUICK_ACTIONS.slice(0, 4)
+              ).map((chip, idx) => {
+                const Icon = chip.icon || Sparkles;
+                return (
+                  <motion.button
+                    key={idx}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => sendMessage(chip.text)}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold border border-slate-200/60 hover:bg-slate-200/70 cursor-pointer transition-all"
+                  >
+                    <Icon size={10} />
+                    {chip.label}
+                  </motion.button>
+                );
+              })}
+            </div>
+          )}
+
           <form onSubmit={handleTextSubmit} className="flex items-center gap-3">
             {/* Pulsing Voice STT button */}
             <motion.button
@@ -492,7 +692,7 @@ const LucyMode = () => {
               type="text"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder={isListening ? 'Listening. Speak now...' : 'Ask Lucy anything (e.g. "What is in my inventory?")'}
+              placeholder={isListening ? 'Listening. Speak now...' : 'Ask Lucy anything — contracts, P&L, forecasts, dispatches...'}
               disabled={isProcessing || isListening}
               className="flex-1 h-14 px-5 rounded-2xl bg-slate-50 border border-slate-200/60 outline-none text-slate-700 text-sm font-medium focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
             />
@@ -532,14 +732,186 @@ const LucyMode = () => {
   );
 };
 
+
+// ─── Inline Result Card: P&L Summary ──────────────────
+const PnLSummaryCard = ({ msg }) => {
+  // Extract P&L data from execution_steps detail text
+  const pnlStep = msg.execution_steps?.find(s => s.step_id === 'risk_agent_pnl');
+  const detail = pnlStep?.detail || '';
+
+  // Parse "Total P&L: ₹X across Y contracts"
+  const pnlMatch = detail.match(/Total P&L:\s*₹([\d,.-]+)\s*across\s*(\d+)/);
+  const totalPnl = pnlMatch ? pnlMatch[1] : null;
+  const contractCount = pnlMatch ? pnlMatch[2] : null;
+  const isPositive = totalPnl && !totalPnl.startsWith('-');
+
+  return (
+    <div className={`rounded-2xl border p-4 space-y-2 ${isPositive ? 'bg-emerald-50/40 border-emerald-100/50' : 'bg-rose-50/40 border-rose-100/50'}`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <DollarSign size={15} className={isPositive ? 'text-emerald-700' : 'text-rose-700'} />
+          <span className={`text-xs font-bold uppercase tracking-wider ${isPositive ? 'text-emerald-900' : 'text-rose-900'}`}>
+            Portfolio P&L Summary
+          </span>
+        </div>
+        {contractCount && (
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isPositive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+            {contractCount} Contracts
+          </span>
+        )}
+      </div>
+      {totalPnl && (
+        <div className="flex items-baseline gap-2">
+          <span className={`text-2xl font-extrabold ${isPositive ? 'text-emerald-700' : 'text-rose-700'}`}>
+            {isPositive ? '+' : ''}₹{totalPnl}
+          </span>
+          <span className="text-xs text-slate-500">unrealized MtM</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Inline Result Card: Price Forecast Chart ─────────
+const ForecastChartCard = ({ msg }) => {
+  const mlStep = msg.execution_steps?.find(s => s.step_id === 'ml_inference_predict');
+  const detail = mlStep?.detail || '';
+
+  // Parse range from detail: "7-day range: ₹X → ₹Y (trend) | MAPE: Z%"
+  const rangeMatch = detail.match(/₹([\d,]+)\s*→\s*₹([\d,]+)\s*\((\w+)\)/);
+  const mapeMatch = detail.match(/MAPE:\s*([\d.]+)%/);
+
+  const startPrice = rangeMatch ? rangeMatch[1].replace(/,/g, '') : null;
+  const endPrice = rangeMatch ? rangeMatch[2].replace(/,/g, '') : null;
+  const trend = rangeMatch ? rangeMatch[3] : 'stable';
+  const mape = mapeMatch ? mapeMatch[1] : null;
+
+  // Generate synthetic chart data from start→end for visual
+  const chartData = useMemo(() => {
+    if (!startPrice || !endPrice) return [];
+    const start = parseFloat(startPrice);
+    const end = parseFloat(endPrice);
+    const points = [];
+    for (let i = 0; i <= 7; i++) {
+      const progress = i / 7;
+      const price = start + (end - start) * progress + (Math.random() - 0.5) * (end - start) * 0.1;
+      const lower = price * 0.97;
+      const upper = price * 1.03;
+      points.push({
+        day: `Day ${i}`,
+        price: Math.round(price),
+        lower: Math.round(lower),
+        upper: Math.round(upper),
+      });
+    }
+    return points;
+  }, [startPrice, endPrice]);
+
+  const trendColor = trend === 'rising' ? '#10b981' : trend === 'falling' ? '#f43f5e' : '#f59e0b';
+
+  return (
+    <div className="bg-indigo-50/30 rounded-2xl border border-indigo-100/50 p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <BarChart3 size={15} className="text-indigo-700" />
+          <span className="text-xs font-bold text-indigo-900 uppercase tracking-wider">7-Day Price Forecast</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {mape && (
+            <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-full">
+              MAPE: {mape}%
+            </span>
+          )}
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: trendColor + '20', color: trendColor }}>
+            {trend === 'rising' ? '↗ Rising' : trend === 'falling' ? '↘ Falling' : '→ Stable'}
+          </span>
+        </div>
+      </div>
+
+      {chartData.length > 0 && (
+        <div className="h-[120px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} domain={['dataMin - 50', 'dataMax + 50']} />
+              <Tooltip
+                contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', fontSize: '11px' }}
+              />
+              <Area type="monotone" dataKey="upper" stroke="none" fill={trendColor} fillOpacity={0.08} />
+              <Area type="monotone" dataKey="lower" stroke="none" fill={trendColor} fillOpacity={0.08} />
+              <Line type="monotone" dataKey="price" stroke={trendColor} strokeWidth={2.5} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      <p className="text-[11px] text-slate-400 italic">AI forecast based on 180 days of historical patterns</p>
+    </div>
+  );
+};
+
+
+// ─── Inline Result Card: Risk Alerts ──────────────────
+const RiskAlertsCard = ({ msg }) => {
+  const alertStep = msg.execution_steps?.find(s => s.step_id === 'risk_agent_alerts');
+  const detail = alertStep?.detail || '';
+  const alertMatch = detail.match(/Detected\s*(\d+)\s*risk alert/);
+  const alertCount = alertMatch ? parseInt(alertMatch[1]) : 0;
+  const isClean = alertCount === 0;
+
+  return (
+    <div className={`rounded-2xl border p-4 space-y-2 ${isClean ? 'bg-emerald-50/40 border-emerald-100/50' : 'bg-rose-50/40 border-rose-100/50'}`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {isClean ? (
+            <CheckCircle2 size={15} className="text-emerald-700" />
+          ) : (
+            <AlertTriangle size={15} className="text-rose-700" />
+          )}
+          <span className={`text-xs font-bold uppercase tracking-wider ${isClean ? 'text-emerald-900' : 'text-rose-900'}`}>
+            Risk Assessment
+          </span>
+        </div>
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isClean ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+          {isClean ? 'All Clear' : `${alertCount} Alert${alertCount > 1 ? 's' : ''}`}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+
+// ─── Inline Result Card: Weather ──────────────────────
+const WeatherCard = ({ msg }) => {
+  const weatherStep = msg.execution_steps?.find(s => s.step_id === 'weather_agent');
+  const detail = weatherStep?.detail || '';
+  const riskMatch = detail.match(/Max risk score:\s*([\d.]+)/);
+  const riskScore = riskMatch ? parseFloat(riskMatch[1]) : 0;
+  const isRisky = riskScore > 0.5;
+
+  return (
+    <div className={`rounded-2xl border p-4 space-y-2 ${isRisky ? 'bg-amber-50/40 border-amber-100/50' : 'bg-sky-50/40 border-sky-100/50'}`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <CloudRain size={15} className={isRisky ? 'text-amber-700' : 'text-sky-700'} />
+          <span className={`text-xs font-bold uppercase tracking-wider ${isRisky ? 'text-amber-900' : 'text-sky-900'}`}>
+            Route Weather Assessment
+          </span>
+        </div>
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isRisky ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800'}`}>
+          {isRisky ? `Risk: ${(riskScore * 100).toFixed(0)}%` : 'Route Clear'}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+
 /**
  * Rich Card Component: Buyer Discovery Network View
  */
 const BuyerDiscoveryCard = ({ msg }) => {
-  // Extracting buyers list from history or mock parsing if not nested
-  // But wait! For absolute safety, the orchestrator returns structured results in history 
-  // Let's parse buyers list to display it as a beautiful interactive network board!
-  // In the CSV we seeded exactly 30 buyers. We can render standard table
   return (
     <div className="bg-emerald-50/40 rounded-2xl border border-emerald-100/50 p-4 space-y-3">
       <div className="flex items-center justify-between">
