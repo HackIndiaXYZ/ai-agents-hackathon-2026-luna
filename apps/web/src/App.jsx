@@ -18,8 +18,10 @@ import Signup from './pages/auth/Signup';
 import Dashboard from './pages/app/Dashboard';
 import Contracts from './pages/app/Contracts';
 import ContractForm from './pages/app/ContractForm';
+import Risk from './pages/app/Risk';
+import Dispatch from './pages/app/Dispatch';
+import Inventory from './pages/app/Inventory';
 import MarketPrices from './pages/MarketPrices';
-import DispatchIntelligence from './pages/DispatchIntelligence';
 import Opportunities from './pages/Opportunities';
 import Advisor from './pages/Advisor';
 import Compliance from './pages/Compliance';
@@ -121,11 +123,31 @@ export const App = () => {
             } 
           />
           <Route 
+            path="/app/risk" 
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <Risk />
+                </PageTransition>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/app/dispatch" 
             element={
               <ProtectedRoute>
                 <PageTransition>
-                  <DispatchIntelligence />
+                  <Dispatch />
+                </PageTransition>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/app/inventory" 
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <Inventory />
                 </PageTransition>
               </ProtectedRoute>
             } 

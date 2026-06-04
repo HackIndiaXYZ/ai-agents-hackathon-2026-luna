@@ -471,10 +471,142 @@ export const demoAgentActivity = [
 ];
 
 export const demoMacroSignals = [
-  { id: "sig-1", commodity: "Cotton", sentiment: "bull", key_signal: "Unseasonal rains in Vidarbha crop zone likely to shrink production yields by 12%.", updated_at: "2h ago" },
-  { id: "sig-2", commodity: "Soybean", sentiment: "bear", key_signal: "Aggressive domestic sowing reports and high import supply from South America.", updated_at: "4h ago" },
-  { id: "sig-3", commodity: "Groundnut", sentiment: "neutral", key_signal: "Market arrivals align perfectly with seasonal demand averages.", updated_at: "1h ago" },
-  { id: "sig-4", commodity: "Onion", sentiment: "bull", key_signal: "Mandi supply cuts across Lasalgaon due to export tariff relaxations.", updated_at: "3h ago" },
-  { id: "sig-5", commodity: "Chilli", sentiment: "bear", key_signal: "Bumper harvest output reports in Guntur markets suppressing spot prices.", updated_at: "5h ago" }
+  { id: "sig-1", commodity: "Cotton", sentiment: "bull", key_signal: "Unseasonal rains in Vidarbha crop zone likely to shrink production yields by 12%.", updated_at: "2h ago", confidence_score: 0.88, affected_contracts_count: 2 },
+  { id: "sig-2", commodity: "Soybean", sentiment: "bear", key_signal: "Aggressive domestic sowing reports and high import supply from South America.", updated_at: "4h ago", confidence_score: 0.74, affected_contracts_count: 1 },
+  { id: "sig-3", commodity: "Groundnut", sentiment: "neutral", key_signal: "Market arrivals align perfectly with seasonal demand averages.", updated_at: "1h ago", confidence_score: 0.55, affected_contracts_count: 1 },
+  { id: "sig-4", commodity: "Onion", sentiment: "bull", key_signal: "Mandi supply cuts across Lasalgaon due to export tariff relaxations.", updated_at: "3h ago", confidence_score: 0.91, affected_contracts_count: 1 },
+  { id: "sig-5", commodity: "Chilli", sentiment: "bear", key_signal: "Bumper harvest output reports in Guntur markets suppressing spot prices.", updated_at: "5h ago", confidence_score: 0.82, affected_contracts_count: 1 }
 ];
+
+export const demoInventory = [
+  { id: "inv-1", commodity_id: "c1", canonical_name: "Cotton", quantity: 600.0, unit: "quintal", notes: "Vidarbha region stock", updated_at: "2026-06-03T10:00:00Z" },
+  { id: "inv-2", commodity_id: "c3", canonical_name: "Onion", quantity: 200.0, unit: "quintal", notes: "Nashik procurement", updated_at: "2026-06-03T11:30:00Z" },
+  { id: "inv-3", commodity_id: "c6", canonical_name: "Wheat", quantity: 150.0, unit: "quintal", notes: "MP procurement", updated_at: "2026-06-02T16:45:00Z" },
+  { id: "inv-4", commodity_id: "c2", canonical_name: "Soybean", quantity: 120.0, unit: "quintal", notes: "Current season harvest", updated_at: "2026-06-03T09:15:00Z" },
+  { id: "inv-5", commodity_id: "c7", canonical_name: "Pigeon Pea", quantity: 80.0, unit: "quintal", notes: "Stored from last season", updated_at: "2026-06-01T14:00:00Z" }
+];
+
+export const demoWeatherForecasts = {
+  "amravati": {
+    region: "Amravati",
+    risk_level: "high",
+    description: "Severe weather alert: Thunderstorms & 42mm precipitation forecast for Vidarbha transport corridor.",
+    forecast: [
+      { date: "04 Jun", day: "Thu", temp: "31°C", condition: "Stormy", risk: "high", pop: "90%" },
+      { date: "05 Jun", day: "Fri", temp: "32°C", condition: "Heavy Rain", risk: "high", pop: "85%" },
+      { date: "06 Jun", day: "Sat", temp: "33°C", condition: "Rainy", risk: "low", pop: "50%" },
+      { date: "07 Jun", day: "Sun", temp: "34°C", condition: "Cloudy", risk: "none", pop: "20%" },
+      { date: "08 Jun", day: "Mon", temp: "35°C", condition: "Clear", risk: "none", pop: "10%" },
+      { date: "09 Jun", day: "Tue", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "10 Jun", day: "Wed", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" }
+    ]
+  },
+  "nagpur": {
+    region: "Nagpur",
+    risk_level: "low",
+    description: "Occasional light rain showers.",
+    forecast: [
+      { date: "04 Jun", day: "Thu", temp: "33°C", condition: "Light Rain", risk: "low", pop: "40%" },
+      { date: "05 Jun", day: "Fri", temp: "34°C", condition: "Cloudy", risk: "none", pop: "20%" },
+      { date: "06 Jun", day: "Sat", temp: "34°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "07 Jun", day: "Sun", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "08 Jun", day: "Mon", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "09 Jun", day: "Tue", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "10 Jun", day: "Wed", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" }
+    ]
+  },
+  "bhopal": {
+    region: "Bhopal",
+    risk_level: "low",
+    description: "Light monsoon showers expected along NH-46 corridor.",
+    forecast: [
+      { date: "04 Jun", day: "Thu", temp: "33°C", condition: "Light Rain", risk: "low", pop: "40%" },
+      { date: "05 Jun", day: "Fri", temp: "33°C", condition: "Light Rain", risk: "low", pop: "35%" },
+      { date: "06 Jun", day: "Sat", temp: "34°C", condition: "Cloudy", risk: "none", pop: "20%" },
+      { date: "07 Jun", day: "Sun", temp: "34°C", condition: "Partly Cloudy", risk: "none", pop: "15%" },
+      { date: "08 Jun", day: "Mon", temp: "35°C", condition: "Sunny", risk: "none", pop: "5%" },
+      { date: "09 Jun", day: "Tue", temp: "35°C", condition: "Sunny", risk: "none", pop: "5%" },
+      { date: "10 Jun", day: "Wed", temp: "36°C", condition: "Sunny", risk: "none", pop: "5%" }
+    ]
+  },
+  "indore": {
+    region: "Indore",
+    risk_level: "none",
+    description: "Clear weather, optimal driving conditions.",
+    forecast: [
+      { date: "04 Jun", day: "Thu", temp: "34°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "05 Jun", day: "Fri", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "06 Jun", day: "Sat", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "07 Jun", day: "Sun", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "08 Jun", day: "Mon", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "09 Jun", day: "Tue", temp: "37°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "10 Jun", day: "Wed", temp: "37°C", condition: "Clear", risk: "none", pop: "5%" }
+    ]
+  },
+  "rajkot": {
+    region: "Rajkot",
+    risk_level: "none",
+    description: "Clear and sunny skies.",
+    forecast: [
+      { date: "04 Jun", day: "Thu", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "05 Jun", day: "Fri", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "06 Jun", day: "Sat", temp: "37°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "07 Jun", day: "Sun", temp: "37°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "08 Jun", day: "Mon", temp: "38°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "09 Jun", day: "Tue", temp: "38°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "10 Jun", day: "Wed", temp: "39°C", condition: "Clear", risk: "none", pop: "5%" }
+    ]
+  },
+  "guntur": {
+    region: "Guntur",
+    risk_level: "none",
+    description: "Humid but clear weather.",
+    forecast: [
+      { date: "04 Jun", day: "Thu", temp: "37°C", condition: "Clear", risk: "none", pop: "10%" },
+      { date: "05 Jun", day: "Fri", temp: "37°C", condition: "Clear", risk: "none", pop: "10%" },
+      { date: "06 Jun", day: "Sat", temp: "38°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "07 Jun", day: "Sun", temp: "38°C", condition: "Clear", risk: "none", pop: "5%" },
+      { date: "08 Jun", day: "Mon", temp: "39°C", condition: "Clear", risk: "none", pop: "5%" }
+    ]
+  },
+  "jaipur": {
+    region: "Jaipur",
+    risk_level: "none",
+    description: "Hot and dry conditions.",
+    forecast: [
+      { date: "04 Jun", day: "Thu", temp: "41°C", condition: "Clear", risk: "none", pop: "0%" },
+      { date: "05 Jun", day: "Fri", temp: "42°C", condition: "Clear", risk: "none", pop: "0%" },
+      { date: "06 Jun", day: "Sat", temp: "42°C", condition: "Clear", risk: "none", pop: "0%" },
+      { date: "07 Jun", day: "Sun", temp: "43°C", condition: "Clear", risk: "none", pop: "0%" }
+    ]
+  }
+};
+
+export const demoWeatherSignals = [
+  {
+    id: "ws-1",
+    region: "Amravati",
+    risk_level: "high",
+    description: "Thunderstorms & 42mm precipitation forecast for Vidarbha corridor.",
+    affected_dispatches_count: 2,
+    forecast: demoWeatherForecasts["amravati"].forecast
+  },
+  {
+    id: "ws-2",
+    region: "Bhopal",
+    risk_level: "low",
+    description: "Light monsoon showers expected along NH-46.",
+    affected_dispatches_count: 1,
+    forecast: demoWeatherForecasts["bhopal"].forecast
+  }
+];
+
+export const demoPositions = [
+  { commodity: "Cotton", total_bought: 130, total_sold: 0, net_position: 130, avg_buy_price: 6462, avg_sell_price: 0, net_pnl: 44000 },
+  { commodity: "Soybean", total_bought: 150, total_sold: 0, net_position: 150, avg_buy_price: 4900, avg_sell_price: 0, net_pnl: -15000 },
+  { commodity: "Onion", total_bought: 0, total_sold: 300, net_position: -300, avg_buy_price: 0, avg_sell_price: 2200, net_pnl: -60000 },
+  { commodity: "Groundnut", total_bought: 0, total_sold: 120, net_position: -120, avg_buy_price: 0, avg_sell_price: 7000, net_pnl: 12000 },
+  { commodity: "Mustard", total_bought: 0, total_sold: 110, net_position: -110, avg_buy_price: 0, avg_sell_price: 5600, net_pnl: 22000 }
+];
+
 

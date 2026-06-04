@@ -383,5 +383,171 @@ export const getCounterpartyRisk = async (id) => {
   }
 };
 
+export const getWeatherForecast = async (region) => {
+  try {
+    const response = await api.get(`/api/v1/risk/weather/${region}`);
+    return response.data;
+  } catch (error) {
+    console.warn(`Using demo weather forecast for ${region}:`, error);
+    const key = String(region).toLowerCase().trim();
+    return demo.demoWeatherForecasts[key] || {
+      region,
+      risk_level: "none",
+      description: "Clear weather, normal conditions.",
+      forecast: [
+        { date: "04 Jun", day: "Thu", temp: "32°C", condition: "Clear", risk: "none", pop: "5%" },
+        { date: "05 Jun", day: "Fri", temp: "33°C", condition: "Clear", risk: "none", pop: "5%" },
+        { date: "06 Jun", day: "Sat", temp: "34°C", condition: "Clear", risk: "none", pop: "5%" },
+        { date: "07 Jun", day: "Sun", temp: "34°C", condition: "Clear", risk: "none", pop: "5%" },
+        { date: "08 Jun", day: "Mon", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" }
+      ]
+    };
+  }
+};
+
+export const getWeatherSignals = async () => {
+  try {
+    const response = await api.get('/api/v1/risk/signals', { params: { type: 'weather_risk' } });
+    return response.data;
+  } catch (error) {
+    console.warn("Using demo weather signals:", error);
+    return demo.demoWeatherSignals;
+  }
+};
+
+export const getInventory = async () => {
+  try {
+    const response = await api.get('/api/v1/inventory');
+    return response.data;
+  } catch (error) {
+    console.warn("Using demo inventory:", error);
+    return demo.demoInventory;
+  }
+};
+
+export const updateInventory = async (data) => {
+  try {
+    const response = await api.post('/api/v1/inventory', data);
+    return response.data;
+  } catch (error) {
+    console.warn("Using mock inventory update:", error);
+    const { commodity, quantity, operation, unit = 'quintal', notes = '' } = data;
+    
+    const idx = demo.demoInventory.findIndex(item => item.canonical_name.toLowerCase() === commodity.toLowerCase());
+    const qtyVal = Number(quantity);
+    
+    if (idx > -1) {
+      const prevQty = demo.demoInventory[idx].quantity;
+      let newQty = prevQty;
+      if (operation === 'add') {
+        newQty = prevQty + qtyVal;
+      } else if (operation === 'subtract') {
+        newQty = Math.max(0, prevQty - qtyVal);
+      } else if (operation === 'set') {
+        newQty = qtyVal;
+      }
+      
+      demo.demoInventory[idx] = {
+        ...demo.demoInventory[idx],
+        quantity: newQty,
+        notes: notes || demo.demoInventory[idx].notes,
+        updated_at: new Date().toISOString()
+      };
+      
+      return {
+        status: "success",
+        canonical_name: demo.demoInventory[idx].canonical_name,
+        operation,
+        previous_quantity: prevQty,
+        new_quantity: newQty,
+        unit,
+        data: demo.demoInventory[idx]
+      };
+    } else {
+      const newItem = {
+        id: `inv-${demo.demoInventory.length + 1}`,
+        commodity_id: `c${demo.demoInventory.length + 1}`,
+        canonical_name: commodity.charAt(0).toUpperCase() + commodity.slice(1),
+        quantity: qtyVal,
+        unit,
+        notes,
+        updated_at: new Date().toISOString()
+      };
+      demo.demoInventory.push(newItem);
+      return {
+        status: "success",
+        canonical_name: newItem.canonical_name,
+        operation,
+        previous_quantity: 0,
+        new_quantity: qtyVal,
+        unit,
+        data: newItem
+      };
+    }
+  }
+};
+
+export const getOpenPositions = async () => {
+  try {
+    const response = await api.get('/api/v1/positions');
+    return response.data;
+  } catch (error) {
+    console.warn("Using demo open positions:", error);
+    return demo.demoPositions;
+  }
+};
+
+export const createDispatch = async (dispatchData) => {
+  try {
+    const response = await api.post('/api/v1/dispatches', dispatchData);
+    return response.data;
+  } catch (error) {
+    console.warn("Mocking dispatch creation:", error);
+    const newId = `DSP-${String(demo.demoDispatches.length + 1).padStart(3, '0')}`;
+    const associatedContract = demo.demoContracts.find(c => c.id === dispatchData.contract_id) || demo.demoContracts[0];
+    
+    const newDispatch = {
+      id: newId,
+      contract_id: dispatchData.contract_id,
+      status: "in_transit",
+      vehicle_number: dispatchData.vehicle_number || "MH-12-QQ-9999",
+      dispatch_date: dispatchData.dispatch_date || new Date().toISOString().split('T')[0],
+      estimated_arrival: dispatchData.estimated_arrival || new Date(Date.now() + 5 * 24 * 3600 * 1000).toISOString().split('T')[0],
+      origin: dispatchData.origin || associatedContract.delivery_location || "Nagpur",
+      destination: dispatchData.destination || "Mumbai",
+      driver_phone: dispatchData.driver_contact || "+91 99999 88888",
+      dispatched_quantity: Number(dispatchData.dispatched_quantity) || associatedContract.quantity
+    };
+
+    demo.demoDispatches.unshift(newDispatch);
+    
+    if (associatedContract) {
+      associatedContract.status = "in_transit";
+      if (!associatedContract.lifecycle.includes("in_transit")) {
+        associatedContract.lifecycle.push("in_transit");
+      }
+      if (!associatedContract.dispatches) associatedContract.dispatches = [];
+      associatedContract.dispatches.push({
+        id: newId,
+        status: "in_transit",
+        vehicle: newDispatch.vehicle_number,
+        eta: newDispatch.estimated_arrival
+      });
+    }
+
+    return { dispatch: newDispatch };
+  }
+};
+
+export const postLucyChat = async (message, sessionId, languageHint = 'en') => {
+  const response = await api.post('/api/v1/lucy/chat', {
+    message,
+    session_id: sessionId,
+    language_hint: languageHint
+  });
+  return response.data;
+};
+
 export default api;
+
 
