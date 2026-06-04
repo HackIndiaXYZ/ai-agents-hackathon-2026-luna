@@ -1,0 +1,218 @@
+id,utterance,utterance_language,intent,intent_category,agent,commodity_canonical,quantity,unit,counterparty,location,requires_context,difficulty,source
+SEED-inv_add-001,Add 50 quintals of cotton to my inventory,en,inventory_add,Inventory,inventory_agent,Cotton,50.0,quintal,,,false,ambiguous,seed_english
+SEED-inv_add-002,Put 100 quintals of wheat in stock,en,inventory_add,Inventory,inventory_agent,Wheat,100.0,quintal,,,false,simple,seed_english
+SEED-inv_add-003,"I received 200 quintals of soybean, add it",en,inventory_add,Inventory,inventory_agent,Soybean,200.0,quintal,,,false,simple,seed_english
+SEED-inv_add-004,Update inventory: 40 quintals groundnut added,en,inventory_add,Inventory,inventory_agent,Groundnut,40.0,quintal,,,false,ambiguous,seed_english
+SEED-inv_add-005,Stock has increased by 80 quintals of onion,en,inventory_add,Inventory,inventory_agent,Onion,80.0,quintal,,,false,simple,seed_english
+SEED-inv_add-006,New lot arrived: 150 quintals pigeon pea,en,inventory_add,Inventory,inventory_agent,Pigeon Pea,150.0,quintal,,,false,simple,seed_english
+SEED-inv_add-007,Record 60 quintals mustard purchase in inventory,en,inventory_add,Inventory,inventory_agent,Mustard,60.0,quintal,,,false,ambiguous,seed_english
+SEED-inv_sub-001,Remove 20 quintals of wheat from my inventory,en,inventory_subtract,Inventory,inventory_agent,Wheat,20.0,quintal,,,false,ambiguous,seed_english
+SEED-inv_sub-002,Subtract 50 quintals of cotton from stock,en,inventory_subtract,Inventory,inventory_agent,Cotton,50.0,quintal,,,false,simple,seed_english
+SEED-inv_sub-003,Deduct 100 quintals of soybean from the warehouse,en,inventory_subtract,Inventory,inventory_agent,Soybean,100.0,quintal,,,false,simple,seed_english
+SEED-inv_sub-004,Stock adjustment: minus 80 quintals groundnut,en,inventory_subtract,Inventory,inventory_agent,Groundnut,80.0,quintal,,,false,simple,seed_english
+SEED-inv_sub-005,Drawn 150 quintals pigeon pea from storage,en,inventory_subtract,Inventory,inventory_agent,Pigeon Pea,150.0,quintal,,,false,ambiguous,seed_english
+SEED-inv_sub-006,Onion stock decreased by 40 quintals,en,inventory_subtract,Inventory,inventory_agent,Onion,40.0,quintal,,,false,simple,seed_english
+SEED-inv_sub-007,Subtract 60 quintals mustard from my main inventory,en,inventory_subtract,Inventory,inventory_agent,Mustard,60.0,quintal,,,false,ambiguous,seed_english
+SEED-inv_set-001,Set wheat stock to 200 quintals,en,inventory_set,Inventory,inventory_agent,Wheat,200.0,quintal,,,false,simple,seed_english
+SEED-inv_set-002,Set my cotton stock to 100 quintals,en,inventory_set,Inventory,inventory_agent,Cotton,100.0,quintal,,,false,simple,seed_english
+SEED-inv_set-003,Set onion inventory level to 50 quintals,en,inventory_set,Inventory,inventory_agent,Onion,50.0,quintal,,,false,ambiguous,seed_english
+SEED-inv_set-004,Adjust groundnut stock to exactly 500 quintals,en,inventory_set,Inventory,inventory_agent,Groundnut,500.0,quintal,,,false,simple,seed_english
+SEED-inv_set-005,Pigeon pea quantity is now 80 quintals,en,inventory_set,Inventory,inventory_agent,Pigeon Pea,80.0,quintal,,,false,simple,seed_english
+SEED-inv_set-006,Update stock: mustard quantity set to 150 quintals,en,inventory_set,Inventory,inventory_agent,Mustard,150.0,quintal,,,false,simple,seed_english
+SEED-inv_set-007,Chickpea inventory balance is 60 quintals today,en,inventory_set,Inventory,inventory_agent,Chickpea,60.0,quintal,,,false,ambiguous,seed_english
+SEED-inv_qry-001,How much wheat do I have in my inventory?,en,inventory_query,Inventory,inventory_agent,Wheat,,,,,false,ambiguous,seed_english
+SEED-inv_qry-002,Check cotton stock level,en,inventory_query,Inventory,inventory_agent,Cotton,,,,,false,simple,seed_english
+SEED-inv_qry-003,What is my soybean stock?,en,inventory_query,Inventory,inventory_agent,Soybean,,,,,false,simple,seed_english
+SEED-inv_qry-004,Query groundnut inventory,en,inventory_query,Inventory,inventory_agent,Groundnut,,,,,false,ambiguous,seed_english
+SEED-inv_qry-005,Do I have any pigeon pea in stock?,en,inventory_query,Inventory,inventory_agent,Pigeon Pea,,,,,false,simple,seed_english
+SEED-inv_qry-006,Show onion inventory balance,en,inventory_query,Inventory,inventory_agent,Onion,,,,,false,ambiguous,seed_english
+SEED-inv_qry-007,What is the mustard stock?,en,inventory_query,Inventory,inventory_agent,Mustard,,,,,false,simple,seed_english
+SEED-inv_val-001,What is the value of my current wheat stock?,en,inventory_value_query,Inventory,inventory_agent,Wheat,,,,,false,simple,seed_english
+SEED-inv_val-002,Compute total valuation of cotton inventory,en,inventory_value_query,Inventory,inventory_agent,Cotton,,,,,false,ambiguous,seed_english
+SEED-inv_val-003,Show me the value of soybean in storage,en,inventory_value_query,Inventory,inventory_agent,Soybean,,,,,false,ambiguous,seed_english
+SEED-inv_val-004,How much is my groundnut stock worth?,en,inventory_value_query,Inventory,inventory_agent,Groundnut,,,,,false,ambiguous,seed_english
+SEED-inv_val-005,Valuation of pigeon pea stock,en,inventory_value_query,Inventory,inventory_agent,Pigeon Pea,,,,,false,simple,seed_english
+SEED-inv_val-006,What's the net value of my onion inventory?,en,inventory_value_query,Inventory,inventory_agent,Onion,,,,,false,ambiguous,seed_english
+SEED-inv_val-007,Calculate value of mustard stock,en,inventory_value_query,Inventory,inventory_agent,Mustard,,,,,false,simple,seed_english
+SEED-ctr_buy-001,Create a buy contract for 100 quintals of wheat with Ramesh,en,contract_create_buy,Contracts,contract_agent,Wheat,100.0,quintal,Ramesh,,false,ambiguous,seed_english
+SEED-ctr_buy-002,Buy 200 quintals of soybean from Bharat Agro,en,contract_create_buy,Contracts,contract_agent,Soybean,200.0,quintal,Bharat Agro,,false,simple,seed_english
+SEED-ctr_buy-003,Draft buy agreement: 50 quintals onion from Akola Traders,en,contract_create_buy,Contracts,contract_agent,Onion,50.0,quintal,Akola Traders,,false,simple,seed_english
+SEED-ctr_buy-004,Record a purchase: 80 quintals mustard from Suresh Farms,en,contract_create_buy,Contracts,contract_agent,Mustard,80.0,quintal,Suresh Farms,,false,ambiguous,seed_english
+SEED-ctr_buy-005,Book buy contract for 150 quintals chickpea with Nagpur Mills,en,contract_create_buy,Contracts,contract_agent,Chickpea,150.0,quintal,Nagpur Mills,,false,ambiguous,seed_english
+SEED-ctr_buy-006,Register purchase of 500 quintals groundnut from Bharat Agro,en,contract_create_buy,Contracts,contract_agent,Groundnut,500.0,quintal,Bharat Agro,,false,simple,seed_english
+SEED-ctr_buy-007,New buy order: 60 quintals pigeon pea from Ramesh,en,contract_create_buy,Contracts,contract_agent,Pigeon Pea,60.0,quintal,Ramesh,,false,ambiguous,seed_english
+SEED-ctr_sell-001,Sell 100 quintals of cotton to Bharat Agro,en,contract_create_sell,Contracts,contract_agent,Cotton,100.0,quintal,Bharat Agro,,false,simple,seed_english
+SEED-ctr_sell-002,Create a sell contract for 200 quintals wheat with Nagpur Mills,en,contract_create_sell,Contracts,contract_agent,Wheat,200.0,quintal,Nagpur Mills,,false,ambiguous,seed_english
+SEED-ctr_sell-003,I want to sell 50 quintals soybean to Ramesh,en,contract_create_sell,Contracts,contract_agent,Soybean,50.0,quintal,Ramesh,,false,simple,seed_english
+SEED-ctr_sell-004,Book a sale: 80 quintals onion to Akola Traders,en,contract_create_sell,Contracts,contract_agent,Onion,80.0,quintal,Akola Traders,,false,simple,seed_english
+SEED-ctr_sell-005,Sell order for 300 quintals chickpea to Suresh Farms,en,contract_create_sell,Contracts,contract_agent,Chickpea,300.0,quintal,Suresh Farms,,false,ambiguous,seed_english
+SEED-ctr_sell-006,Register sale of 40 quintals mustard to Suresh Farms,en,contract_create_sell,Contracts,contract_agent,Mustard,40.0,quintal,Suresh Farms,,false,simple,seed_english
+SEED-ctr_sell-007,Create sell contract: 500 quintals groundnut to Bharat Agro,en,contract_create_sell,Contracts,contract_agent,Groundnut,500.0,quintal,Bharat Agro,,false,simple,seed_english
+SEED-ctr_stat-001,What is the status of my contract with Ramesh?,en,contract_status_query,Contracts,contract_agent,,,,Ramesh,,true,simple,seed_english
+SEED-ctr_stat-002,Check status of contract CTR-2024-001,en,contract_status_query,Contracts,contract_agent,,,,,,true,simple,seed_english
+SEED-ctr_stat-003,Is the soybean sell contract with Nagpur Mills confirmed?,en,contract_status_query,Contracts,contract_agent,Soybean,,,Nagpur Mills,,true,simple,seed_english
+SEED-ctr_stat-004,Track contract CTR-983,en,contract_status_query,Contracts,contract_agent,,,,,,true,simple,seed_english
+SEED-ctr_stat-005,Show contract status for Bharat Agro deal,en,contract_status_query,Contracts,contract_agent,,,,Bharat Agro,,true,ambiguous,seed_english
+SEED-ctr_stat-006,Has the mustard contract with Suresh Farms been settled?,en,contract_status_query,Contracts,contract_agent,Mustard,,,Suresh Farms,,true,simple,seed_english
+SEED-ctr_stat-007,Find status of contract CTR-049,en,contract_status_query,Contracts,contract_agent,,,,,,true,simple,seed_english
+SEED-ctr_upd-001,Update contract CTR-102: change quantity to 120 quintals,en,contract_update,Contracts,contract_agent,,120.0,quintal,,,true,simple,seed_english
+SEED-ctr_upd-002,Change price in Ramesh contract to 2300,en,contract_update,Contracts,contract_agent,,,,Ramesh,,true,simple,seed_english
+SEED-ctr_upd-003,"Modify contract CTR-332, delivery date is now June 15",en,contract_update,Contracts,contract_agent,,,,,,true,simple,seed_english
+SEED-ctr_upd-004,"Update sell contract with Nagpur Mills, set price to 5200",en,contract_update,Contracts,contract_agent,,,,Nagpur Mills,,true,simple,seed_english
+SEED-ctr_upd-005,Revise contract CTR-887 details,en,contract_update,Contracts,contract_agent,,,,,,true,simple,seed_english
+SEED-ctr_upd-006,Update delivery location to Indore for contract CTR-401,en,contract_update,Contracts,contract_agent,,,,,Indore,true,ambiguous,seed_english
+SEED-ctr_upd-007,Edit contract CTR-112: set quantity to 250 quintals,en,contract_update,Contracts,contract_agent,,250.0,quintal,,,true,simple,seed_english
+SEED-ctr_cncl-001,Cancel contract CTR-102,en,contract_cancel,Contracts,contract_agent,,,,,,true,simple,seed_english
+SEED-ctr_cncl-002,Void the buy contract with Ramesh,en,contract_cancel,Contracts,contract_agent,,,,Ramesh,,true,simple,seed_english
+SEED-ctr_cncl-003,Terminate contract CTR-994,en,contract_cancel,Contracts,contract_agent,,,,,,true,simple,seed_english
+SEED-ctr_cncl-004,Please cancel the soybean contract with Bharat Agro,en,contract_cancel,Contracts,contract_agent,Soybean,,,Bharat Agro,,true,simple,seed_english
+SEED-ctr_cncl-005,Discard contract CTR-502,en,contract_cancel,Contracts,contract_agent,,,,,,true,simple,seed_english
+SEED-ctr_cncl-006,Cancel the pending contract with Akola Traders,en,contract_cancel,Contracts,contract_agent,,,,Akola Traders,,true,simple,seed_english
+SEED-ctr_cncl-007,Revoke contract CTR-761,en,contract_cancel,Contracts,contract_agent,,,,,,true,simple,seed_english
+SEED-mkt_prc-001,What is the cotton price in Nagpur today?,en,market_price_query,Market,market_agent,Cotton,,,,Nagpur,false,simple,seed_english
+SEED-mkt_prc-002,Check soybean rates in Ahmedabad mandi,en,market_price_query,Market,market_agent,Soybean,,,,Ahmedabad,false,simple,seed_english
+SEED-mkt_prc-003,Current wheat price in Delhi market,en,market_price_query,Market,market_agent,Wheat,,,,Delhi,false,simple,seed_english
+SEED-mkt_prc-004,What are onion prices across Maharashtra?,en,market_price_query,Market,market_agent,Onion,,,,Maharashtra,false,simple,seed_english
+SEED-mkt_prc-005,Show me groundnut rates in Gujarat,en,market_price_query,Market,market_agent,Groundnut,,,,Gujarat,false,simple,seed_english
+SEED-mkt_prc-006,Latest chickpea prices in Indore,en,market_price_query,Market,market_agent,Chickpea,,,,Indore,false,ambiguous,seed_english
+SEED-mkt_prc-007,Pigeon pea market rate today,en,market_price_query,Market,market_agent,Pigeon Pea,,,,,false,simple,seed_english
+SEED-mkt_trnd-001,What is the price trend for soybean this month?,en,market_trend_query,Market,market_agent,Soybean,,,,,false,ambiguous,seed_english
+SEED-mkt_trnd-002,Are wheat prices rising or falling?,en,market_trend_query,Market,market_agent,Wheat,,,,,false,ambiguous,seed_english
+SEED-mkt_trnd-003,Show me the cotton market trend over the last 30 days,en,market_trend_query,Market,market_agent,Cotton,,,,,false,simple,seed_english
+SEED-mkt_trnd-004,Price trajectory for onion in Latur,en,market_trend_query,Market,market_agent,Onion,,,,Latur,false,ambiguous,seed_english
+SEED-mkt_trnd-005,Is there a downward trend in chickpea rates?,en,market_trend_query,Market,market_agent,Chickpea,,,,,false,simple,seed_english
+SEED-mkt_trnd-006,Market trend analysis for mustard,en,market_trend_query,Market,market_agent,Mustard,,,,,false,ambiguous,seed_english
+SEED-mkt_trnd-007,Show the trend line for groundnut prices,en,market_trend_query,Market,market_agent,Groundnut,,,,,false,ambiguous,seed_english
+SEED-mkt_mnd-001,Which mandi has the best price for soybean near me?,en,market_best_mandi_query,Market,market_agent,Soybean,,,,,false,ambiguous,seed_english
+SEED-mkt_mnd-002,Where can I sell wheat for the highest price today?,en,market_best_mandi_query,Market,market_agent,Wheat,,,,,false,ambiguous,seed_english
+SEED-mkt_mnd-003,Find the best mandi for cotton in Maharashtra,en,market_best_mandi_query,Market,market_agent,Cotton,,,,Maharashtra,false,ambiguous,seed_english
+SEED-mkt_mnd-004,Which market is offering the highest rate for onion?,en,market_best_mandi_query,Market,market_agent,Onion,,,,,false,ambiguous,seed_english
+SEED-mkt_mnd-005,Best mandi for selling groundnut in Gujarat,en,market_best_mandi_query,Market,market_agent,Groundnut,,,,Gujarat,false,ambiguous,seed_english
+SEED-mkt_mnd-006,Where is chickpea fetching the best price?,en,market_best_mandi_query,Market,market_agent,Chickpea,,,,,false,simple,seed_english
+SEED-mkt_mnd-007,Suggest the best market for pigeon pea,en,market_best_mandi_query,Market,market_agent,Pigeon Pea,,,,,false,ambiguous,seed_english
+SEED-mkt_fcst-001,What is the price forecast for cotton next week?,en,market_forecast_query,Market,market_agent,Cotton,,,,,false,ambiguous,seed_english
+SEED-mkt_fcst-002,Predict wheat price for the coming month,en,market_forecast_query,Market,market_agent,Wheat,,,,,false,ambiguous,seed_english
+SEED-mkt_fcst-003,What will the soybean rate be in July?,en,market_forecast_query,Market,market_agent,Soybean,,,,,false,simple,seed_english
+SEED-mkt_fcst-004,Market forecast for chickpea,en,market_forecast_query,Market,market_agent,Chickpea,,,,,false,ambiguous,seed_english
+SEED-mkt_fcst-005,Are groundnut prices expected to go up next month?,en,market_forecast_query,Market,market_agent,Groundnut,,,,,false,simple,seed_english
+SEED-mkt_fcst-006,Give me the price projection for mustard,en,market_forecast_query,Market,market_agent,Mustard,,,,,false,ambiguous,seed_english
+SEED-mkt_fcst-007,Onion price forecast for the next 15 days,en,market_forecast_query,Market,market_agent,Onion,,,,,false,ambiguous,seed_english
+SEED-dsp_crt-001,Create a dispatch for contract CTR-102,en,dispatch_create,Dispatch,dispatch_agent,,,,,,false,ambiguous,seed_english
+SEED-dsp_crt-002,Ship 100 quintals of wheat under contract CTR-202 with vehicle MH-31-AB-5678,en,dispatch_create,Dispatch,dispatch_agent,Wheat,100.0,quintal,,,false,simple,seed_english
+SEED-dsp_crt-003,Create a new dispatch: 50 quintals soybean from Latur to Pune,en,dispatch_create,Dispatch,dispatch_agent,Soybean,50.0,quintal,,Pune,false,simple,seed_english
+SEED-dsp_crt-004,Register shipment of 80 quintals onion for Akola Traders,en,dispatch_create,Dispatch,dispatch_agent,Onion,80.0,quintal,Akola Traders,,false,ambiguous,seed_english
+SEED-dsp_crt-005,Start a dispatch for groundnut contract CTR-452,en,dispatch_create,Dispatch,dispatch_agent,Groundnut,,,,,false,ambiguous,seed_english
+SEED-dsp_crt-006,"Book transport for 150 quintals chickpea, truck GJ-01-XY-9876",en,dispatch_create,Dispatch,dispatch_agent,Chickpea,150.0,quintal,,,false,ambiguous,seed_english
+SEED-dsp_crt-007,Dispatch 60 quintals mustard for contract CTR-088,en,dispatch_create,Dispatch,dispatch_agent,Mustard,60.0,quintal,,,false,ambiguous,seed_english
+SEED-dsp_stat-001,Where is the dispatch DSP-451 right now?,en,dispatch_status_query,Dispatch,dispatch_agent,,,,,,true,simple,seed_english
+SEED-dsp_stat-002,Check status of wheat shipment under contract CTR-202,en,dispatch_status_query,Dispatch,dispatch_agent,Wheat,,,,,true,simple,seed_english
+SEED-dsp_stat-003,Has my cotton dispatch reached Ahmedabad?,en,dispatch_status_query,Dispatch,dispatch_agent,Cotton,,,,Ahmedabad,true,simple,seed_english
+SEED-dsp_stat-004,Track vehicle MH-31-AB-5678,en,dispatch_status_query,Dispatch,dispatch_agent,,,,,,true,simple,seed_english
+SEED-dsp_stat-005,Status of dispatch DSP-992,en,dispatch_status_query,Dispatch,dispatch_agent,,,,,,true,simple,seed_english
+SEED-dsp_stat-006,Is the groundnut delivery delayed?,en,dispatch_status_query,Dispatch,dispatch_agent,Groundnut,,,,,true,simple,seed_english
+SEED-dsp_stat-007,Check shipping progress of dispatch DSP-301,en,dispatch_status_query,Dispatch,dispatch_agent,,,,,,true,simple,seed_english
+SEED-dsp_rte-001,What is the best route from Latur to Pune for dispatch?,en,dispatch_route_query,Dispatch,dispatch_agent,,,,,Pune,false,ambiguous,seed_english
+SEED-dsp_rte-002,Show transit route options from Indore to Nagpur,en,dispatch_route_query,Dispatch,dispatch_agent,,,,,Nagpur,false,ambiguous,seed_english
+SEED-dsp_rte-003,Check route distance between Amravati and Mumbai,en,dispatch_route_query,Dispatch,dispatch_agent,,,,,Mumbai,false,simple,seed_english
+SEED-dsp_rte-004,Calculate shortest route for wheat shipment from Delhi to Ahmedabad,en,dispatch_route_query,Dispatch,dispatch_agent,Wheat,,,,Ahmedabad,false,ambiguous,seed_english
+SEED-dsp_rte-005,Show me route maps for dispatching from Pune to Latur,en,dispatch_route_query,Dispatch,dispatch_agent,,,,,Latur,false,ambiguous,seed_english
+SEED-dsp_rte-006,What is the typical transit duration for the Nagpur to Mumbai corridor?,en,dispatch_route_query,Dispatch,dispatch_agent,,,,,Mumbai,false,ambiguous,seed_english
+SEED-dsp_rte-007,Check route details for Latur to Mumbai dispatch,en,dispatch_route_query,Dispatch,dispatch_agent,,,,,Mumbai,false,ambiguous,seed_english
+SEED-dsp_dly-001,Report a 4 hour delay for dispatch DSP-451 due to breakdown,en,dispatch_delay_report,Dispatch,dispatch_agent,,,,,,true,ambiguous,seed_english
+SEED-dsp_dly-002,"My truck is stuck in traffic, expect 2 hours delay on DSP-102",en,dispatch_delay_report,Dispatch,dispatch_agent,,,,,,true,simple,seed_english
+SEED-dsp_dly-003,Log delay of 6 hours for contract CTR-305 dispatch,en,dispatch_delay_report,Dispatch,dispatch_agent,,,,,,true,ambiguous,seed_english
+SEED-dsp_dly-004,Vehicle GJ-01-XY-9876 delayed by 3 hours due to heavy rain,en,dispatch_delay_report,Dispatch,dispatch_agent,,,,,,true,simple,seed_english
+SEED-dsp_dly-005,Report delay: DSP-882 will arrive 5 hours late,en,dispatch_delay_report,Dispatch,dispatch_agent,,,,,,true,ambiguous,seed_english
+SEED-dsp_dly-006,There is a delay of 8 hours on the Latur-Pune shipment,en,dispatch_delay_report,Dispatch,dispatch_agent,,,,,Pune,true,simple,seed_english
+SEED-dsp_dly-007,Update dispatch status: DSP-711 delayed by 12 hours,en,dispatch_delay_report,Dispatch,dispatch_agent,,,,,,true,simple,seed_english
+SEED-rsk_port-001,Show me my trading portfolio risk overview,en,risk_portfolio_query,Risk,risk_agent,,,,,,false,ambiguous,seed_english
+SEED-rsk_port-002,Analyze risk exposure for my active contracts,en,risk_portfolio_query,Risk,risk_agent,,,,,,false,ambiguous,seed_english
+SEED-rsk_port-003,What is my total portfolio risk today?,en,risk_portfolio_query,Risk,risk_agent,,,,,,false,ambiguous,seed_english
+SEED-rsk_port-004,Summarize contract risk profile,en,risk_portfolio_query,Risk,risk_agent,,,,,,false,simple,seed_english
+SEED-rsk_port-005,Review my risk exposure across commodities,en,risk_portfolio_query,Risk,risk_agent,,,,,,false,simple,seed_english
+SEED-rsk_port-006,Get risk analysis of wheat and cotton portfolio,en,risk_portfolio_query,Risk,risk_agent,Wheat,,,,,false,ambiguous,seed_english
+SEED-rsk_port-007,Am I overexposed in soybean contracts?,en,risk_portfolio_query,Risk,risk_agent,Soybean,,,,,false,simple,seed_english
+SEED-rsk_pnl-001,What is my current PnL for the season?,en,risk_pnl_query,Risk,risk_agent,,,,,,false,ambiguous,seed_english
+SEED-rsk_pnl-002,Show P&L statement for active contracts,en,risk_pnl_query,Risk,risk_agent,,,,,,false,ambiguous,seed_english
+SEED-rsk_pnl-003,Calculate my profit and loss on cotton trades,en,risk_pnl_query,Risk,risk_agent,Cotton,,,,,false,simple,seed_english
+SEED-rsk_pnl-004,What is the mark-to-market PnL for wheat?,en,risk_pnl_query,Risk,risk_agent,Wheat,,,,,false,ambiguous,seed_english
+SEED-rsk_pnl-005,Display PnL breakdown by commodity,en,risk_pnl_query,Risk,risk_agent,,,,,,false,simple,seed_english
+SEED-rsk_pnl-006,Am I in profit or loss on the Nagpur Mills contract?,en,risk_pnl_query,Risk,risk_agent,,,,Nagpur Mills,,false,ambiguous,seed_english
+SEED-rsk_pnl-007,Show recent trade PnL summary,en,risk_pnl_query,Risk,risk_agent,,,,,,false,simple,seed_english
+SEED-rsk_alrt-001,Are there any risk alerts active for my account?,en,risk_alert_query,Risk,risk_agent,,,,,,false,ambiguous,seed_english
+SEED-rsk_alrt-002,Show recent price volatility alerts,en,risk_alert_query,Risk,risk_agent,,,,,,false,simple,seed_english
+SEED-rsk_alrt-003,Check if there are any exposure limit warnings,en,risk_alert_query,Risk,risk_agent,,,,,,false,ambiguous,seed_english
+SEED-rsk_alrt-004,List risk alerts for soybean,en,risk_alert_query,Risk,risk_agent,Soybean,,,,,false,ambiguous,seed_english
+SEED-rsk_alrt-005,Do I have any compliance or credit risk alerts?,en,risk_alert_query,Risk,risk_agent,,,,,,false,ambiguous,seed_english
+SEED-rsk_alrt-006,Show risk notifications,en,risk_alert_query,Risk,risk_agent,,,,,,false,simple,seed_english
+SEED-rsk_alrt-007,Any margin or contract deviation alerts today?,en,risk_alert_query,Risk,risk_agent,,,,,,false,ambiguous,seed_english
+SEED-rsk_cpty-001,What is the credit risk for Ramesh?,en,risk_counterparty_query,Risk,risk_agent,,,,Ramesh,,false,ambiguous,seed_english
+SEED-rsk_cpty-002,Check payment history score for Bharat Agro,en,risk_counterparty_query,Risk,risk_agent,,,,Bharat Agro,,false,ambiguous,seed_english
+SEED-rsk_cpty-003,Is there any outstanding risk with Nagpur Mills?,en,risk_counterparty_query,Risk,risk_agent,,,,Nagpur Mills,,false,simple,seed_english
+SEED-rsk_cpty-004,Counterparty risk assessment for Suresh Farms,en,risk_counterparty_query,Risk,risk_agent,,,,Suresh Farms,,false,ambiguous,seed_english
+SEED-rsk_cpty-005,Review credit rating for Akola Traders,en,risk_counterparty_query,Risk,risk_agent,,,,Akola Traders,,false,ambiguous,seed_english
+SEED-rsk_cpty-006,Show credit limit utilization for Ramesh,en,risk_counterparty_query,Risk,risk_agent,,,,Ramesh,,false,ambiguous,seed_english
+SEED-rsk_cpty-007,Any counterparty default warnings for Pune Oils?,en,risk_counterparty_query,Risk,risk_agent,,,,Pune Oils,,false,ambiguous,seed_english
+SEED-byr_find-001,Find buyers for soybean in Indore,en,find_buyers,Buyers,buyer_discovery_agent,Soybean,,,,Indore,false,ambiguous,seed_english
+SEED-byr_find-002,Who is buying wheat near Latur?,en,find_buyers,Buyers,buyer_discovery_agent,Wheat,,,,Latur,false,simple,seed_english
+SEED-byr_find-003,Show cotton buyers in Nagpur,en,find_buyers,Buyers,buyer_discovery_agent,Cotton,,,,Nagpur,false,simple,seed_english
+SEED-byr_find-004,Are there any onion buyers active in Pune?,en,find_buyers,Buyers,buyer_discovery_agent,Onion,,,,Pune,false,simple,seed_english
+SEED-byr_find-005,Find potential buyers for groundnut in Gujarat,en,find_buyers,Buyers,buyer_discovery_agent,Groundnut,,,,Gujarat,false,ambiguous,seed_english
+SEED-byr_find-006,List mustard buyers in Delhi,en,find_buyers,Buyers,buyer_discovery_agent,Mustard,,,,Delhi,false,simple,seed_english
+SEED-byr_find-007,Search for chickpea buyers near Amravati,en,find_buyers,Buyers,buyer_discovery_agent,Chickpea,,,,Amravati,false,ambiguous,seed_english
+SEED-byr_prof-001,Show me the buyer profile for Bharat Agro,en,buyer_profile_query,Buyers,buyer_discovery_agent,,,,Bharat Agro,,false,ambiguous,seed_english
+SEED-byr_prof-002,What are the requirements for Nagpur Mills?,en,buyer_profile_query,Buyers,buyer_discovery_agent,,,,Nagpur Mills,,false,ambiguous,seed_english
+SEED-byr_prof-003,Get details of Akola Traders buyer profile,en,buyer_profile_query,Buyers,buyer_discovery_agent,,,,Akola Traders,,false,simple,seed_english
+SEED-byr_prof-004,Show purchasing volumes for Suresh Farms,en,buyer_profile_query,Buyers,buyer_discovery_agent,,,,Suresh Farms,,false,ambiguous,seed_english
+SEED-byr_prof-005,Profile details for Ramesh as a buyer,en,buyer_profile_query,Buyers,buyer_discovery_agent,,,,Ramesh,,false,ambiguous,seed_english
+SEED-byr_prof-006,What commodities does Bharat Agro typically buy?,en,buyer_profile_query,Buyers,buyer_discovery_agent,,,,Bharat Agro,,false,simple,seed_english
+SEED-byr_prof-007,View profile and rating for Pune Oils,en,buyer_profile_query,Buyers,buyer_discovery_agent,,,,Pune Oils,,false,ambiguous,seed_english
+SEED-cmp_inv-001,Generate a GST compliant invoice for contract CTR-102,en,compliance_invoice,Compliance,compliance_agent,,,,,,false,ambiguous,seed_english
+SEED-cmp_inv-002,Print invoice for wheat sale to Ramesh,en,compliance_invoice,Compliance,compliance_agent,Wheat,,,Ramesh,,false,ambiguous,seed_english
+SEED-cmp_inv-003,Create tax invoice for soybean contract CTR-202,en,compliance_invoice,Compliance,compliance_agent,Soybean,,,,,false,ambiguous,seed_english
+SEED-cmp_inv-004,Prepare compliance invoice for Bharat Agro dispatch,en,compliance_invoice,Compliance,compliance_agent,,,,Bharat Agro,,false,ambiguous,seed_english
+SEED-cmp_inv-005,Show tax invoice for groundnut CTR-405,en,compliance_invoice,Compliance,compliance_agent,Groundnut,,,,,false,ambiguous,seed_english
+SEED-cmp_inv-006,Generate invoice for Akola Traders,en,compliance_invoice,Compliance,compliance_agent,,,,Akola Traders,,false,ambiguous,seed_english
+SEED-cmp_inv-007,Format invoice for contract CTR-088,en,compliance_invoice,Compliance,compliance_agent,,,,,,false,ambiguous,seed_english
+SEED-cmp_gst-001,What is the GST rate for cotton in India?,en,compliance_gst_query,Compliance,compliance_agent,Cotton,,,,India,false,ambiguous,seed_english
+SEED-cmp_gst-002,Do I need an e-way bill for 50 quintals of soybean?,en,compliance_gst_query,Compliance,compliance_agent,Soybean,50.0,quintal,,,false,ambiguous,seed_english
+SEED-cmp_gst-003,GST compliance guidelines for wheat interstate trading,en,compliance_gst_query,Compliance,compliance_agent,Wheat,,,,,false,ambiguous,seed_english
+SEED-cmp_gst-004,What is the HSN code and GST rate for onion?,en,compliance_gst_query,Compliance,compliance_agent,Onion,,,,,false,ambiguous,seed_english
+SEED-cmp_gst-005,Is GST applicable on groundnut sales?,en,compliance_gst_query,Compliance,compliance_agent,Groundnut,,,,,false,simple,seed_english
+SEED-cmp_gst-006,Show GST rules for chickpea trading,en,compliance_gst_query,Compliance,compliance_agent,Chickpea,,,,,false,ambiguous,seed_english
+SEED-cmp_gst-007,Check compliance tax rates for mustard,en,compliance_gst_query,Compliance,compliance_agent,Mustard,,,,,false,ambiguous,seed_english
+SEED-dl_eval-001,Evaluate a deal for soybean at 4600 per quintal in Indore,en,deal_evaluate,Deal,trade_advisor_agent,Soybean,,,,Indore,false,compound,seed_english
+SEED-dl_eval-002,Is 2300 a good price to buy wheat in Latur?,en,deal_evaluate,Deal,trade_advisor_agent,Wheat,,,,Latur,false,simple,seed_english
+SEED-dl_eval-003,Assess cotton offer of 7200 in Nagpur,en,deal_evaluate,Deal,trade_advisor_agent,Cotton,,,,Nagpur,false,simple,seed_english
+SEED-dl_eval-004,Analyze onion sale deal at 1800 per quintal,en,deal_evaluate,Deal,trade_advisor_agent,Onion,,,,,false,simple,seed_english
+SEED-dl_eval-005,Should I sell groundnut at 6100 in Ahmedabad?,en,deal_evaluate,Deal,trade_advisor_agent,Groundnut,,,,Ahmedabad,false,simple,seed_english
+SEED-dl_eval-006,Evaluate chickpea buy offer at 5200 in Pune,en,deal_evaluate,Deal,trade_advisor_agent,Chickpea,,,,Pune,false,compound,seed_english
+SEED-dl_eval-007,Is the mustard deal at 5400 profitable?,en,deal_evaluate,Deal,trade_advisor_agent,Mustard,,,,,false,simple,seed_english
+SEED-dl_nego-001,What is the recommended negotiation range for soybean with Nagpur Mills?,en,deal_negotiation_range,Deal,trade_advisor_agent,Soybean,,,Nagpur Mills,,false,compound,seed_english
+SEED-dl_nego-002,Suggest bargaining price limits for cotton with Bharat Agro,en,deal_negotiation_range,Deal,trade_advisor_agent,Cotton,,,Bharat Agro,,false,ambiguous,seed_english
+SEED-dl_nego-003,Negotiation price range for wheat with Ramesh,en,deal_negotiation_range,Deal,trade_advisor_agent,Wheat,,,Ramesh,,false,compound,seed_english
+SEED-dl_nego-004,What negotiation buffer should I use for onion with Akola Traders?,en,deal_negotiation_range,Deal,trade_advisor_agent,Onion,,,Akola Traders,,false,compound,seed_english
+SEED-dl_nego-005,Provide price negotiation range for chickpea,en,deal_negotiation_range,Deal,trade_advisor_agent,Chickpea,,,,,false,compound,seed_english
+SEED-dl_nego-006,Bargaining spread for mustard with Suresh Farms,en,deal_negotiation_range,Deal,trade_advisor_agent,Mustard,,,Suresh Farms,,false,ambiguous,seed_english
+SEED-dl_nego-007,Negotiation limits for groundnut deal,en,deal_negotiation_range,Deal,trade_advisor_agent,Groundnut,,,,,false,compound,seed_english
+SEED-ctx_grt-001,"Hello Lucy, how can you help me today?",en,greeting,Context,lucy_orchestrator,,,,,,false,simple,seed_english
+SEED-ctx_grt-002,Hi there,en,greeting,Context,lucy_orchestrator,,,,,,false,simple,seed_english
+SEED-ctx_grt-003,Good morning,en,greeting,Context,lucy_orchestrator,,,,,,false,ambiguous,seed_english
+SEED-ctx_grt-004,Hey,en,greeting,Context,lucy_orchestrator,,,,,,false,simple,seed_english
+SEED-ctx_grt-005,Are you there?,en,greeting,Context,lucy_orchestrator,,,,,,false,simple,seed_english
+SEED-ctx_grt-006,Hello,en,greeting,Context,lucy_orchestrator,,,,,,false,simple,seed_english
+SEED-ctx_grt-007,Greetings,en,greeting,Context,lucy_orchestrator,,,,,,false,simple,seed_english
+SEED-ctx_sum-001,Give me a summary of our chat session,en,session_summary_request,Context,lucy_orchestrator,,,,,,true,simple,seed_english
+SEED-ctx_sum-002,What did we decide today?,en,session_summary_request,Context,lucy_orchestrator,,,,,,true,simple,seed_english
+SEED-ctx_sum-003,Summarize our conversation so far,en,session_summary_request,Context,lucy_orchestrator,,,,,,true,simple,seed_english
+SEED-ctx_sum-004,What were the key takeaways from this session?,en,session_summary_request,Context,lucy_orchestrator,,,,,,true,simple,seed_english
+SEED-ctx_sum-005,Provide a session recap,en,session_summary_request,Context,lucy_orchestrator,,,,,,true,simple,seed_english
+SEED-ctx_sum-006,List the actions we agreed on,en,session_summary_request,Context,lucy_orchestrator,,,,,,true,simple,seed_english
+SEED-ctx_sum-007,Show session summary,en,session_summary_request,Context,lucy_orchestrator,,,,,,true,simple,seed_english
+SEED-ctx_alias-001,"Chana actually refers to Chickpea, please correct it",en,alias_correction,Context,commodity_agent,Chickpea,,,,,false,ambiguous,seed_english
+SEED-ctx_alias-002,"When I say sarso, I mean Mustard",en,alias_correction,Context,commodity_agent,Mustard,,,,,false,simple,seed_english
+SEED-ctx_alias-003,"Gehun means Wheat, update the mapping",en,alias_correction,Context,commodity_agent,Wheat,,,,,false,simple,seed_english
+SEED-ctx_alias-004,Update alias: pyaz is Onion,en,alias_correction,Context,commodity_agent,Onion,,,,,false,simple,seed_english
+SEED-ctx_alias-005,"Kapas is Kapas cotton, associate it with Cotton",en,alias_correction,Context,commodity_agent,Cotton,,,,,false,simple,seed_english
+SEED-ctx_alias-006,Soyabean is Soybean,en,alias_correction,Context,commodity_agent,Soybean,,,,,false,simple,seed_english
+SEED-ctx_alias-007,Moong should map to Mung Bean,en,alias_correction,Context,commodity_agent,Mung Bean,,,,,false,simple,seed_english
