@@ -6,8 +6,6 @@ TradeNexus is a production-oriented commodity intelligence layer built for India
 
 **Live Demo:** [https://tradenexus.vercel.app](https://tradenexus.vercel.app)
 
----
-
 ## Table of Contents
 
 - [Executive Summary](#executive-summary)
