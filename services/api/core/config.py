@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     # --- Nvidia API ---
     NVIDIA_API_KEY: str = ""
     NVIDIA_MODEL: str = "qwen/qwen3.5-397b-a17b"
+    # Explicit "mock" disables NVIDIA even when a key is present (unit tests only).
     LLM_PROVIDER: str = "nvidia"
 
     # --- Security and Internal Keys ---
@@ -47,10 +48,9 @@ class Settings(BaseSettings):
     # --- Google Routes API ---
     GOOGLE_ROUTES_API_KEY: str = ""
 
-# --- App Environment ---
-    # Options: development, staging, production
+    # --- App Environment ---
+    # Options: development, staging, production, test
     ENVIRONMENT: str = "development"
-    LLM_PROVIDER: str = "mock"  # Use mock for development, "nvidia" for production
 
     model_config = {
         "env_file": str(_env_file_path),

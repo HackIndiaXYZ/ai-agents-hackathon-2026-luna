@@ -14,6 +14,11 @@ import {
   ClipboardCheck,
   Network,
   BarChart3,
+  FileStack,
+  Shield,
+  Package,
+  Users,
+  GraduationCap,
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -23,14 +28,19 @@ export const Sidebar = () => {
 
   const navItems = [
     { path: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/app/markets', label: 'Markets', icon: TrendingUp },
-    { path: '/app/network', label: 'Network', icon: Network },
-    { path: '/app/analytics', label: 'Analytics', icon: BarChart3 },
+    { path: '/app/contracts', label: 'Contracts', icon: FileStack },
+    { path: '/app/inventory', label: 'Inventory', icon: Package },
     { path: '/app/dispatch', label: 'Dispatch', icon: Truck },
+    { path: '/app/markets', label: 'Markets', icon: TrendingUp },
+    { path: '/app/risk', label: 'Risk & P&L', icon: Shield },
     { path: '/app/opportunities', label: 'Opportunities', icon: Handshake },
+    { path: '/app/counterparties', label: 'Counterparties', icon: Users },
     { path: '/app/compliance', label: 'Compliance', icon: FileText },
     { path: '/app/quality', label: 'Quality Lots', icon: ClipboardCheck },
+    { path: '/app/network', label: 'Network', icon: Network },
+    { path: '/app/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/app/advisor', label: 'Trade Advisor', icon: Brain },
+    { path: '/app/learning', label: 'Learning', icon: GraduationCap },
   ];
 
   const handleLogout = () => {

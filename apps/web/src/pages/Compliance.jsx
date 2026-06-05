@@ -33,7 +33,9 @@ import {
   parseFieldNote,
   createContract,
   updateInventory,
-  uploadComplianceDocument
+  uploadComplianceDocument,
+  draftEwayBill,
+  parseWhatsAppMessage,
 } from '../lib/api';
 import { formatINR, formatQty } from '../utils/format';
 
@@ -68,6 +70,17 @@ export const Compliance = () => {
   const [parsingNote, setParsingNote] = useState(false);
   const [parsedFields, setParsedFields] = useState(null);
   const [processingNoteAction, setProcessingNoteAction] = useState(false);
+
+  // TAB 4: E-way bill demo
+  const [ewayContractId, setEwayContractId] = useState('');
+  const [ewayVehicle, setEwayVehicle] = useState('MH-12-AB-1234');
+  const [ewayDraft, setEwayDraft] = useState(null);
+  const [loadingEway, setLoadingEway] = useState(false);
+
+  // TAB 5: WhatsApp demo
+  const [waMessage, setWaMessage] = useState('');
+  const [waParsed, setWaParsed] = useState(null);
+  const [parsingWa, setParsingWa] = useState(false);
 
   // Load contracts for Tab 2
   useEffect(() => {
@@ -286,6 +299,20 @@ export const Compliance = () => {
         >
           <Languages className="w-4 h-4" />
           Field Note Parser
+        </button>
+        <button
+          onClick={() => setActiveTab('eway')}
+          className={`px-5 py-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'eway' ? 'border-brand-green text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+        >
+          <FileCheck className="w-4 h-4" />
+          E-way Bill (Demo)
+        </button>
+        <button
+          onClick={() => setActiveTab('whatsapp')}
+          className={`px-5 py-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'whatsapp' ? 'border-brand-green text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+        >
+          <Sparkles className="w-4 h-4" />
+          WhatsApp (Demo)
         </button>
       </div>
 
@@ -792,6 +819,90 @@ export const Compliance = () => {
             )}
           </div>
         </div>
+      )}
+
+      {activeTab === 'eway' && (
+        <Card className="p-6 space-y-4">
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
+            Demo NIC e-way bill draft — form preview only, does not submit to government portal.
+          </p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <select
+              className="border rounded-lg px-3 py-2 text-sm"
+              value={ewayContractId}
+              onChange={(e) => setEwayContractId(e.target.value)}
+            >
+              <option value="">Select contract</option>
+              {contractsList.map((c) => (
+                <option key={c.id} value={c.id}>{c.contract_number} — {c.commodity}</option>
+              ))}
+            </select>
+            <input
+              className="border rounded-lg px-3 py-2 text-sm"
+              placeholder="Vehicle number"
+              value={ewayVehicle}
+              onChange={(e) => setEwayVehicle(e.target.value)}
+            />
+          </div>
+          <Button
+            disabled={!ewayContractId || loadingEway}
+            onClick={async () => {
+              setLoadingEway(true);
+              try {
+                const res = await draftEwayBill(ewayContractId, ewayVehicle);
+                setEwayDraft(res.eway_bill || res);
+                toast.success('E-way bill draft generated');
+              } catch {
+                toast.error('Could not generate e-way bill draft');
+              } finally {
+                setLoadingEway(false);
+              }
+            }}
+          >
+            Generate Draft
+          </Button>
+          {ewayDraft && (
+            <pre className="text-xs bg-slate-50 border rounded-lg p-4 overflow-x-auto">
+              {JSON.stringify(ewayDraft, null, 2)}
+            </pre>
+          )}
+        </Card>
+      )}
+
+      {activeTab === 'whatsapp' && (
+        <Card className="p-6 space-y-4">
+          <p className="text-xs text-slate-600">
+            Paste a WhatsApp trade note — same NLP as field notes. Demo channel only.
+          </p>
+          <textarea
+            className="w-full border rounded-lg px-3 py-2 text-sm min-h-[120px]"
+            placeholder="e.g. Ramesh ne 50 quintal kapas 6400 me becha"
+            value={waMessage}
+            onChange={(e) => setWaMessage(e.target.value)}
+          />
+          <Button
+            disabled={!waMessage.trim() || parsingWa}
+            onClick={async () => {
+              setParsingWa(true);
+              try {
+                const res = await parseWhatsAppMessage(waMessage);
+                setWaParsed(res.parsed || res);
+                toast.success('WhatsApp note parsed');
+              } catch {
+                toast.error('Parse failed');
+              } finally {
+                setParsingWa(false);
+              }
+            }}
+          >
+            Parse Message
+          </Button>
+          {waParsed && (
+            <pre className="text-xs bg-slate-50 border rounded-lg p-4 overflow-x-auto">
+              {JSON.stringify(waParsed, null, 2)}
+            </pre>
+          )}
+        </Card>
       )}
 
     </div>

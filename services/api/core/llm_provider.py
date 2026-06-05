@@ -12,11 +12,13 @@ import asyncio
 import json
 import re
 from abc import ABC, abstractmethod
+from functools import lru_cache
 import httpx
 from core.config import get_settings
 
 logger = logging.getLogger("llm_provider")
 logger.setLevel(logging.INFO)
+
 
 class LLMProvider(ABC):
     """Abstract base class for LLM providers."""
@@ -32,6 +34,10 @@ class LLMProvider(ABC):
         """Generate a text completion using the LLM."""
         pass
 
+    @property
+    def provider_name(self) -> str:
+        return self.__class__.__name__
+
 
 class NvidiaProvider(LLMProvider):
     """Nvidia AI Foundation Endpoints provider using HTTPX."""
@@ -39,8 +45,14 @@ class NvidiaProvider(LLMProvider):
     def __init__(self):
         settings = get_settings()
         self.api_key = settings.NVIDIA_API_KEY
+        if not self.api_key:
+            raise RuntimeError("NVIDIA_API_KEY is not set")
         self.model = settings.NVIDIA_MODEL or "qwen/qwen3.5-397b-a17b"
         self.base_url = "https://integrate.api.nvidia.com/v1"
+
+    @property
+    def provider_name(self) -> str:
+        return "NVIDIA"
 
     async def complete(
         self,
@@ -50,12 +62,10 @@ class NvidiaProvider(LLMProvider):
         max_tokens: int = 500
     ) -> str:
         """Call the Nvidia API to generate responses with exponential backoff retries."""
-        # 1. Modify system prompt if expect_json is True
         final_system_prompt = system_prompt
         if expect_json:
             final_system_prompt += "\nRespond with ONLY valid JSON. No markdown, no explanation."
 
-        # 2. Input token estimate (1 token approx 4 characters rule-of-thumb)
         token_estimate = (len(final_system_prompt) + len(user_prompt)) // 4
 
         payload = {
@@ -67,18 +77,17 @@ class NvidiaProvider(LLMProvider):
             "max_tokens": max_tokens,
             "temperature": 0.2
         }
-        
+
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
 
-        # 3. HTTPX request with exponential backoff (max 3 retries)
         retries = 3
         delay = 2.0
         start_time = time.perf_counter()
-        
-        async with httpx.AsyncClient(timeout=30.0) as client:
+
+        async with httpx.AsyncClient(timeout=60.0) as client:
             for attempt in range(retries + 1):
                 try:
                     response = await client.post(
@@ -86,7 +95,7 @@ class NvidiaProvider(LLMProvider):
                         json=payload,
                         headers=headers
                     )
-                    
+
                     if response.status_code == 429:
                         if attempt == retries:
                             response.raise_for_status()
@@ -94,24 +103,36 @@ class NvidiaProvider(LLMProvider):
                         await asyncio.sleep(delay)
                         delay *= 2
                         continue
-                        
+
                     response.raise_for_status()
                     data = response.json()
                     choice = data.get("choices", [{}])[0]
-                    message = choice.get("message", {})
-                    content = message.get("content") or message.get("reasoning_content", "")
-                    
-                    if not content:
-                        logger.warning(f"LLM response missing content. Full response: {data}")
+                    message = choice.get("message", {}) or {}
+                    content = message.get("content") or ""
+                    if not content.strip():
+                        content = message.get("reasoning_content") or ""
+                    if not content.strip() and isinstance(choice.get("text"), str):
+                        content = choice["text"]
+
+                    if not content or not str(content).strip():
+                        finish = choice.get("finish_reason", "")
+                        logger.warning(
+                            f"LLM empty content (finish={finish}, attempt={attempt+1}). "
+                            f"completion_tokens={data.get('usage', {}).get('completion_tokens')}"
+                        )
+                        if attempt < retries:
+                            payload["max_tokens"] = min(payload["max_tokens"] * 2, 2048)
+                            await asyncio.sleep(delay)
+                            delay *= 1.5
+                            continue
                         raise RuntimeError("LLM response missing content field")
-                    
-                    # Log model, input token estimate, and latency
+
                     latency = time.perf_counter() - start_time
                     logger.info(
-                        f"[LLM] Model: {self.model} | Input Token Est: {token_estimate} | Latency: {latency:.4f}s"
+                        f"[LLM] NVIDIA model={self.model} | tokens~{token_estimate} | latency={latency:.2f}s"
                     )
                     return content
-                    
+
                 except httpx.HTTPStatusError as e:
                     if attempt == retries:
                         raise e
@@ -129,7 +150,11 @@ class NvidiaProvider(LLMProvider):
 
 
 class MockProvider(LLMProvider):
-    """Mock LLM provider for local development and testing without API key/quota constraints."""
+    """Mock LLM provider — only when LLM_PROVIDER=mock is explicitly set."""
+
+    @property
+    def provider_name(self) -> str:
+        return "MOCK"
 
     async def complete(
         self,
@@ -138,96 +163,92 @@ class MockProvider(LLMProvider):
         expect_json: bool = False,
         max_tokens: int = 500
     ) -> str:
-        """Return hardcoded plausible responses based on context."""
         latency = 0.05
-        logger.info(f"[LLM-Mock] Input token est: {(len(system_prompt) + len(user_prompt)) // 4} | Latency: {latency:.4f}s")
-        
+        logger.info(
+            f"[LLM-Mock] tokens~{(len(system_prompt) + len(user_prompt)) // 4} | latency={latency:.2f}s"
+        )
+
         if expect_json:
             if "intent classifier" in system_prompt.lower():
                 return '{"intent": "GREETING", "commodity": null, "quantity": null, "unit": null, "origin": null, "destination": null, "deal_details": null, "language": "en", "confidence": 0.95}'
             if "compliance" in user_prompt.lower() or "compliance" in system_prompt.lower():
                 return '{"permits": ["APMC Transit Permit", "FSSAI Food Safety License"], "cess_fee": "1.5% of trade value", "quality_checklist": ["Moisture < 12%", "No discoloration"]}'
             if "synthesis" in system_prompt.lower() or "lucy" in system_prompt.lower():
-                return '{"response_text": "Hello! Welcome to **TradeNexus**, your autonomous trade operations copilot. I am **LUCY**, ready to assist you today.\\n\\nHere is a quick snapshot of your current inventory:\\n\\n| Commodity | Quantity (Quintal) |\\n| :--- | :--- |\\n| **Cotton** | 600.0 |\\n| **Onion** | 200.0 |\\n| **Wheat** | 150.0 |\\n| **Soybean** | 120.0 |\\n| **Pigeon Pea** | 80.0 |\\n\\nHow can I assist you today? You can ask me to check market prices, initiate a deal, or analyze trends for any of these commodities.", "voice_response": "Hello! Welcome to TradeNexus. I am LUCY, your autonomous trade operations copilot. Here is your current inventory: Cotton 600 quintal, Onion 200 quintal, Wheat 150 quintal, Soybean 120 quintal, Pigeon Pea 80 quintal. How can I assist you today?"}'
+                return '{"response_text": "Hello! I am LUCY, your TradeNexus copilot.", "voice_response": "Hello! I am Lucy, your Trade Nexus copilot.", "voice_language": "en"}'
             if "contract parser" in system_prompt.lower() or "contract details" in system_prompt.lower():
                 text = user_prompt.lower()
-                ctype = "buy"
-                if "diya" in text or "sell" in text or "sold" in text:
-                    ctype = "sell"
-                elif "liya" in text or "buy" in text or "bought" in text or "purchase" in text:
-                    ctype = "buy"
-                
-                commodity = None
-                for c in ["cotton", "onion", "wheat", "soybean", "pigeon pea", "paddy"]:
-                    if c in text:
-                        commodity = c.title()
-                        break
-                
-                counterparty = None
-                cp_match = re.search(r'([a-zA-Z]+)\s+se', user_prompt)
-                if cp_match:
-                    counterparty = cp_match.group(1).strip().title()
-                else:
-                    cp_match = re.search(r'(?:with|to|from)\s+([a-zA-Z]+)', user_prompt, re.IGNORECASE)
-                    if cp_match:
-                        counterparty = cp_match.group(1).strip().title()
-                
-                quantity = None
-                unit = "quintal"
-                qty_match = re.search(r'(\d+(?:\.\d+)?)\s*(quintal|quintals|q|kg|kgs|ton|tons)?', text)
-                if qty_match:
-                    quantity = float(qty_match.group(1))
-                    if qty_match.group(2):
-                        u = qty_match.group(2)
-                        if u in ["kg", "kgs"]:
-                            unit = "kg"
-                        elif u in ["ton", "tons"]:
-                            unit = "ton"
-                        else:
-                            unit = "quintal"
-                
-                price = None
-                price_match = re.search(r'(?:rs\.?|rupaye|rupees|inr|@)\s*(\d+(?:\.\d+)?)', text)
-                if not price_match:
-                    price_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:rs\.?|rupaye|rupees|inr)', text)
-                if price_match:
-                    price = float(price_match.group(1))
-                
-                delivery_date = None
-                if "friday" in text:
-                    delivery_date = "2026-06-05"
-                elif "tomorrow" in text:
-                    delivery_date = "2026-06-03"
-                elif "monday" in text:
-                    delivery_date = "2026-06-08"
-                
-                res_dict = {
-                    "type": ctype,
-                    "commodity": commodity,
-                    "quantity": quantity,
-                    "unit": unit,
-                    "price": price,
-                    "counterparty": counterparty,
-                    "delivery_date": delivery_date,
-                    "delivery_location": None,
-                    "payment_terms": None
-                }
-                return json.dumps(res_dict)
+                ctype = "sell" if any(w in text for w in ("diya", "sell", "sold", "bechna")) else "buy"
+                commodity = next((c.title() for c in ["cotton", "onion", "wheat", "soybean"] if c in text), None)
+                return json.dumps({
+                    "type": ctype, "commodity": commodity, "quantity": 50.0,
+                    "unit": "quintal", "price": None, "counterparty": None,
+                    "delivery_date": None, "delivery_location": None, "payment_terms": None
+                })
             return '{"canonical_name": "Cotton", "confidence": 0.95}'
-        
-        return (
-            "The Cotton market in Maharashtra shows resilient demand, with modal prices at Yavatmal "
-            "reaching ₹7,500/Quintal, which is 8% above the 10-day average. Regional traders should consider prioritizing "
-            "supply lines to these high-performing hubs where net margins are highly favorable."
-        )
+
+        return "TradeNexus market intelligence summary (mock)."
 
 
+def resolve_llm_provider_mode() -> str:
+    """
+    Resolve which provider to use.
+    NVIDIA when API key is present unless LLM_PROVIDER=mock.
+    """
+    settings = get_settings()
+    if settings.LLM_PROVIDER.lower() == "mock":
+        return "mock"
+    if settings.NVIDIA_API_KEY:
+        return "nvidia"
+    if settings.ENVIRONMENT.lower() == "test":
+        return "mock"
+    return "unconfigured"
+
+
+@lru_cache()
 def get_llm_provider() -> LLMProvider:
     """Factory to retrieve the active LLM provider based on settings."""
     settings = get_settings()
-    
-    # Used when ENVIRONMENT=test or LLM_PROVIDER=mock
-    if settings.ENVIRONMENT.lower() == "test" or settings.LLM_PROVIDER.lower() == "mock":
+    mode = resolve_llm_provider_mode()
+
+    if mode == "mock":
+        logger.warning("[LLM] Provider: MOCK (explicit or test env without API key)")
         return MockProvider()
-        
-    return NvidiaProvider()
+
+    if mode == "nvidia":
+        logger.info(f"[LLM] Provider: NVIDIA | model={settings.NVIDIA_MODEL}")
+        return NvidiaProvider()
+
+    raise RuntimeError(
+        "NVIDIA_API_KEY is required for Lucy orchestration. "
+        "Set NVIDIA_API_KEY in .env or use LLM_PROVIDER=mock for offline tests only."
+    )
+
+
+async def verify_nvidia_connectivity() -> None:
+    """
+    Startup health check — fails loudly if NVIDIA is configured but unreachable.
+  """
+    mode = resolve_llm_provider_mode()
+    if mode != "nvidia":
+        logger.info(f"[LLM] Skipping NVIDIA connectivity check (mode={mode})")
+        return
+
+    settings = get_settings()
+    provider = NvidiaProvider()
+    logger.info(f"[LLM] Verifying NVIDIA connectivity (model={provider.model})...")
+
+    try:
+        response = await provider.complete(
+            "You are a health check assistant.",
+            "Reply with exactly: OK",
+            expect_json=False,
+            max_tokens=16,
+        )
+        if not response or not response.strip():
+            raise RuntimeError("Empty response from NVIDIA API")
+        logger.info(f"[LLM] NVIDIA connected successfully | probe={response.strip()[:40]!r}")
+    except Exception as exc:
+        logger.error(f"[LLM] NVIDIA connectivity check FAILED: {exc}")
+        raise RuntimeError(
+            f"NVIDIA API connectivity failed. Lucy cannot orchestrate without a working LLM. Detail: {exc}"
+        ) from exc

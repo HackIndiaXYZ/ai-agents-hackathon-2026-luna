@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useStore } from '../store';
-import { getMarketPrices, getMarketCommodities, getForecast, getContracts, getMacroSignals } from '../lib/api';
+import { getMarketPrices, getMarketCommodities, getForecast, getContracts, getMacroSignals, getExchangePrices } from '../lib/api';
 import { demoPrices, demoAlerts } from '../data/demo';
 
 // UI components
@@ -8,6 +8,7 @@ import PageHeader from '../components/ui/PageHeader';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ModelCredibilityBadge from '../components/ui/ModelCredibilityBadge';
 
 import {
@@ -39,7 +40,8 @@ import {
   ThumbsDown,
   Minus,
   ShieldAlert,
-  List
+  List,
+  Info,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -77,6 +79,7 @@ export const MarketPrices = () => {
   const [macroSignals, setMacroSignals] = useState([]);
   const [forecastData, setForecastData] = useState([]);
   const [loadingForecast, setLoadingForecast] = useState(false);
+  const [exchangePrices, setExchangePrices] = useState([]);
 
   useEffect(() => {
     fetchCommodities();
@@ -131,11 +134,13 @@ export const MarketPrices = () => {
     if (!selectedComm) return;
     setLoadingForecast(true);
     try {
-      const [forecast, contractList, signalsList] = await Promise.all([
+      const [forecast, contractList, signalsList, exchangeData] = await Promise.all([
         getForecast(selectedComm),
         getContracts(),
-        getMacroSignals()
+        getMacroSignals(),
+        getExchangePrices(selectedComm),
       ]);
+      setExchangePrices(exchangeData?.prices || []);
       
       setContracts(contractList || []);
       setMacroSignals(signalsList || []);
@@ -229,6 +234,29 @@ export const MarketPrices = () => {
           </Button>
         }
       />
+
+      {exchangePrices.length > 0 && (
+        <Card className="p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-slate-800">MCX / NCDEX Futures (Demo)</h3>
+            <Badge variant="warning">Demo — derived from mandi</Badge>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {exchangePrices.map((ep) => (
+              <div key={`${ep.exchange}-${ep.symbol}`} className="p-3 border rounded-lg text-sm">
+                <div className="flex justify-between">
+                  <span className="font-bold">{ep.exchange} · {ep.symbol}</span>
+                  <span className={ep.change_pct >= 0 ? 'text-emerald-600' : 'text-rose-600'}>
+                    {ep.change_pct >= 0 ? '+' : ''}{ep.change_pct}%
+                  </span>
+                </div>
+                <p className="text-lg font-extrabold mt-1">{formatINR(ep.last_price)}</p>
+                <p className="text-[10px] text-slate-400 mt-1">Ref mandi: {formatINR(ep.mandi_reference_price)}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* TOP ROW — FILTERS */}
       <Card className="p-5 grid grid-cols-1 sm:grid-cols-4 gap-4">

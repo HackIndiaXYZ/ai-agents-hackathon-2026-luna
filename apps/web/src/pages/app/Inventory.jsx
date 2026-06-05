@@ -34,7 +34,8 @@ import {
   updateInventory,
   getContracts,
   getMacroSignals,
-  getCommoditySpotPrice
+  getCommoditySpotPrice,
+  getOpenPositions,
 } from '../../lib/api';
 
 const FALLBACK_PRICES = {
@@ -55,6 +56,7 @@ export const Inventory = () => {
   const [macroSignals, setMacroSignals] = useState([]);
   const [spotPrices, setSpotPrices] = useState({});
   const [loading, setLoading] = useState(true);
+  const [positions, setPositions] = useState([]);
 
   // Modal State
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -68,17 +70,20 @@ export const Inventory = () => {
   const fetchInventoryData = async (showSkeleton = true) => {
     if (showSkeleton) setLoading(true);
     try {
-      const [invData, contractList, signalsData] = await Promise.all([
+      const [invData, contractList, signalsData, positionsData] = await Promise.all([
         getInventory(),
         getContracts(),
-        getMacroSignals()
+        getMacroSignals(),
+        getOpenPositions(),
       ]);
 
-      setInventory(invData || []);
+      const invList = invData?.inventory || invData || [];
+      setInventory(invList);
       setContracts(contractList || []);
       setMacroSignals(signalsData || []);
+      setPositions(Array.isArray(positionsData) ? positionsData : positionsData?.positions || []);
 
-      const commodities = [...new Set((invData || []).map((i) => i.canonical_name).filter(Boolean))];
+      const commodities = [...new Set(invList.map((i) => i.canonical_name).filter(Boolean))];
       const priceEntries = await Promise.all(
         commodities.map(async (name) => {
           const live = await getCommoditySpotPrice(name);
@@ -155,58 +160,6 @@ export const Inventory = () => {
   };
 
   const { items: inventoryWithValuation, totalPortfolioVal } = getInventoryItemsWithValuation();
-
-  // Open Positions: aggregate contracts where status is not settled or cancelled
-  const getOpenPositions = () => {
-    const activeContracts = contracts.filter(c => c.status !== 'settled' && c.status !== 'cancelled');
-    const grouped = {};
-
-    activeContracts.forEach((c) => {
-      const comm = c.commodity;
-      if (!grouped[comm]) {
-        grouped[comm] = {
-          commodity: comm,
-          buyQty: 0,
-          sellQty: 0,
-          buyValueSum: 0,
-          sellValueSum: 0,
-          netPnL: 0
-        };
-      }
-
-      const qty = Number(c.quantity) || 0;
-      const price = Number(c.contract_price) || 0;
-      const pnl = Number(c.unrealized_pnl) || 0;
-
-      if (c.type === 'BUY') {
-        grouped[comm].buyQty += qty;
-        grouped[comm].buyValueSum += qty * price;
-      } else {
-        grouped[comm].sellQty += qty;
-        grouped[comm].sellValueSum += qty * price;
-      }
-      grouped[comm].netPnL += pnl;
-    });
-
-    return Object.keys(grouped).map((k) => {
-      const g = grouped[k];
-      const netPosition = g.buyQty - g.sellQty;
-      const avgBuyPrice = g.buyQty > 0 ? Math.round(g.buyValueSum / g.buyQty) : 0;
-      const avgSellPrice = g.sellQty > 0 ? Math.round(g.sellValueSum / g.sellQty) : 0;
-
-      return {
-        commodity: g.commodity,
-        total_bought: g.buyQty,
-        total_sold: g.sellQty,
-        net_position: netPosition,
-        avg_buy_price: avgBuyPrice,
-        avg_sell_price: avgSellPrice,
-        net_pnl: g.netPnL
-      };
-    });
-  };
-
-  const positions = getOpenPositions();
 
   // Exposure color logic: Long in rising market = green, Long in falling = red, Short in falling = green, Short in rising = red
   const getExposureBadge = (commodity, netPosition) => {

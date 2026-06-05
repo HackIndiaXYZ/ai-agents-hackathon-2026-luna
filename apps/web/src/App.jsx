@@ -28,6 +28,8 @@ import Compliance from './pages/Compliance';
 import Quality from './pages/app/Quality';
 import Network from './pages/app/Network';
 import Analytics from './pages/app/Analytics';
+import Counterparties from './pages/app/Counterparties';
+import Learning from './pages/app/Learning';
 import Settings from './pages/Settings';
 
 // Protected Route Guard
@@ -211,6 +213,26 @@ export const App = () => {
               <ProtectedRoute>
                 <PageTransition>
                   <Quality />
+                </PageTransition>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/app/counterparties" 
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <Counterparties />
+                </PageTransition>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/app/learning" 
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <Learning />
                 </PageTransition>
               </ProtectedRoute>
             } 

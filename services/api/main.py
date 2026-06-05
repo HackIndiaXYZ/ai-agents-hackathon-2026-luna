@@ -10,7 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers import market, dispatch, opportunity, compliance, feedback, advisor, copilot, lucy
 from routers import contracts, counterparties, dispatches, risk, network
+from routers import inventory, positions, quality, learning
 from tasks.risk_scheduler import start_scheduler, shutdown_scheduler
+from core.llm_provider import resolve_llm_provider_mode, verify_nvidia_connectivity
 
 
 @asynccontextmanager
@@ -18,6 +20,14 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle manager."""
     # --- Startup ---
     print("[TradeNexus] API starting up...")
+    mode = resolve_llm_provider_mode()
+    if mode == "nvidia":
+        print("[LLM] Provider: NVIDIA")
+        await verify_nvidia_connectivity()
+    elif mode == "mock":
+        print("[LLM] Provider: MOCK (orchestration will not use real LLM)")
+    else:
+        print("[LLM] WARNING: No NVIDIA_API_KEY — Lucy chat will fail until configured")
     start_scheduler()
     yield
     # --- Shutdown ---
@@ -59,6 +69,10 @@ app.include_router(counterparties.router, prefix="/api/v1", tags=["Counterpartie
 app.include_router(dispatches.router, prefix="/api/v1", tags=["Dispatches"])
 app.include_router(risk.router, prefix="/api/v1", tags=["Risk"])
 app.include_router(network.router, prefix="/api/v1", tags=["Network"])
+app.include_router(inventory.router, prefix="/api/v1", tags=["Inventory"])
+app.include_router(positions.router, prefix="/api/v1", tags=["Positions"])
+app.include_router(quality.router, prefix="/api/v1", tags=["Quality"])
+app.include_router(learning.router, prefix="/api/v1", tags=["Learning"])
 
 
 # --- Health Check ---

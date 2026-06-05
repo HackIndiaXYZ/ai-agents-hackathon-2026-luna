@@ -102,6 +102,8 @@ export function useLucy() {
         retrieval_used: data.retrieval_used ?? false,
         retrieval_confidence: data.retrieval_confidence ?? 0,
         dominant_retrieved_intent: data.dominant_retrieved_intent || data.dominant_intent || null,
+        lucy_intent: data.lucy_intent || null,
+        routed_agent: data.routed_agent || null,
         retrieved_examples: data.retrieved_examples || data.retrieval_examples || [],
         timestamp: Date.now()
       };

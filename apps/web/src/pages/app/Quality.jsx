@@ -31,7 +31,7 @@ import Button from '../../components/ui/Button';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 import { formatINR } from '../../utils/format';
-import { getContracts, getQualityLots } from '../../lib/api';
+import { getContracts, getQualityLots, createQualityLot } from '../../lib/api';
 
 // ─── DEMO DATA ────────────────────────────────────────────
 const MOISTURE_THRESHOLDS = {
@@ -288,32 +288,67 @@ export const Quality = () => {
 
     setSubmitting(true);
 
-    // Simulate a short delay for submission
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    const newLot = {
-      id: `QL-${String(qualityLots.length + 1).padStart(3, '0')}`,
-      contract_id: formContractId,
-      commodity: formCommodity,
-      quantity: selectedContract?.quantity || 100,
-      moisture: formMoisture,
-      broken_pct: formBrokenPct,
-      foreign_matter: formForeignMatter,
-      grade: formGrade,
-      base_price: formBasePrice,
-      adjusted_price: liveAdjustedPrice,
-      penalty_pct: livePenaltyPct,
-      gps_lat: formGpsLat || '21.1458',
-      gps_lng: formGpsLng || '79.0882',
-      location_name: formLocationName || 'Mandi Inspection Point',
-      agent_name: formAgentName || 'Field Agent',
-      agent_remarks: formRemarks || 'Standard lot inspection.',
-      inspected_at: new Date().toISOString(),
-      status: livePenaltyPct > 15 ? 'needs_review' : 'approved',
-    };
-
-    setQualityLots((prev) => [newLot, ...prev]);
-    toast.success(`Quality lot ${newLot.id} recorded successfully`);
+    try {
+      const res = await createQualityLot({
+        contract_id: formContractId,
+        moisture_pct: formMoisture,
+        broken_grains_pct: formBrokenPct,
+        foreign_matter_pct: formForeignMatter,
+        grade: formGrade,
+        quantity: selectedContract?.quantity,
+        origin_location: formLocationName || undefined,
+        origin_lat: formGpsLat ? parseFloat(formGpsLat) : undefined,
+        origin_lng: formGpsLng ? parseFloat(formGpsLng) : undefined,
+        field_agent_note: formRemarks || undefined,
+        agent_name: formAgentName || undefined,
+      });
+      const newLot = res.quality_lot || res;
+      setQualityLots((prev) => [{
+        id: newLot.id,
+        contract_id: newLot.contract_id || formContractId,
+        commodity: newLot.commodity || formCommodity,
+        quantity: newLot.quantity ?? selectedContract?.quantity ?? 100,
+        moisture: newLot.moisture ?? formMoisture,
+        broken_pct: newLot.broken_pct ?? formBrokenPct,
+        foreign_matter: newLot.foreign_matter ?? formForeignMatter,
+        grade: newLot.grade || formGrade,
+        base_price: newLot.base_price ?? formBasePrice,
+        adjusted_price: newLot.adjusted_price ?? liveAdjustedPrice,
+        penalty_pct: newLot.penalty_pct ?? livePenaltyPct,
+        gps_lat: formGpsLat || '21.1458',
+        gps_lng: formGpsLng || '79.0882',
+        location_name: formLocationName || 'Mandi Inspection Point',
+        agent_name: formAgentName || 'Field Agent',
+        agent_remarks: formRemarks || 'Standard lot inspection.',
+        inspected_at: new Date().toISOString(),
+        status: newLot.status || (livePenaltyPct > 15 ? 'needs_review' : 'approved'),
+      }, ...prev]);
+      toast.success(`Quality lot recorded successfully`);
+    } catch (err) {
+      console.warn('Quality lot API failed, saving locally:', err);
+      const newLot = {
+        id: `QL-${String(qualityLots.length + 1).padStart(3, '0')}`,
+        contract_id: formContractId,
+        commodity: formCommodity,
+        quantity: selectedContract?.quantity || 100,
+        moisture: formMoisture,
+        broken_pct: formBrokenPct,
+        foreign_matter: formForeignMatter,
+        grade: formGrade,
+        base_price: formBasePrice,
+        adjusted_price: liveAdjustedPrice,
+        penalty_pct: livePenaltyPct,
+        gps_lat: formGpsLat || '21.1458',
+        gps_lng: formGpsLng || '79.0882',
+        location_name: formLocationName || 'Mandi Inspection Point',
+        agent_name: formAgentName || 'Field Agent',
+        agent_remarks: formRemarks || 'Standard lot inspection.',
+        inspected_at: new Date().toISOString(),
+        status: livePenaltyPct > 15 ? 'needs_review' : 'approved',
+      };
+      setQualityLots((prev) => [newLot, ...prev]);
+      toast.success(`Quality lot ${newLot.id} saved locally`);
+    }
 
     // Reset form
     setFormContractId('');

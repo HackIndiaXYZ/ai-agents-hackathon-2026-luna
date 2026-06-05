@@ -14,6 +14,7 @@ from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 
 from core.llm_provider import LLMProvider
+from core.intent_retriever import IntentRetriever, RetrievedExample, RetrievalResult
 from core.session_manager import LucySession, SessionManager
 from agents.commodity_agent import CommodityAgent
 from agents.market_agent import MarketAgent
@@ -45,6 +46,64 @@ class LucyResponse(BaseModel):
     actions_taken: List[str] = []
     context_update: Dict[str, Any] = {}
     ui_hints: List[str] = []
+    # RAG + routing metadata (surfaced to frontend chat UI)
+    retrieval_used: bool = False
+    retrieval_confidence: float = 0.0
+    dominant_intent: Optional[str] = None
+    dominant_retrieved_intent: Optional[str] = None
+    lucy_intent: Optional[str] = None
+    routed_agent: Optional[str] = None
+    retrieved_examples: List[RetrievedExample] = []
+    retrieval_examples: List[RetrievedExample] = []
+
+
+# Corpus intent (RAG) → Lucy orchestrator intent
+CORPUS_TO_LUCY_INTENT: Dict[str, str] = {
+    "inventory_add": "INVENTORY_ADD",
+    "inventory_subtract": "INVENTORY_SELL",
+    "inventory_set": "INVENTORY_ADD",
+    "inventory_query": "INVENTORY_CHECK",
+    "inventory_value_query": "INVENTORY_CHECK",
+    "contract_create_buy": "CONTRACT_CREATE",
+    "contract_create_sell": "CONTRACT_CREATE",
+    "contract_status_query": "CONTRACT_STATUS",
+    "contract_update": "CONTRACT_STATUS",
+    "contract_cancel": "CONTRACT_STATUS",
+    "market_price_query": "MARKET_QUERY",
+    "market_trend_query": "MARKET_QUERY",
+    "market_best_mandi_query": "MARKET_QUERY",
+    "market_forecast_query": "FORECAST_QUERY",
+    "dispatch_create": "DISPATCH_CREATE",
+    "dispatch_status_query": "CONTRACT_STATUS",
+    "dispatch_route_query": "DISPATCH_QUERY",
+    "risk_portfolio_query": "RISK_QUERY",
+    "risk_pnl_query": "PNL_QUERY",
+    "risk_alert_query": "RISK_QUERY",
+    "risk_counterparty_query": "RISK_QUERY",
+    "find_buyers": "BUYER_SEARCH",
+    "buyer_profile_query": "BUYER_SEARCH",
+    "compliance_gst_query": "COMPLIANCE_QUERY",
+    "compliance_invoice": "COMPLIANCE_QUERY",
+    "deal_evaluate": "DEAL_ANALYSIS",
+    "deal_negotiation_range": "DEAL_ANALYSIS",
+    "alias_correction": "LEARNING_QUERY",
+    "greeting": "GREETING",
+    "session_summary_request": "GREETING",
+}
+
+
+def _extract_routed_agent(steps: List[ExecutionStep]) -> Optional[str]:
+    """First agent step after intent classification."""
+    past_intent = False
+    skip = {"session_create", "session_load", "rag_retrieval", "response_synthesis"}
+    for step in steps:
+        if step.step_id == "intent_classification":
+            past_intent = True
+            continue
+        if not past_intent or step.step_id in skip:
+            continue
+        return step.step_id
+    return None
 
 
 def _safe_json_parse(text: str) -> Optional[dict]:
@@ -79,7 +138,8 @@ class LucyOrchestrator:
         opportunity_agent: OpportunityAgent,
         compliance_agent: ComplianceAgent,
         session_manager: SessionManager,
-        llm_provider: LLMProvider
+        llm_provider: LLMProvider,
+        intent_retriever: Optional[IntentRetriever] = None,
     ):
         self.commodity_agent = commodity_agent
         self.market_agent = market_agent
@@ -91,6 +151,7 @@ class LucyOrchestrator:
         self.compliance_agent = compliance_agent
         self.session_manager = session_manager
         self.llm = llm_provider
+        self.intent_retriever = intent_retriever
 
         # Lazy-initialized CTRM agents (initialized on first use)
         self._contract_agent = None
@@ -174,7 +235,37 @@ class LucyOrchestrator:
         # Refresh inventory snapshot in memory
         await self.session_manager.refresh_inventory_snapshot(session)
 
-        # 2. Intent Classification and Pronoun Resolution
+        # 2. RAG retrieval over multilingual intent_examples
+        retrieval_result: RetrievalResult = RetrievalResult(
+            examples=[], retrieval_confidence=0.0, dominant_intent=None,
+            dominant_category=None, retrieval_used=False,
+        )
+        rag_context = ""
+        t_rag = time.perf_counter()
+        if self.intent_retriever:
+            try:
+                retrieval_result = await self.intent_retriever.retrieve(
+                    message, top_k=3, min_similarity=0.45
+                )
+                rag_context = self.intent_retriever.build_rag_context(retrieval_result, message)
+                corpus_hint = retrieval_result.dominant_intent or "none"
+                lucy_hint = CORPUS_TO_LUCY_INTENT.get(corpus_hint, "UNKNOWN")
+                execution_steps.append(ExecutionStep(
+                    step_id="rag_retrieval",
+                    label=f"RAG: {corpus_hint} → {lucy_hint} ({retrieval_result.retrieval_confidence:.0%})",
+                    duration_ms=int((time.perf_counter() - t_rag) * 1000),
+                    detail=f"Top match: {retrieval_result.examples[0].utterance[:80] if retrieval_result.examples else 'N/A'}",
+                ))
+            except Exception as exc:
+                logger.warning(f"RAG retrieval failed in chat path: {exc}")
+                execution_steps.append(ExecutionStep(
+                    step_id="rag_retrieval",
+                    label="RAG retrieval skipped (error)",
+                    duration_ms=int((time.perf_counter() - t_rag) * 1000),
+                    detail=str(exc),
+                ))
+
+        # 3. Intent Classification and Pronoun Resolution (RAG-informed)
         t0 = time.perf_counter()
         history_summary = []
         for msg in session.messages[-5:-1]:  # Exclude latest message which was just appended
@@ -183,11 +274,16 @@ class LucyOrchestrator:
 
         system_prompt = (
             "You are the intent classifier and dialogue context manager for LUCY, the TradeNexus natural language operating system.\n"
-            "Your job is to analyze the user's latest message, the conversation history, the active context, and the user's current inventory snapshot to classify the user's intent and resolve any pronouns.\n\n"
+            "Your job is to analyze the user's latest message, the conversation history, the active context, "
+            "RAG-retrieved similar trader examples, and the user's current inventory snapshot to classify intent and resolve pronouns.\n\n"
+            "IMPORTANT: When RAG examples are provided below, treat them as strong multilingual hints — "
+            "especially for Hindi, Hinglish, Marathi, Gujarati, Tamil, Telugu, Kannada, Bengali, and Punjabi queries.\n"
+            "Map corpus intents to Lucy intents (e.g. market_price_query→MARKET_QUERY, inventory_add→INVENTORY_ADD, "
+            "contract_create_sell→CONTRACT_CREATE, risk_pnl_query→PNL_QUERY, find_buyers→BUYER_SEARCH).\n\n"
             "Intents MUST be one of the following 21 options:\n"
             "- INVENTORY_ADD: User wants to add, increase, or update commodity stock levels (e.g. 'Add 50 quintal potatoes', 'potatoes add karo 50 quintals')\n"
             "- INVENTORY_CHECK: User wants to check, view, list, or summarize their commodity stock (e.g. 'What is in my inventory?', 'inventory dikhao', 'mere paas kya stock hai')\n"
-            "- INVENTORY_SELL: User wants to sell, remove, or subtract commodity stock levels (e.g. 'Sell 100 quintal cotton', 'cotton bechna hai 100 quintal')\n"
+            "- INVENTORY_SELL: User wants to remove stock without creating a formal contract (generic stock deduction only)\n"
             "- MARKET_QUERY: User wants to check market prices or trends (e.g. 'What is the price of cotton?', 'cotton ka bhav kya hai?')\n"
             "- DISPATCH_QUERY: User wants to check routes, travel times, transport corridors, or distance (e.g. 'Route from Nagpur to Mumbai')\n"
             "- RECOMMENDATION: User wants trade recommendations or arbitrage advisories (e.g. 'Suggest a trade', 'best recommendation for cotton')\n"
@@ -196,7 +292,8 @@ class LucyOrchestrator:
             "- COMPLIANCE_QUERY: User wants legal or permit/document compliance checks (e.g. 'What permits do I need for cotton to Mumbai?')\n"
             "- LEARNING_QUERY: User wants system activity, training stats, or alias learning info (e.g. 'Show me learning stats')\n"
             "- GREETING: Simple greetings or polite remarks (e.g. 'Hello', 'Hi Lucy', 'good morning')\n"
-            "- CONTRACT_CREATE: User wants to create a buy or sell contract (e.g. 'Buy 100 quintal cotton from Ramesh Mills', 'sell 200 quintal wheat to Sharma Traders', 'naya contract banao')\n"
+            "- CONTRACT_CREATE: User wants to create a buy OR sell contract with a named counterparty/mill "
+            "(e.g. 'Buy 100 quintal cotton from Ramesh Mills', 'Sell 50 quintal to Nagpur Mills', 'Nagpur Mills ko kapas bechna hai')\n"
             "- CONTRACT_STATUS: User wants to check the status of an existing contract (e.g. 'What is the status of TN-2026-0001?', 'mera contract kahan hai?', 'where is my shipment?')\n"
             "- PNL_QUERY: User wants their P&L or financial performance (e.g. 'What is my P&L?', 'how much am I making?', 'portfolio performance?', 'kya mera profit hai?')\n"
             "- RISK_QUERY: User wants risk alerts or portfolio risk assessment (e.g. 'What are my risks?', 'any risk alerts?', 'portfolio risk check')\n"
@@ -229,16 +326,48 @@ class LucyOrchestrator:
             f"Active Session Context variables:\n{json.dumps(session.context, indent=2)}\n\n"
             f"User Inventory Snapshot:\n{json.dumps(session.context.get('inventory_snapshot', {}), indent=2)}\n\n"
             f"Conversation History (last 4 turns):\n{history_str}\n\n"
-            f"User Latest Query:\n'{message}'\n"
         )
+        if retrieval_result.retrieval_used and retrieval_result.examples:
+            suggested_lucy = CORPUS_TO_LUCY_INTENT.get(
+                retrieval_result.dominant_intent or "", "UNKNOWN"
+            )
+            compact_rag = []
+            for idx, ex in enumerate(retrieval_result.examples[:3], 1):
+                compact_rag.append(
+                    f"  {idx}. [{ex.similarity:.0%}] {ex.intent} | '{ex.utterance[:100]}'"
+                )
+            user_prompt += (
+                f"--- RAG RETRIEVAL ---\n"
+                f"confidence={retrieval_result.retrieval_confidence:.2f} | "
+                f"corpus_intent={retrieval_result.dominant_intent} | "
+                f"suggested_lucy_intent={suggested_lucy}\n"
+                + "\n".join(compact_rag) + "\n\n"
+            )
+        user_prompt += f"User Latest Query:\n'{message}'\n"
         if language_hint:
-            user_prompt += f"(User requested language: {language_hint})"
+            user_prompt += f"(User requested language: {language_hint})\n"
 
-        raw_intent = await self.llm.complete(system_prompt, user_prompt, expect_json=True)
-        intent_data = _safe_json_parse(raw_intent) or {}
+        intent_data: Dict[str, Any] = {}
+        try:
+            raw_intent = await self.llm.complete(
+                system_prompt, user_prompt, expect_json=True, max_tokens=400
+            )
+            intent_data = _safe_json_parse(raw_intent) or {}
+        except Exception as exc:
+            logger.error(f"Intent classification LLM failed: {exc}")
+
+        if not intent_data.get("intent") or intent_data.get("intent") == "UNKNOWN":
+            rag_intent = retrieval_result.dominant_intent
+            if rag_intent and rag_intent in CORPUS_TO_LUCY_INTENT:
+                intent_data["intent"] = CORPUS_TO_LUCY_INTENT[rag_intent]
+                intent_data["confidence"] = max(
+                    float(intent_data.get("confidence") or 0),
+                    retrieval_result.retrieval_confidence,
+                )
+                logger.info(f"Intent fallback from RAG: {rag_intent} → {intent_data['intent']}")
 
         intent = intent_data.get("intent", "UNKNOWN")
-        confidence = intent_data.get("confidence", 0.5)
+        confidence = float(intent_data.get("confidence", 0.5))
         language = intent_data.get("language", "en")
 
         # Merge parsed variables into context
@@ -880,11 +1009,24 @@ class LucyOrchestrator:
             f"User Inventory Snapshot:\n{json.dumps(session.context.get('inventory_snapshot', {}), indent=2)}\n"
         )
 
-        raw_synth = await self.llm.complete(synthesis_system_prompt, synthesis_user_prompt, expect_json=True)
+        raw_synth = await self.llm.complete(
+            synthesis_system_prompt, synthesis_user_prompt, expect_json=True, max_tokens=1200
+        )
         synth_data = _safe_json_parse(raw_synth) or {}
+        if not synth_data and raw_synth:
+            logger.warning(f"Response synthesis JSON parse failed; raw length={len(raw_synth)}")
 
-        response_text = synth_data.get("response_text", f"LUCY executed your query under intent {intent}.")
-        voice_response = synth_data.get("voice_response", response_text)
+        if synth_data.get("response_text"):
+            response_text = synth_data["response_text"]
+        elif agent_results and not agent_results.get("error"):
+            response_text = (
+                f"**LUCY** completed your **{intent}** request.\n\n"
+                f"```json\n{json.dumps(agent_results, indent=2, ensure_ascii=False)[:1500]}\n```"
+            )
+        else:
+            response_text = f"LUCY processed your request under intent **{intent}**."
+
+        voice_response = synth_data.get("voice_response") or response_text[:300]
         voice_language = synth_data.get("voice_language", language)
 
         # Save assistant message to memory
@@ -897,7 +1039,8 @@ class LucyOrchestrator:
             duration_ms=dur_synth
         ))
 
-        # Construct final LucyResponse
+        routed_agent = _extract_routed_agent(execution_steps)
+
         lucy_res = LucyResponse(
             session_id=session_id,
             response_text=response_text,
@@ -906,7 +1049,15 @@ class LucyOrchestrator:
             execution_steps=execution_steps,
             actions_taken=actions_taken,
             context_update=session.context,
-            ui_hints=ui_hints
+            ui_hints=ui_hints,
+            retrieval_used=retrieval_result.retrieval_used,
+            retrieval_confidence=retrieval_result.retrieval_confidence,
+            dominant_intent=retrieval_result.dominant_intent,
+            dominant_retrieved_intent=retrieval_result.dominant_intent,
+            lucy_intent=intent,
+            routed_agent=routed_agent,
+            retrieved_examples=retrieval_result.examples,
+            retrieval_examples=retrieval_result.examples,
         )
 
         return lucy_res

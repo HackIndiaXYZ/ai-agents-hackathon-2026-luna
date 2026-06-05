@@ -760,6 +760,16 @@ const RetrievalSection = ({ msg }) => {
               → {msg.dominant_retrieved_intent}
             </span>
           )}
+          {msg.lucy_intent && (
+            <span className="text-[10px] text-indigo-600 font-semibold ml-1">
+              · Lucy: {msg.lucy_intent}
+            </span>
+          )}
+          {msg.routed_agent && (
+            <span className="text-[10px] text-emerald-600 font-medium ml-1">
+              → {msg.routed_agent}
+            </span>
+          )}
         </span>
         {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>

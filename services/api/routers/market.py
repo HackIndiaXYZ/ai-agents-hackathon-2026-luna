@@ -221,3 +221,90 @@ async def list_commodities(
         })
 
     return output
+
+
+# Demo MCX/NCDEX futures — exchange data licensing is expensive; seeded for demo.
+_EXCHANGE_CONTRACTS = {
+    "Cotton": {
+        "mcx": {"symbol": "COTTONCANDY", "unit": "bale", "lot_size": 1},
+        "ncdex": {"symbol": "KAPAS", "unit": "quintal", "lot_size": 10},
+    },
+    "Soybean": {
+        "mcx": {"symbol": "SOYBEAN", "unit": "quintal", "lot_size": 10},
+        "ncdex": {"symbol": "SOYBEAN", "unit": "quintal", "lot_size": 10},
+    },
+    "Wheat": {
+        "mcx": {"symbol": "WHEAT", "unit": "quintal", "lot_size": 10},
+        "ncdex": {"symbol": "WHEAT", "unit": "quintal", "lot_size": 10},
+    },
+    "Mustard": {
+        "mcx": {"symbol": "RMSEED", "unit": "quintal", "lot_size": 10},
+        "ncdex": {"symbol": "RMSEED", "unit": "quintal", "lot_size": 10},
+    },
+    "Chilli": {
+        "mcx": {"symbol": "CHILLI", "unit": "quintal", "lot_size": 5},
+        "ncdex": {"symbol": "CHILLI", "unit": "quintal", "lot_size": 5},
+    },
+    "Groundnut": {
+        "mcx": {"symbol": "GROUNDNUT", "unit": "quintal", "lot_size": 10},
+        "ncdex": {"symbol": "GROUNDNUT", "unit": "quintal", "lot_size": 10},
+    },
+}
+
+
+@router.get("/exchange-prices", status_code=status.HTTP_200_OK)
+async def get_exchange_prices(
+    commodity: Optional[str] = Query(None, description="Filter by commodity name"),
+    market_agent: MarketAgent = Depends(get_market_agent),
+):
+    """
+    Demo MCX/NCDEX futures prices derived from mandi modal prices.
+    Real exchange feeds require paid licensing — this endpoint is demo-seeded.
+    """
+    from datetime import datetime, timezone
+
+    comm_res = get_client().table("commodities").select("id, canonical_name").execute()
+    commodities = comm_res.data or []
+    if commodity:
+        commodities = [
+            c for c in commodities
+            if commodity.lower() in c["canonical_name"].lower()
+        ]
+
+    prices = []
+    for c in commodities:
+        name = c["canonical_name"]
+        if name not in _EXCHANGE_CONTRACTS:
+            continue
+        try:
+            summary = await market_agent.get_market_summary(c["id"])
+            price_rows = summary.get("prices") or []
+            modals = [float(p.get("modal_price") or 0) for p in price_rows if p.get("modal_price")]
+            mandi_price = round(sum(modals) / len(modals), 2) if modals else 0
+        except Exception:
+            mandi_price = 5000 + (hash(name) % 3000)
+
+        contracts = _EXCHANGE_CONTRACTS[name]
+        for exchange, meta in contracts.items():
+            basis = 1.02 if exchange == "mcx" else 0.98
+            futures_price = round(mandi_price * basis, 2)
+            prices.append({
+                "exchange": exchange.upper(),
+                "commodity": name,
+                "symbol": meta["symbol"],
+                "last_price": futures_price,
+                "change_pct": round((hash(f"{name}{exchange}") % 400 - 200) / 100, 2),
+                "unit": meta["unit"],
+                "lot_size": meta["lot_size"],
+                "expiry": "Near month",
+                "source": "demo_derived_from_mandi",
+                "mandi_reference_price": mandi_price,
+            })
+
+    return {
+        "prices": prices,
+        "count": len(prices),
+        "demo_mode": True,
+        "disclaimer": "MCX/NCDEX prices are demo-derived from mandi modal prices. Not for trading.",
+        "as_of": datetime.now(timezone.utc).isoformat(),
+    }

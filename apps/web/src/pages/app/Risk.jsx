@@ -104,8 +104,18 @@ export const Risk = () => {
 
       setSummary(summaryData);
       setMtmRows(mtmData || []);
-      setWeatherSignals(weatherData || []);
-      setMarketSentiment(signalsData?.filter(s => s.alert_type === 'demand_spike' || s.alert_type === 'price_drop' || s.sentiment) || []);
+      const weatherList = Array.isArray(weatherData)
+        ? weatherData
+        : (weatherData?.signals || weatherData?.data || []);
+      setWeatherSignals(weatherList);
+      const alertList = Array.isArray(signalsData)
+        ? signalsData
+        : (signalsData?.alerts || signalsData?.signals || []);
+      setMarketSentiment(
+        alertList.filter(
+          (s) => s.alert_type === 'demand_spike' || s.alert_type === 'price_drop' || s.sentiment
+        )
+      );
       setCounterparties(cpData || []);
 
       // Fetch ML Default risk for all counterparties in background

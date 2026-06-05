@@ -79,7 +79,9 @@ class SessionManager:
 
     async def append_message(self, session: LucySession, role: str, content: str) -> None:
         """Append a message to the session history and trim to last 8 turns (16 messages)."""
-        session.messages.append({"role": role, "content": content})
+        # Store compact history in Redis — full markdown responses can exceed URL limits.
+        stored = content if len(content) <= 2000 else content[:2000] + "…"
+        session.messages.append({"role": role, "content": stored})
         # Last 8 turns = 16 messages max
         if len(session.messages) > 16:
             session.messages = session.messages[-16:]

@@ -9,13 +9,14 @@ import time
 import json
 import logging
 import uuid
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, Field
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from core.llm_provider import get_llm_provider
 from core.database import get_client
 from core.embedding_service import get_embedding_service
+from core.intent_retriever import IntentRetriever, RetrievedExample
 from core.session_manager import get_session_manager, LucySession
 from agents.commodity_agent import CommodityAgent
 from agents.market_agent import MarketAgent
@@ -45,6 +46,24 @@ class LucySessionNewRequest(BaseModel):
     session_id: Optional[str] = Field(None, description="Optional custom session ID")
 
 
+class LucyRetrieveRequest(BaseModel):
+    utterance: str = Field(..., description="Trader query to match against intent_examples")
+    top_k: int = Field(3, ge=1, le=10, description="Number of similar examples to return")
+    min_similarity: float = Field(0.45, ge=0.0, le=1.0, description="Minimum cosine similarity threshold")
+
+
+class LucyRetrieveResponse(BaseModel):
+    utterance: str
+    retrieval_used: bool
+    retrieval_confidence: float
+    dominant_intent: Optional[str] = None
+    dominant_retrieved_intent: Optional[str] = None
+    dominant_category: Optional[str] = None
+    retrieved_examples: List[RetrievedExample] = []
+    retrieval_examples: List[RetrievedExample] = []
+    rag_context: str = ""
+
+
 # --- Singleton Agent Cache ---
 
 _commodity_agent: Optional[CommodityAgent] = None
@@ -56,6 +75,56 @@ _buyer_discovery: Optional[BuyerDiscoveryAgent] = None
 _opportunity_agent: Optional[OpportunityAgent] = None
 _compliance_agent: Optional[ComplianceAgent] = None
 _lucy_orchestrator: Optional[LucyOrchestrator] = None
+_intent_retriever: Optional[IntentRetriever] = None
+
+
+def _get_intent_retriever() -> IntentRetriever:
+    global _intent_retriever
+    if _intent_retriever is None:
+        _intent_retriever = IntentRetriever(
+            supabase_client=get_client(),
+            embedding_service=get_embedding_service(),
+        )
+    return _intent_retriever
+
+
+def _warn_if_client_encoding_issue(text: str) -> None:
+    """Log when query likely arrived corrupted (Windows curl without UTF-8)."""
+    if IntentRetriever.detect_client_encoding_issue(text):
+        logger.warning(
+            "Potential client-side encoding issue in retrieve request: %r. "
+            "Windows: run chcp 65001; use curl.exe --data-urlencode \"q=<hindi text>\". "
+            "Browser POST and Axios JSON bodies are UTF-8 by default.",
+            text,
+        )
+
+
+async def _run_intent_retrieval(
+    utterance: str,
+    top_k: int = 3,
+    min_similarity: float = 0.45,
+) -> LucyRetrieveResponse:
+    text = (utterance or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Query text is required (use q= or utterance=).")
+
+    _warn_if_client_encoding_issue(text)
+
+    retriever = _get_intent_retriever()
+    result = await retriever.retrieve(text, top_k=top_k, min_similarity=min_similarity)
+    rag_context = retriever.build_rag_context(result, text)
+
+    return LucyRetrieveResponse(
+        utterance=text,
+        retrieval_used=result.retrieval_used,
+        retrieval_confidence=result.retrieval_confidence,
+        dominant_intent=result.dominant_intent,
+        dominant_retrieved_intent=result.dominant_intent,
+        dominant_category=result.dominant_category,
+        retrieved_examples=result.examples,
+        retrieval_examples=result.examples,
+        rag_context=rag_context,
+    )
 
 
 def _get_commodity_agent() -> CommodityAgent:
@@ -153,7 +222,8 @@ def _get_lucy_orchestrator() -> LucyOrchestrator:
             opportunity_agent=_get_opportunity_agent(),
             compliance_agent=_get_compliance_agent(),
             session_manager=get_session_manager(),
-            llm_provider=get_llm_provider()
+            llm_provider=get_llm_provider(),
+            intent_retriever=_get_intent_retriever(),
         )
     return _lucy_orchestrator
 
@@ -226,6 +296,55 @@ async def create_session(request: Optional[LucySessionNewRequest] = None):
     except Exception as e:
         logger.error(f"Error creating Lucy session: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Lucy Session Create Error: {str(e)}")
+
+
+@router.get("/retrieve", response_model=LucyRetrieveResponse)
+async def retrieve_intent_get(
+    q: Optional[str] = Query(None, description="Trader query (e.g. Hindi commodity price question)"),
+    utterance: Optional[str] = Query(None, description="Alias for q"),
+    top_k: int = Query(3, ge=1, le=10),
+    min_similarity: float = Query(0.45, ge=0.0, le=1.0),
+):
+    """
+    RAG retrieval over multilingual intent_examples via GET.
+
+    Example:
+        curl -G "http://localhost:8000/api/v1/lucy/retrieve" \\
+          --data-urlencode "q=कपास का भाव क्या है"
+
+    Windows UTF-8 (avoid ???? corruption):
+        chcp 65001
+        curl.exe --get "http://localhost:8000/api/v1/lucy/retrieve" \\
+          --data-urlencode "q=कपास का भाव क्या है"
+
+    Browser POST and Axios JSON bodies use UTF-8 by default.
+    """
+    text = q or utterance
+    if not text:
+        raise HTTPException(status_code=400, detail="Missing query parameter: q or utterance")
+    try:
+        return await _run_intent_retrieval(text, top_k=top_k, min_similarity=min_similarity)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Lucy retrieve (GET) failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Lucy Retrieve Error: {str(e)}")
+
+
+@router.post("/retrieve", response_model=LucyRetrieveResponse)
+async def retrieve_intent_post(request: LucyRetrieveRequest):
+    """RAG retrieval over intent_examples — used by the Lucy UI and API client."""
+    try:
+        return await _run_intent_retrieval(
+            request.utterance,
+            top_k=request.top_k,
+            min_similarity=request.min_similarity,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Lucy retrieve (POST) failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Lucy Retrieve Error: {str(e)}")
 
 
 @router.get("/session/{session_id}", response_model=LucySession)

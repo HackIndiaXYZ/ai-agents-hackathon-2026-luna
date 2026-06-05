@@ -77,6 +77,31 @@ export const getLearningStats = async () => {
   return response.data;
 };
 
+export const getLearningCorpus = async (params = {}) => {
+  const response = await api.get('/api/v1/learning/corpus', { params });
+  return response.data;
+};
+
+export const getLearningCorpusStats = async () => {
+  const response = await api.get('/api/v1/learning/corpus/stats');
+  return response.data;
+};
+
+export const getLearningAliases = async (params = {}) => {
+  const response = await api.get('/api/v1/learning/aliases', { params });
+  return response.data;
+};
+
+export const getLearningCorrections = async () => {
+  const response = await api.get('/api/v1/learning/corrections');
+  return response.data;
+};
+
+export const getLearningPipeline = async () => {
+  const response = await api.get('/api/v1/learning/pipeline');
+  return response.data;
+};
+
 export const postCorrection = async (originalText, correctedCanonical, language = 'en') => {
   const response = await api.post('/api/v1/feedback/correction', {
     original_text: originalText,
@@ -513,10 +538,27 @@ export const getWeatherForecast = async (region) => {
   }
 };
 
+const normalizeWeatherSignal = (row) => {
+  if (!row || typeof row !== 'object') return null;
+  if (row.region && row.description) return row;
+  return {
+    id: row.id,
+    region: row.region || row.commodity_name || 'Corridor',
+    risk_level: row.risk_level || (row.urgency === 'immediate' ? 'high' : 'low'),
+    description: row.description || row.key_signal || 'Weather risk signal',
+    affected_dispatches_count: row.affected_dispatches_count ?? row.affected_contracts ?? 0,
+    forecast: row.forecast || row.raw_data?.forecast || [],
+  };
+};
+
 export const getWeatherSignals = async () => {
   try {
-    const response = await api.get('/api/v1/risk/signals', { params: { type: 'weather_risk' } });
-    return response.data;
+    const response = await api.get('/api/v1/risk/signals', {
+      params: { signal_type: 'weather_risk' },
+    });
+    const rows = unwrapList(response.data, ['signals', 'data']);
+    const normalized = rows.map(normalizeWeatherSignal).filter(Boolean);
+    return normalized.length > 0 ? normalized : demo.demoWeatherSignals;
   } catch (error) {
     console.warn("Using demo weather signals:", error);
     return demo.demoWeatherSignals;
@@ -598,11 +640,60 @@ export const updateInventory = async (data) => {
 export const getOpenPositions = async () => {
   try {
     const response = await api.get('/api/v1/positions');
-    return response.data;
+    const positions = unwrapList(response.data, ['positions', 'data']);
+    return positions.length > 0 ? positions : demo.demoPositions;
   } catch (error) {
     console.warn("Using demo open positions:", error);
     return demo.demoPositions;
   }
+};
+
+export const reportCorridorDelay = async (origin, destination, delayHours, reason = '') => {
+  const response = await api.post('/api/v1/dispatch/report-delay', {
+    origin,
+    destination,
+    delay_hours: Number(delayHours),
+    reason: reason || undefined,
+  });
+  return response.data;
+};
+
+export const getExchangePrices = async (commodity = '') => {
+  try {
+    const params = commodity ? { commodity } : {};
+    const response = await api.get('/api/v1/market/exchange-prices', { params });
+    return response.data;
+  } catch (error) {
+    console.warn('Exchange prices unavailable:', error);
+    return { prices: [], demo_mode: true };
+  }
+};
+
+export const draftEwayBill = async (contractId, vehicleNumber, options = {}) => {
+  const response = await api.post('/api/v1/compliance/eway-bill/draft', {
+    contract_id: contractId,
+    vehicle_number: vehicleNumber,
+    ...options,
+  });
+  return response.data;
+};
+
+export const parseWhatsAppMessage = async (message, sender = '') => {
+  const response = await api.post('/api/v1/compliance/whatsapp/parse', {
+    message,
+    sender: sender || undefined,
+  });
+  return response.data;
+};
+
+export const createQualityLot = async (lotData) => {
+  const response = await api.post('/api/v1/quality-lots', lotData);
+  return response.data;
+};
+
+export const createCounterparty = async (data) => {
+  const response = await api.post('/api/v1/counterparties', data);
+  return response.data?.counterparty || response.data;
 };
 
 export const createDispatch = async (dispatchData) => {

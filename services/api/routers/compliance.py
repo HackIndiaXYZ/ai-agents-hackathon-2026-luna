@@ -305,3 +305,110 @@ async def get_invoice(contract_id: str):
         )
 
     return {"status": "generated", "invoice": invoice}
+
+
+class EwayBillDraftRequest(BaseModel):
+    contract_id: str = Field(..., description="Contract UUID or contract_number")
+    vehicle_number: str = Field(..., description="Transport vehicle registration")
+    transporter_name: Optional[str] = Field("TradeNexus Logistics", description="Transporter name")
+    distance_km: Optional[float] = Field(500, description="Approximate transport distance")
+
+
+@router.post("/eway-bill/draft", status_code=status.HTTP_200_OK)
+async def draft_eway_bill(request: EwayBillDraftRequest):
+    """
+    Generate a NIC e-way bill draft for demo purposes.
+    Does NOT submit to the government portal — form preview only.
+    """
+    from datetime import datetime, timezone, timedelta
+
+    sb = get_client()
+    contract_res = (
+        sb.table("contracts")
+        .select("*, commodities(canonical_name), counterparties(name, gstin, state)")
+        .eq("id", request.contract_id)
+        .limit(1)
+        .execute()
+    )
+    if not contract_res.data:
+        contract_res = (
+            sb.table("contracts")
+            .select("*, commodities(canonical_name), counterparties(name, gstin, state)")
+            .eq("contract_number", request.contract_id)
+            .limit(1)
+            .execute()
+        )
+    if not contract_res.data:
+        raise HTTPException(status_code=404, detail=f"Contract '{request.contract_id}' not found")
+
+    contract = contract_res.data[0]
+    comm = contract.get("commodities") or {}
+    cp = contract.get("counterparties") or {}
+    qty = float(contract.get("quantity") or 0)
+    price = float(contract.get("price_per_unit") or 0)
+    taxable_value = round(qty * price, 2)
+    eway_required = taxable_value > 50000
+
+    commodity_name = comm.get("canonical_name", "Commodity")
+    hsn_code = HSN_MAP.get(commodity_name, "1201")
+
+    valid_until = (datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    return {
+        "status": "draft",
+        "demo_mode": True,
+        "disclaimer": "Demo e-way bill draft — not filed with NIC portal",
+        "eway_bill": {
+            "ewb_number": f"DEMO-EWB-{contract.get('contract_number', '000')}",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "valid_until": valid_until,
+            "eway_required": eway_required,
+            "supply_type": "Outward",
+            "sub_type": "Supply",
+            "document_type": "Tax Invoice",
+            "document_number": f"INV-{contract.get('contract_number', '000')}",
+            "from_gstin": "27AABCT1234A1Z5",
+            "from_name": "TradeNexus Demo Trader",
+            "from_state": "Maharashtra",
+            "to_name": cp.get("name", "Counterparty"),
+            "to_gstin": cp.get("gstin") or "27AAAAA0000A1Z5",
+            "to_state": cp.get("state") or "Maharashtra",
+            "commodity": commodity_name,
+            "hsn_code": hsn_code,
+            "quantity": qty,
+            "unit": contract.get("unit", "quintal"),
+            "taxable_value": taxable_value,
+            "vehicle_number": request.vehicle_number,
+            "transporter_name": request.transporter_name,
+            "distance_km": request.distance_km,
+            "transport_mode": "Road",
+        },
+    }
+
+
+class WhatsAppParseRequest(BaseModel):
+    message: str = Field(..., description="WhatsApp trade note text (Hindi/English/Hinglish)")
+    sender: Optional[str] = Field(None, description="Optional sender phone or name")
+
+
+@router.post("/whatsapp/parse", status_code=status.HTTP_200_OK)
+async def parse_whatsapp_message(request: WhatsAppParseRequest):
+    """
+    Demo WhatsApp integration — parses trade notes using the same NLP as field notes.
+    Returns structured contract draft without sending any external messages.
+    """
+    if not request.message.strip():
+        raise HTTPException(status_code=400, detail="message cannot be empty")
+
+    agent = _get_ingestion_agent()
+    parsed = await agent.parse_field_note(raw_text=request.message, language="auto")
+
+    return {
+        "status": "parsed",
+        "demo_mode": True,
+        "channel": "whatsapp_mock",
+        "sender": request.sender,
+        "parsed": parsed,
+        "suggested_action": "create_contract_draft",
+        "message": "WhatsApp integration is demo-only. Use Compliance or Lucy to confirm the contract.",
+    }
