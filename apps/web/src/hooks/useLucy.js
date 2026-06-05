@@ -99,6 +99,10 @@ export function useLucy() {
         execution_steps: data.execution_steps || [],
         actions_taken: data.actions_taken || [],
         ui_hints: data.ui_hints || [],
+        retrieval_used: data.retrieval_used ?? false,
+        retrieval_confidence: data.retrieval_confidence ?? 0,
+        dominant_retrieved_intent: data.dominant_retrieved_intent || data.dominant_intent || null,
+        retrieved_examples: data.retrieved_examples || data.retrieval_examples || [],
         timestamp: Date.now()
       };
       

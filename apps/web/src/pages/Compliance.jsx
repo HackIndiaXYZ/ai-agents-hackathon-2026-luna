@@ -32,7 +32,8 @@ import {
   getInvoice,
   parseFieldNote,
   createContract,
-  updateInventory
+  updateInventory,
+  uploadComplianceDocument
 } from '../lib/api';
 import { formatINR, formatQty } from '../utils/format';
 
@@ -96,33 +97,39 @@ export const Compliance = () => {
     }
   };
 
-  const handleStartOCR = () => {
+  const handleStartOCR = async () => {
     if (!selectedFile) return;
-    setOcrStep(1); // Reading document...
-    
-    // Fake sequential steps with 800ms delays
-    setTimeout(() => {
-      setOcrStep(2); // Extracting fields...
-      setTimeout(() => {
-        setOcrStep(3); // Validating GST...
-        setTimeout(() => {
-          setOcrStep(4); // Complete
-          setOcrData({
-            invoiceNum: "INV-2026-08421",
-            sellerGst: "27AAPCS1234M1Z5",
-            buyerGst: "24BBBCS4321N2Y6",
-            commodity: "Cotton",
-            hsnCode: "5201",
-            quantity: 50,
-            rate: 6400,
-            value: 320000,
-            tax: 57600, // 18% GST
-            ewayRequired: "Yes"
-          });
-          toast.success("Document processed successfully!");
-        }, 800);
-      }, 800);
-    }, 800);
+    setOcrStep(1);
+
+    try {
+      setOcrStep(2);
+      const result = await uploadComplianceDocument(selectedFile);
+      setOcrStep(3);
+
+      const extracted = result?.data || result?.extracted || result || {};
+      const taxableValue = Number(extracted.taxable_value || extracted.total_value || extracted.value || 0);
+      const taxAmount = Number(extracted.total_tax || extracted.tax || 0);
+
+      setOcrData({
+        invoiceNum: extracted.invoice_number || extracted.invoice_num || `INV-${Date.now()}`,
+        sellerGst: extracted.seller_gstin || extracted.seller_gst || 'N/A',
+        buyerGst: extracted.buyer_gstin || extracted.buyer_gst || 'N/A',
+        commodity: extracted.commodity || extracted.commodity_name || 'Cotton',
+        hsnCode: extracted.hsn_code || extracted.hsn || '5201',
+        quantity: Number(extracted.quantity || 0),
+        rate: Number(extracted.price_per_unit || extracted.rate || 0),
+        value: taxableValue || Number(extracted.quantity || 0) * Number(extracted.price_per_unit || extracted.rate || 0),
+        tax: taxAmount,
+        ewayRequired: extracted.eway_required ? 'Yes' : (taxableValue > 50000 ? 'Yes' : 'No'),
+      });
+
+      setOcrStep(4);
+      toast.success('Document processed successfully!');
+    } catch (e) {
+      console.warn('OCR upload failed, cannot extract document:', e);
+      setOcrStep(0);
+      toast.error('Document extraction failed. Check backend compliance service.');
+    }
   };
 
   const handleEditOcrField = (key, val) => {

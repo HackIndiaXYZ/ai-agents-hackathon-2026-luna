@@ -62,3 +62,6 @@ checkpoints/
 # Cache
 __pycache__/
 .cache/
+
+#RAG Data
+pipeline/output/

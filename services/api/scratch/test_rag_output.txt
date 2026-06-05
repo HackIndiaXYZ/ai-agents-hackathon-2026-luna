@@ -1,0 +1,210 @@
+
+==================================================
+QUERY: 'chana bechna hai 10 quintal'
+==================================================
+RAG Used: False
+Confidence: 0.0000
+Dominant Intent: None
+Dominant Category: None
+
+Top Matches:
+
+Prompt context block:
+[No RAG context injected]
+
+==================================================
+QUERY: 'cotton ka bhav kya hai'
+==================================================
+RAG Used: True
+Confidence: 0.6757
+Dominant Intent: contract_create_sell
+Dominant Category: Contracts
+
+Top Matches:
+  1. [69.28%] (Lang: hi-en, Intent: contract_create_sell)
+     Utterance: 'Bharat Agro ko 100 quintal gehu bechna hai'
+  2. [68.10%] (Lang: hi-en, Intent: inventory_query)
+     Utterance: 'mera kapas ka stock kitna hai'
+  3. [65.32%] (Lang: hi-en, Intent: contract_create_buy)
+     Utterance: '200 quintal gehu buy karna hai Bharat Agro se'
+
+Prompt context block:
+Here are similar requests from commodity traders and their
+correct interpretations:
+
+Example 1 (69% match):
+Trader said: 'Bharat Agro ko 100 quintal gehu bechna hai'
+Correct interpretation: intent=contract_create_sell,
+  commodity=Wheat,
+  quantity=100.0
+
+Example 2 (68% match):
+Trader said: 'mera kapas ka stock kitna hai'
+Correct interpretation: intent=inventory_query,
+  commodity=Cotton,
+  quantity=N/A
+
+Example 3 (65% match):
+Trader said: '200 quintal gehu buy karna hai Bharat Agro se'
+Correct interpretation: intent=contract_create_buy,
+  commodity=Wheat,
+  quantity=200.0
+
+Now interpret this new request:
+'cotton ka bhav kya hai'
+
+==================================================
+QUERY: 'route from Nagpur to Mumbai'
+==================================================
+RAG Used: True
+Confidence: 0.7400
+Dominant Intent: dispatch_route_query
+Dominant Category: Dispatch
+
+Top Matches:
+  1. [76.19%] (Lang: hi, Intent: dispatch_route_query)
+     Utterance: 'अमरावती और मुंबई के बीच की दूरी जांचें'
+  2. [73.17%] (Lang: gu, Intent: dispatch_route_query)
+     Utterance: 'અમરાવતી અને મુંબઈ વચ્ચેના રૂટનું અંતર તપાસો'
+  3. [72.65%] (Lang: en, Intent: dispatch_route_query)
+     Utterance: 'Check route details for Latur to Mumbai dispatch'
+
+Prompt context block:
+Here are similar requests from commodity traders and their
+correct interpretations:
+
+Example 1 (76% match):
+Trader said: 'अमरावती और मुंबई के बीच की दूरी जांचें'
+Correct interpretation: intent=dispatch_route_query,
+  commodity=N/A,
+  quantity=N/A
+
+Example 2 (73% match):
+Trader said: 'અમરાવતી અને મુંબઈ વચ્ચેના રૂટનું અંતર તપાસો'
+Correct interpretation: intent=dispatch_route_query,
+  commodity=N/A,
+  quantity=N/A
+
+Example 3 (73% match):
+Trader said: 'Check route details for Latur to Mumbai dispatch'
+Correct interpretation: intent=dispatch_route_query,
+  commodity=N/A,
+  quantity=N/A
+
+Now interpret this new request:
+'route from Nagpur to Mumbai'
+
+==================================================
+QUERY: 'any risk alerts today?'
+==================================================
+RAG Used: True
+Confidence: 0.6800
+Dominant Intent: risk_alert_query
+Dominant Category: Risk
+
+Top Matches:
+  1. [70.00%] (Lang: hi, Intent: risk_alert_query)
+     Utterance: 'धोका सूचना दाखवा'
+  2. [68.02%] (Lang: hi, Intent: risk_alert_query)
+     Utterance: 'जोखिम सूचनाएं दिखाएं'
+  3. [65.98%] (Lang: en, Intent: risk_alert_query)
+     Utterance: 'Do I have any compliance or credit risk alerts?'
+
+Prompt context block:
+Here are similar requests from commodity traders and their
+correct interpretations:
+
+Example 1 (70% match):
+Trader said: 'धोका सूचना दाखवा'
+Correct interpretation: intent=risk_alert_query,
+  commodity=N/A,
+  quantity=N/A
+
+Example 2 (68% match):
+Trader said: 'जोखिम सूचनाएं दिखाएं'
+Correct interpretation: intent=risk_alert_query,
+  commodity=N/A,
+  quantity=N/A
+
+Example 3 (66% match):
+Trader said: 'Do I have any compliance or credit risk alerts?'
+Correct interpretation: intent=risk_alert_query,
+  commodity=N/A,
+  quantity=N/A
+
+Now interpret this new request:
+'any risk alerts today?'
+
+==================================================
+QUERY: 'predict next week soybean price'
+==================================================
+RAG Used: True
+Confidence: 0.8191
+Dominant Intent: market_forecast_query
+Dominant Category: Market
+
+Top Matches:
+  1. [85.86%] (Lang: en, Intent: market_forecast_query)
+     Utterance: 'What will the soybean rate be in July?'
+  2. [85.58%] (Lang: en, Intent: market_trend_query)
+     Utterance: 'What is the price trend for soybean this month?'
+  3. [74.29%] (Lang: en, Intent: inventory_value_query)
+     Utterance: 'Show me the value of soybean in storage'
+
+Prompt context block:
+Here are similar requests from commodity traders and their
+correct interpretations:
+
+Example 1 (86% match):
+Trader said: 'What will the soybean rate be in July?'
+Correct interpretation: intent=market_forecast_query,
+  commodity=Soybean,
+  quantity=N/A
+
+Example 2 (86% match):
+Trader said: 'What is the price trend for soybean this month?'
+Correct interpretation: intent=market_trend_query,
+  commodity=Soybean,
+  quantity=N/A
+
+Example 3 (74% match):
+Trader said: 'Show me the value of soybean in storage'
+Correct interpretation: intent=inventory_value_query,
+  commodity=Soybean,
+  quantity=N/A
+
+Now interpret this new request:
+'predict next week soybean price'
+
+==================================================
+QUERY: 'hello lucy'
+==================================================
+RAG Used: True
+Confidence: 0.7353
+Dominant Intent: greeting
+Dominant Category: Context
+
+Top Matches:
+  1. [78.35%] (Lang: hi-en, Intent: greeting)
+     Utterance: 'hi Lucy, kya haal hai'
+  2. [68.71%] (Lang: en, Intent: greeting)
+     Utterance: 'Hi there'
+
+Prompt context block:
+Here are similar requests from commodity traders and their
+correct interpretations:
+
+Example 1 (78% match):
+Trader said: 'hi Lucy, kya haal hai'
+Correct interpretation: intent=greeting,
+  commodity=N/A,
+  quantity=N/A
+
+Example 2 (69% match):
+Trader said: 'Hi there'
+Correct interpretation: intent=greeting,
+  commodity=N/A,
+  quantity=N/A
+
+Now interpret this new request:
+'hello lucy'

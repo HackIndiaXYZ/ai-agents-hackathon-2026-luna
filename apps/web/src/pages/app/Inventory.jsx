@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import toast from 'react-hot-toast';
 import {
   TrendingUp,
@@ -32,11 +33,11 @@ import {
   getInventory,
   updateInventory,
   getContracts,
-  getMarketPrices,
-  getMacroSignals
+  getMacroSignals,
+  getCommoditySpotPrice
 } from '../../lib/api';
 
-const COMMODITY_MOCK_PRICES = {
+const FALLBACK_PRICES = {
   'Cotton': 7250,
   'Soybean': 4800,
   'Onion': 2400,
@@ -52,6 +53,7 @@ export const Inventory = () => {
   const [inventory, setInventory] = useState([]);
   const [contracts, setContracts] = useState([]);
   const [macroSignals, setMacroSignals] = useState([]);
+  const [spotPrices, setSpotPrices] = useState({});
   const [loading, setLoading] = useState(true);
 
   // Modal State
@@ -75,6 +77,15 @@ export const Inventory = () => {
       setInventory(invData || []);
       setContracts(contractList || []);
       setMacroSignals(signalsData || []);
+
+      const commodities = [...new Set((invData || []).map((i) => i.canonical_name).filter(Boolean))];
+      const priceEntries = await Promise.all(
+        commodities.map(async (name) => {
+          const live = await getCommoditySpotPrice(name);
+          return [name, live ?? FALLBACK_PRICES[name] ?? 5000];
+        })
+      );
+      setSpotPrices(Object.fromEntries(priceEntries));
     } catch (e) {
       console.error(e);
       toast.error("Failed to load inventory. Displaying cached records.");
@@ -125,7 +136,7 @@ export const Inventory = () => {
 
   // Physical Inventory: Calculate Market Values dynamically
   const getCommodityPrice = (commodity) => {
-    return COMMODITY_MOCK_PRICES[commodity] || 5000;
+    return spotPrices[commodity] ?? FALLBACK_PRICES[commodity] ?? 5000;
   };
 
   const getInventoryItemsWithValuation = () => {

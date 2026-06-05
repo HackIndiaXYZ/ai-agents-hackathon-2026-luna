@@ -106,8 +106,8 @@ export const MarketPrices = () => {
       if (data && data.prices) {
         setPrices(data.prices);
         setAiSummary(data.ai_summary || '');
-        setDataAsOf(data.data_as_of || '2026-05-30');
-        
+        setDataAsOf(data.data_as_of || data.prices[0]?.data_as_of || '2026-05-30');
+
         const uniqueStates = [...new Set((data.prices || []).map(p => p.state))].sort();
         setStates(uniqueStates);
       } else {
@@ -188,16 +188,22 @@ export const MarketPrices = () => {
 
   const anomalies = filteredPrices.filter(p => p.is_anomaly);
 
-  // Line Chart mock data logic
-  const chartData = [
-    { date: '05-24', price: 6800 },
-    { date: '05-25', price: 6850 },
-    { date: '05-26', price: 6900 },
-    { date: '05-27', price: 7100 },
-    { date: '05-28', price: 7050 },
-    { date: '05-29', price: 7150 },
-    { date: '05-30', price: 7250 }
-  ];
+  // Build line chart from live mandi prices (trend_pct simulates recent movement)
+  const chartData = (() => {
+    if (!filteredPrices.length) return [];
+    const sorted = [...filteredPrices].sort((a, b) => (b.modal_price || 0) - (a.modal_price || 0));
+    const anchor = sorted[0]?.modal_price || 5000;
+    const asOf = dataAsOf || sorted[0]?.data_as_of || 'Today';
+    return [
+      { date: asOf, price: anchor },
+      ...sorted.slice(0, 6).map((p, idx) => ({
+        date: p.mandi_name,
+        price: p.modal_price,
+        trend: p.trend_pct,
+        key: `${p.mandi_name}-${idx}`,
+      })),
+    ];
+  })();
 
   // Bar Chart top mandis logic
   const barChartData = filteredPrices

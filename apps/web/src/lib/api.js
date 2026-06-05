@@ -107,6 +107,40 @@ export const getDataQuality = async () => {
 // --- CTRM Rebuild Additions ---
 import * as demo from '../data/demo';
 
+const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY || 'tradenexus_internal_secret';
+
+/** Unwrap list payloads that may be a raw array or `{ key: [...] }`. */
+const unwrapList = (data, keys = []) => {
+  if (Array.isArray(data)) return data;
+  if (!data || typeof data !== 'object') return [];
+  for (const key of keys) {
+    if (Array.isArray(data[key])) return data[key];
+  }
+  return [];
+};
+
+/** Normalize contract rows for UI field names used across pages. */
+const normalizeContract = (row) => {
+  if (!row) return row;
+  const pnl = row.latest_pnl || {};
+  return {
+    ...row,
+    commodity: row.commodity || row.commodity_name || 'Unknown',
+    contract_price: row.contract_price ?? row.price_per_unit ?? 0,
+    market_price: row.market_price ?? pnl.market_price ?? row.contract_price ?? row.price_per_unit ?? 0,
+    unrealized_pnl: row.unrealized_pnl ?? pnl.unrealized_pnl ?? 0,
+    contract_number: row.contract_number || row.id,
+  };
+};
+
+/** Normalize dispatch rows for the dispatch table UI. */
+const normalizeDispatch = (row) => ({
+  ...row,
+  id: row.id || row.dispatch_number,
+  driver_phone: row.driver_phone || row.driver_contact,
+  commodity: row.commodity || row.contract_commodity,
+});
+
 export const getPortfolioSummary = async () => {
   try {
     const response = await api.get('/api/v1/risk/portfolio');
@@ -120,7 +154,8 @@ export const getPortfolioSummary = async () => {
 export const getMtmList = async () => {
   try {
     const response = await api.get('/api/v1/risk/mtm');
-    return response.data;
+    const rows = unwrapList(response.data, ['contracts', 'mtm', 'data']);
+    return rows.map(normalizeContract);
   } catch (error) {
     console.warn("Using demo MTM rows:", error);
     return demo.demoMtmRows;
@@ -128,17 +163,21 @@ export const getMtmList = async () => {
 };
 
 export const recalculateMtm = async () => {
-  const response = await api.post('/api/v1/risk/recalculate');
+  const response = await api.post('/api/v1/risk/recalculate', null, {
+    headers: { 'X-Internal-Key': INTERNAL_KEY }
+  });
   return response.data;
 };
 
 export const getRiskAlerts = async () => {
   try {
     const [riskRes, marketRes] = await Promise.all([
-      api.get('/api/v1/risk/alerts').catch(() => ({ data: [] })),
-      api.get('/api/v1/market/alerts').catch(() => ({ data: [] }))
+      api.get('/api/v1/risk/alerts').catch(() => ({ data: { alerts: [] } })),
+      api.get('/api/v1/market/alerts').catch(() => ({ data: { alerts: [] } }))
     ]);
-    const combined = [...(riskRes.data || []), ...(marketRes.data || [])];
+    const riskAlerts = unwrapList(riskRes.data, ['alerts', 'data']);
+    const marketAlerts = unwrapList(marketRes.data, ['alerts', 'data']);
+    const combined = [...riskAlerts, ...marketAlerts];
     return combined.length > 0 ? combined : demo.demoAlerts;
   } catch (error) {
     console.warn("Using demo alerts:", error);
@@ -146,10 +185,20 @@ export const getRiskAlerts = async () => {
   }
 };
 
+export const getMarketAlerts = async () => {
+  try {
+    const response = await api.get('/api/v1/market/alerts');
+    return unwrapList(response.data, ['alerts', 'data']);
+  } catch (error) {
+    console.warn('Market alerts endpoint unavailable:', error);
+    return demo.demoAlerts;
+  }
+};
+
 export const getAgentActivity = async () => {
   try {
     const response = await api.get('/api/v1/risk/activity');
-    return response.data;
+    return unwrapList(response.data, ['activity_log', 'activity', 'data']);
   } catch (error) {
     console.warn("Using demo agent activity:", error);
     return demo.demoAgentActivity;
@@ -159,7 +208,12 @@ export const getAgentActivity = async () => {
 export const getMacroSignals = async () => {
   try {
     const response = await api.get('/api/v1/risk/signals');
-    return response.data;
+    const signals = unwrapList(response.data, ['signals', 'data']);
+    return signals.map((s) => ({
+      ...s,
+      commodity: s.commodity || s.commodity_name,
+      key_signal: s.key_signal || s.message || s.description,
+    }));
   } catch (error) {
     console.warn("Using demo macro signals:", error);
     return demo.demoMacroSignals;
@@ -169,7 +223,8 @@ export const getMacroSignals = async () => {
 export const getContracts = async (filters = {}) => {
   try {
     const response = await api.get('/api/v1/contracts', { params: filters });
-    return response.data;
+    const rows = unwrapList(response.data, ['contracts', 'data']);
+    return rows.map(normalizeContract);
   } catch (error) {
     console.warn("Using demo contracts:", error);
     let filtered = [...demo.demoContracts];
@@ -189,7 +244,8 @@ export const getContracts = async (filters = {}) => {
 export const getContract = async (id) => {
   try {
     const response = await api.get(`/api/v1/contracts/${id}`);
-    return response.data;
+    const detail = response.data?.contract || response.data;
+    return normalizeContract(detail);
   } catch (error) {
     console.warn(`Using demo contract details for ${id}:`, error);
     return demo.demoContracts.find(c => c.id === id) || demo.demoContracts[0];
@@ -199,8 +255,19 @@ export const getContract = async (id) => {
 export const createContract = async (contractData) => {
   // Let it call POST /api/v1/contracts. Fallback returns mock created contract
   try {
-    const response = await api.post('/api/v1/contracts', contractData);
-    return response.data;
+    const payload = {
+      ...contractData,
+      type: String(contractData.type || 'buy').toLowerCase(),
+      price_per_unit: contractData.price_per_unit ?? contractData.price ?? contractData.contract_price,
+      price_type: contractData.price_type || 'fixed',
+    };
+    delete payload.price;
+    delete payload.contract_price;
+    delete payload.counterparty_name;
+
+    const response = await api.post('/api/v1/contracts', payload);
+    const created = response.data?.contract || response.data;
+    return normalizeContract(created);
   } catch (error) {
     console.warn("Mocking contract creation:", error);
     const newId = `CTR-2026-0${demo.demoContracts.length + 1}`;
@@ -251,10 +318,51 @@ export const updateContractStatus = async (id, status) => {
 export const getDispatches = async () => {
   try {
     const response = await api.get('/api/v1/dispatches');
-    return response.data;
+    const rows = unwrapList(response.data, ['dispatches', 'data']);
+    return rows.map(normalizeDispatch);
   } catch (error) {
     console.warn("Using demo dispatches:", error);
     return demo.demoDispatches;
+  }
+};
+
+export const getMonitoredCorridors = async () => {
+  try {
+    const dispatches = await getDispatches();
+    const seen = new Set();
+    const corridors = [];
+
+    for (const d of dispatches) {
+      const origin = d.origin || d.corridor_origin;
+      const destination = d.destination || d.corridor_destination;
+      if (!origin || !destination) continue;
+      const key = `${origin}|${destination}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      let score = null;
+      try {
+        score = await scoreCorridor(origin, destination);
+      } catch (e) {
+        console.warn(`Corridor score unavailable for ${origin}→${destination}:`, e);
+      }
+
+      corridors.push({
+        origin,
+        destination,
+        distance_km: score?.distance_km ?? 500,
+        typical_duration_hours: score?.estimated_hours ?? score?.typical_hours ?? 10,
+        reliability_score: score?.confidence_score ?? d.corridor_reliability ?? 0.75,
+        delay_risk: score?.delay_risk ?? 'low',
+      });
+    }
+
+    if (corridors.length > 0) return corridors;
+    console.warn('No live corridors from dispatches; using demo corridor seed data.');
+    return demo.demoCorridors;
+  } catch (error) {
+    console.warn('Using demo corridors:', error);
+    return demo.demoCorridors;
   }
 };
 
@@ -365,7 +473,7 @@ export const getForecast = async (commodityId) => {
 export const getCounterparties = async () => {
   try {
     const response = await api.get('/api/v1/counterparties');
-    return response.data;
+    return unwrapList(response.data, ['counterparties', 'data']);
   } catch (error) {
     console.warn("Using demo counterparties:", error);
     return demo.demoCounterparties;
@@ -500,7 +608,8 @@ export const getOpenPositions = async () => {
 export const createDispatch = async (dispatchData) => {
   try {
     const response = await api.post('/api/v1/dispatches', dispatchData);
-    return response.data;
+    const created = response.data?.dispatch || response.data;
+    return { dispatch: normalizeDispatch(created) };
   } catch (error) {
     console.warn("Mocking dispatch creation:", error);
     const newId = `DSP-${String(demo.demoDispatches.length + 1).padStart(3, '0')}`;
@@ -546,6 +655,92 @@ export const postLucyChat = async (message, sessionId, languageHint = 'en') => {
     language_hint: languageHint
   });
   return response.data;
+};
+
+export const postLucyRetrieve = async (utterance, topK = 3) => {
+  try {
+    const response = await api.post('/api/v1/lucy/retrieve', {
+      utterance,
+      top_k: topK,
+    });
+    return response.data;
+  } catch (error) {
+    console.warn('Lucy retrieve endpoint unavailable:', error);
+    return null;
+  }
+};
+
+export const uploadComplianceDocument = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post('/api/v1/compliance/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+};
+
+export const getQualityLots = async () => {
+  try {
+    const contracts = await getContracts();
+    const lots = [];
+
+    const candidates = contracts.filter((c) =>
+      ['confirmed', 'delivered', 'in_transit', 'settled'].includes(c.status)
+    );
+
+    await Promise.all(
+      candidates.slice(0, 25).map(async (contract) => {
+        try {
+          const detail = await getContract(contract.id);
+          const contractLots = detail.quality_lots
+            || (detail.quality_lot ? [detail.quality_lot] : []);
+
+          for (const lot of contractLots) {
+            lots.push({
+              id: lot.id || `QL-${contract.contract_number}`,
+              contract_id: contract.contract_number || contract.id,
+              commodity: contract.commodity,
+              quantity: lot.quantity ?? contract.quantity,
+              moisture: lot.moisture_pct ?? lot.moisture ?? 10,
+              broken_pct: lot.broken_pct ?? lot.broken_grain_pct ?? 2,
+              foreign_matter: lot.foreign_matter_pct ?? lot.foreign_matter ?? 1,
+              grade: lot.grade || 'B',
+              base_price: lot.base_price ?? contract.contract_price,
+              adjusted_price: lot.adjusted_price ?? lot.price_per_unit ?? contract.contract_price,
+              penalty_pct: lot.penalty_pct ?? lot.price_adjustment_pct ?? 0,
+              gps_lat: lot.gps_lat ?? lot.latitude ?? '',
+              gps_lng: lot.gps_lng ?? lot.longitude ?? '',
+              location_name: lot.location_name ?? lot.inspection_location ?? contract.delivery_location ?? 'Mandi',
+              agent_name: lot.agent_name ?? lot.inspector_name ?? 'Field Agent',
+              agent_remarks: lot.agent_remarks ?? lot.notes ?? '',
+              inspected_at: lot.inspected_at ?? lot.created_at ?? new Date().toISOString(),
+              status: lot.status ?? 'approved',
+            });
+          }
+        } catch (e) {
+          console.warn(`Quality lot fetch skipped for ${contract.id}:`, e);
+        }
+      })
+    );
+
+    return lots;
+  } catch (error) {
+    console.warn('Quality lots unavailable:', error);
+    return [];
+  }
+};
+
+export const getCommoditySpotPrice = async (commodity) => {
+  try {
+    const data = await getMarketPrices(commodity);
+    const prices = data?.prices || [];
+    if (prices.length === 0) return null;
+    const nagpur = prices.find((p) => p.mandi_name?.toLowerCase().includes('nagpur'));
+    return (nagpur || prices[0]).modal_price;
+  } catch (error) {
+    console.warn(`Spot price unavailable for ${commodity}:`, error);
+    return null;
+  }
 };
 
 export const getNetworkGraph = async () => {

@@ -34,9 +34,10 @@ import {
   getDispatches,
   getContracts,
   createDispatch,
-  getWeatherSignals
+  getWeatherSignals,
+  getMonitoredCorridors
 } from '../../lib/api';
-import { demoCorridors } from '../../data/demo';
+import { formatDate, getStatusColor } from '../../utils/format';
 
 const INDIAN_CITIES = [
   'Nagpur', 'Mumbai', 'Indore', 'Ahmedabad', 'Lucknow',
@@ -60,6 +61,7 @@ export const Dispatch = () => {
 
   // Active Dispatches state
   const [dispatches, setDispatches] = useState([]);
+  const [corridors, setCorridors] = useState([]);
   const [expandedDispatchId, setExpandedDispatchId] = useState(null);
 
   // Confirmed contracts for scheduler
@@ -88,14 +90,16 @@ export const Dispatch = () => {
   // Fetch core page data
   const fetchData = async () => {
     try {
-      const [dispatchList, contractList, weatherList] = await Promise.all([
+      const [dispatchList, contractList, weatherList, corridorList] = await Promise.all([
         getDispatches(),
         getContracts({ status: 'confirmed' }),
-        getWeatherSignals()
+        getWeatherSignals(),
+        getMonitoredCorridors()
       ]);
       setDispatches(dispatchList || []);
       setConfirmedContracts(contractList || []);
       setWeatherSignals(weatherList || []);
+      setCorridors(corridorList || []);
     } catch (e) {
       console.error(e);
       toast.error("Failed to sync dispatch records. Operating in local mode.");
@@ -153,52 +157,37 @@ export const Dispatch = () => {
 
       if (res && !res.error) {
         setScoreResult(res);
+        toast.success("Corridor metrics evaluated.");
       } else {
-        setScoreResult({
-          origin: fromInput,
-          destination: toInput,
-          distance_km: 585,
-          estimated_hours: 11.2,
-          confidence_score: 0.84,
-          delay_risk: 'low',
-          recent_reports_count: 0,
-          typical_hours: 11.0
-        });
+        console.warn('Corridor score returned empty; check dispatch API.');
+        toast.error('Could not score this corridor. Try again later.');
       }
-      toast.success("Corridor metrics evaluated.");
     } catch (err) {
-      setScoreResult({
-        origin: fromInput,
-        destination: toInput,
-        distance_km: 585,
-        estimated_hours: 11.2,
-        confidence_score: 0.84,
-        delay_risk: 'low',
-        recent_reports_count: 0,
-        typical_hours: 11.0
-      });
-      toast.success("Corridor metrics evaluated (Demo Mode)");
+      console.warn('Corridor scoring failed:', err);
+      toast.error('Corridor scoring unavailable. Backend may be offline.');
     } finally {
       setIsLoading(false);
     }
   };
 
   // Helper when clicking a row in Monitored Corridors
-  const handleSelectCorridorRow = (row) => {
+  const handleSelectCorridorRow = async (row) => {
     setFromInput(row.origin);
     setToInput(row.destination);
-    
-    // Auto-fill values and trigger scoring mock
-    setScoreResult({
-      origin: row.origin,
-      destination: row.destination,
-      distance_km: row.distance_km,
-      estimated_hours: row.typical_duration_hours,
-      confidence_score: row.reliability_score,
-      delay_risk: row.delay_risk,
-      recent_reports_count: row.delay_risk === 'low' ? 0 : 2,
-      typical_hours: row.typical_duration_hours
-    });
+    setIsLoading(true);
+    setScoreResult(null);
+    setScorerWeatherAlert(null);
+
+    try {
+      const res = await scoreCorridor(row.origin, row.destination);
+      if (res && !res.error) {
+        setScoreResult(res);
+      }
+    } catch (err) {
+      console.warn('Live corridor score failed for selected row:', err);
+    } finally {
+      setIsLoading(false);
+    }
 
     const weatherAlert = weatherSignals.find(s =>
       s.region?.toLowerCase() === row.destination.toLowerCase() ||
@@ -209,8 +198,6 @@ export const Dispatch = () => {
       setScorerWeatherAlert(`⚠ Storm forecast in ${weatherAlert.region} corridor. Transport delays likely.`);
     } else if (weatherAlert && weatherAlert.risk_level === 'low') {
       setScorerWeatherAlert(`⚠ Rain forecast on this route Tuesday. Road conditions may degrade.`);
-    } else {
-      setScorerWeatherAlert(null);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -779,7 +766,7 @@ export const Dispatch = () => {
               </tr>
             </thead>
             <tbody>
-              {demoCorridors.map((row, idx) => {
+              {corridors.map((row, idx) => {
                 const isGreen = row.reliability_score >= 0.7;
                 return (
                   <tr

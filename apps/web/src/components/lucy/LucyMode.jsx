@@ -7,7 +7,7 @@ import {
   Bot, RefreshCw, ChevronDown, ChevronUp, MapPin, ShieldCheck,
   TrendingUp, FileText, CheckCircle2, User, Globe, HelpCircle,
   Package, Scale, DollarSign, ArrowRight, Shield, CloudRain,
-  BarChart3, Truck, AlertTriangle, ExternalLink
+  BarChart3, Truck, AlertTriangle, ExternalLink, Search
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -519,6 +519,10 @@ const LucyMode = () => {
                       <div className="bg-white border border-slate-200/70 shadow-sm rounded-3xl rounded-tl-none p-5 flex flex-col space-y-4">
                         
                         {/* Custom components based on response triggers / hints */}
+                        {(msg.retrieval_used || (msg.retrieved_examples && msg.retrieved_examples.length > 0)) && (
+                          <RetrievalSection msg={msg} />
+                        )}
+
                         {msg.execution_steps && msg.execution_steps.length > 0 && (
                           <div className="border-b border-slate-100 pb-3">
                             <button
@@ -732,6 +736,55 @@ const LucyMode = () => {
   );
 };
 
+
+// ─── Collapsible RAG Retrieval Section (Prompt C) ───────
+const RetrievalSection = ({ msg }) => {
+  const [expanded, setExpanded] = useState(false);
+  const examples = msg.retrieved_examples || [];
+  const confidencePct = Math.round((msg.retrieval_confidence || 0) * 100);
+  const count = examples.length || (msg.retrieval_used ? 1 : 0);
+
+  if (!msg.retrieval_used && examples.length === 0) return null;
+
+  return (
+    <div className="border-b border-slate-100 pb-3">
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="flex items-center justify-between w-full text-xs font-semibold cursor-pointer text-slate-500 hover:text-slate-700"
+      >
+        <span className="flex items-center gap-1.5 text-indigo-700">
+          <Search size={13} />
+          Retrieved {count} similar example{count !== 1 ? 's' : ''} · {confidencePct}% confidence
+          {msg.dominant_retrieved_intent && (
+            <span className="text-[10px] text-slate-400 font-medium ml-1">
+              → {msg.dominant_retrieved_intent}
+            </span>
+          )}
+        </span>
+        {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+
+      {expanded && (
+        <div className="mt-2 space-y-1.5 pl-1">
+          {examples.length > 0 ? (
+            examples.map((ex, i) => (
+              <p key={i} className="text-[11px] text-slate-500 leading-snug">
+                Similar: &quot;{ex.utterance}&quot; → <span className="font-semibold text-slate-700">{ex.intent}</span>
+                {ex.similarity != null && (
+                  <span className="text-slate-400 ml-1">({Math.round(ex.similarity * 100)}%)</span>
+                )}
+              </p>
+            ))
+          ) : (
+            <p className="text-[11px] text-slate-400 italic">
+              Intent retrieval matched with {confidencePct}% confidence.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // ─── Inline Result Card: P&L Summary ──────────────────
 const PnLSummaryCard = ({ msg }) => {

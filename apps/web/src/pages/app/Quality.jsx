@@ -31,7 +31,7 @@ import Button from '../../components/ui/Button';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 import { formatINR } from '../../utils/format';
-import { getContracts } from '../../lib/api';
+import { getContracts, getQualityLots } from '../../lib/api';
 
 // ─── DEMO DATA ────────────────────────────────────────────
 const MOISTURE_THRESHOLDS = {
@@ -217,8 +217,16 @@ export const Quality = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const contractList = await getContracts();
+        const [contractList, lots] = await Promise.all([
+          getContracts(),
+          getQualityLots(),
+        ]);
         setContracts(contractList || []);
+        if (lots && lots.length > 0) {
+          setQualityLots(lots);
+        } else {
+          console.warn('No live quality lots from backend; using seeded demo lots.');
+        }
       } catch (e) {
         console.error(e);
       } finally {
