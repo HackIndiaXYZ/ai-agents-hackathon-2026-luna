@@ -4,10 +4,6 @@
 
 TradeNexus is a production-oriented commodity intelligence layer built for Indian agricultural and commodity traders. It resolves regional language fragmentation, aggregates mandi-level market signals, and orchestrates 20+ specialized AI agents to deliver actionable recommendations on where to sell, when to dispatch, and how to manage contracts, risk, and compliance.
 
-**Live Demo:** [https://tradenexus.vercel.app](https://tradenexus.vercel.app)
-
----
-
 ## Table of Contents
 
 - [Executive Summary](#executive-summary)
