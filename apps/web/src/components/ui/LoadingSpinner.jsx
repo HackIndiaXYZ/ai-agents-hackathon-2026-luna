@@ -1,23 +1,12 @@
-import React from 'react';
-import { Loader2 } from 'lucide-react';
-
-export const LoadingSpinner = ({ size = 'md', className = '' }) => {
-  const sizes = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-10 h-10',
-  };
-
-  const currentSize = sizes[size] || sizes.md;
-
+export default function LoadingSpinner({ size = 24 }) {
   return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <Loader2
-        className={`${currentSize} animate-spin`}
-        style={{ color: 'var(--brand-green)' }}
-      />
-    </div>
+    <div
+      className="border-2 border-green-200 border-t-green-600 rounded-full animate-spin"
+      style={{ width: size, height: size }}
+    />
   );
-};
+}
 
-export default LoadingSpinner;
+export function SkeletonCard({ height = 120 }) {
+  return <div className="card animate-pulse bg-gray-100" style={{ height }} />;
+}

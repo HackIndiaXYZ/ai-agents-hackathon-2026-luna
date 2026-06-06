@@ -1,93 +1,78 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useStore } from '../../store';
-import { Search, Bell, Globe } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Bell, MessageCircle, Search } from 'lucide-react';
+import { demoAlerts } from '../../data/demo';
+import { useLucyStore } from '../../store/lucyStore';
+import { useAppStore } from '../../store/appStore';
 
-export const TopBar = () => {
+const pageNames = {
+  dashboard: 'Dashboard', contracts: 'Contracts', 'contracts/new': 'New Contract',
+  risk: 'Risk & P&L', markets: 'Markets', dispatch: 'Dispatch', inventory: 'Inventory',
+  opportunities: 'Opportunities', counterparties: 'Counterparties', compliance: 'Compliance',
+  quality: 'Quality Lots', network: 'Supply Network', analytics: 'Analytics',
+  learning: 'Adaptive Learning', settings: 'Settings',
+};
+
+export default function TopBar() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { alerts, demoUser } = useStore();
-  const [searchVal, setSearchVal] = useState('');
-  const [lang, setLang] = useState('EN');
+  const [query, setQuery] = useState('');
+  const { open, setPendingQuery } = useLucyStore();
+  const demoUser = useAppStore((s) => s.demoUser);
+  const segment = location.pathname.split('/').pop();
+  const pageName = pageNames[segment] || 'TradeNexus';
 
-  // Derive route title
-  const getPageTitle = () => {
-    const path = location.pathname;
-    if (path.includes('/dashboard')) return 'Dashboard';
-    if (path.includes('/markets')) return 'Markets Index';
-    if (path.includes('/dispatch')) return 'Dispatch & Logistics';
-    if (path.includes('/opportunities')) return 'Opportunities Market';
-    if (path.includes('/compliance')) return 'Compliance Assistant';
-    if (path.includes('/advisor')) return 'AI Trade Advisor';
-    if (path.includes('/settings')) return 'Settings';
-    return 'TradeNexus';
-  };
-
-  const handleSearchSubmit = (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
-    if (!searchVal.trim()) return;
-    navigate(`/app/advisor?commodity=${encodeURIComponent(searchVal.trim())}`);
-    setSearchVal('');
-  };
-
-  const handleLangToggle = () => {
-    const nextLang = lang === 'EN' ? 'HI' : 'EN';
-    setLang(nextLang);
-    toast.success(`Language set to ${nextLang === 'EN' ? 'English' : 'Hindi (हिंदी)'}`);
+    if (query.trim()) {
+      setPendingQuery(query.trim());
+      open();
+    }
   };
 
   return (
-    <header className="fixed top-0 right-0 left-0 md:left-[240px] left-16 h-16 bg-white border-b flex items-center justify-between px-6 z-20" style={{ borderColor: 'var(--border)' }}>
-      {/* Title */}
-      <div className="flex items-center gap-2">
-        <h2 className="text-sm font-extrabold text-slate-800 tracking-tight font-display">
-          {getPageTitle()}
-        </h2>
-      </div>
+    <header
+      className="fixed top-0 right-0 z-30 flex items-center gap-4 px-6 border-b"
+      style={{
+        left: 'var(--sidebar-width)',
+        height: 'var(--topbar-height)',
+        background: 'var(--topbar-bg)',
+        borderColor: 'var(--card-border)',
+      }}
+    >
+      <span className="text-sm text-[var(--text-muted)] shrink-0">{pageName}</span>
 
-      {/* Global Search Bar */}
-      <form onSubmit={handleSearchSubmit} className="hidden sm:flex items-center relative w-72 md:w-96">
-        <Search className="absolute left-3 w-4 h-4 text-slate-400" />
+      <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-auto relative">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
-          type="text"
-          placeholder="Search Cotton, Kapas, कपास..."
-          value={searchVal}
-          onChange={(e) => setSearchVal(e.target.value)}
-          className="w-full pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search contracts, mandis, commodities..."
+          className="w-full pl-9 pr-16 py-2 text-sm rounded-lg border bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500/30"
         />
+        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 bg-white border px-1.5 py-0.5 rounded">⌘K</kbd>
       </form>
 
-      {/* Right Controls */}
-      <div className="flex items-center gap-4">
-        
-        {/* Language Switcher */}
-        <button
-          onClick={handleLangToggle}
-          className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 transition-colors"
-        >
-          <Globe className="w-3.5 h-3.5" />
-          <span>{lang === 'EN' ? 'EN' : 'हिं'}</span>
+      <div className="flex items-center gap-3 shrink-0">
+        <button className="relative p-2 rounded-lg hover:bg-gray-100">
+          <Bell size={18} />
+          <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+            {demoAlerts.length}
+          </span>
         </button>
-
-        {/* Alerts Bell notification */}
-        <div className="relative">
-          <button className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors relative">
-            <Bell className="w-4 h-4" />
-            {alerts?.length > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-600 animate-pulse" />
-            )}
-          </button>
+        <button className="p-2 rounded-lg hover:bg-gray-100"><MessageCircle size={18} /></button>
+        <button
+          onClick={open}
+          className="px-3 py-1.5 rounded-full bg-green-600 text-white text-xs font-semibold hover:bg-green-700"
+        >
+          Lucy AI ›
+        </button>
+        <div className="flex items-center gap-2 pl-2 border-l">
+          <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-sm font-semibold">
+            {demoUser.name[0]}
+          </div>
+          <span className="text-sm font-medium hidden lg:block">{demoUser.name.split(' ')[0]}</span>
         </div>
-
-        {/* User initials circle */}
-        <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center font-extrabold text-xs select-none">
-          {demoUser.name.split(' ').map(n => n.charAt(0)).join('')}
-        </div>
-
       </div>
     </header>
   );
-};
-
-export default TopBar;
+}

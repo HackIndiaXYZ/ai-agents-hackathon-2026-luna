@@ -1,120 +1,51 @@
-import React, { useEffect, useState, useRef } from 'react';
-import Card from './Card';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import { inr } from '../../lib/utils';
 
-export const StatCard = ({ label, value, delta, icon, color = 'green', className = '' }) => {
-  const [displayValue, setDisplayValue] = useState('0');
-  
+function AnimatedValue({ value, format = 'number' }) {
+  const [display, setDisplay] = useState(0);
   useEffect(() => {
-    // Parse the numerical part of the value for animation
-    const stringVal = String(value);
-    const numericMatch = stringVal.match(/[\d.]+/);
-    if (!numericMatch) {
-      setDisplayValue(stringVal);
-      return;
-    }
-
-    const targetNum = parseFloat(numericMatch[0]);
-    const prefix = stringVal.substring(0, numericMatch.index);
-    const suffix = stringVal.substring(numericMatch.index + numericMatch[0].length);
-
-    let start = 0;
-    const duration = 1200; // 1.2s animation
-    const startTime = performance.now();
-
-    const animate = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function: easeOutQuad
-      const easedProgress = progress * (2 - progress);
-      const currentNum = easedProgress * targetNum;
-      
-      let formattedNum = '';
-      if (Number.isInteger(targetNum)) {
-        formattedNum = Math.floor(currentNum).toLocaleString('en-IN');
-      } else {
-        formattedNum = currentNum.toFixed(1);
-      }
-
-      setDisplayValue(`${prefix}${formattedNum}${suffix}`);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        setDisplayValue(stringVal); // Ensure exact final value
-      }
+    const isNum = typeof value === 'number';
+    if (!isNum) return;
+    const start = performance.now();
+    const dur = 1200;
+    const tick = (now) => {
+      const p = Math.min((now - start) / dur, 1);
+      setDisplay(Math.round(value * p));
+      if (p < 1) requestAnimationFrame(tick);
     };
-
-    requestAnimationFrame(animate);
+    requestAnimationFrame(tick);
   }, [value]);
+  if (typeof value !== 'number') return value;
+  return format === 'inr' ? inr(display) : display.toLocaleString('en-IN');
+}
 
-  // Delta parsing to see if positive or negative
-  const isPositive = delta ? !String(delta).includes('-') && !String(delta).includes('↓') : true;
-  const deltaText = delta ? String(delta).replace(/[+\-↑↓]/g, '').trim() : '';
-
-  const colorClasses = {
-    green: {
-      text: 'text-emerald-600',
-      bg: 'bg-emerald-50',
-      icon: 'text-emerald-500',
-    },
-    amber: {
-      text: 'text-amber-600',
-      bg: 'bg-amber-50',
-      icon: 'text-amber-500',
-    },
-    rose: {
-      text: 'text-rose-600',
-      bg: 'bg-rose-50',
-      icon: 'text-rose-500',
-    },
-    blue: {
-      text: 'text-blue-600',
-      bg: 'bg-blue-50',
-      icon: 'text-blue-500',
-    },
-  };
-
-  const currentColor = colorClasses[color] || colorClasses.green;
+export default function StatCard({ label, value, delta, deltaType, icon: Icon, sparklineData, color }) {
+  const deltaColor = deltaType === 'positive' ? 'text-green-600' : deltaType === 'negative' ? 'text-red-600' : 'text-gray-500';
+  const format = typeof value === 'number' && value > 999 ? 'inr' : 'number';
+  const spark = sparklineData || Array.from({ length: 10 }, (_, i) => ({ v: 50 + Math.sin(i) * 20 }));
 
   return (
-    <Card hover={true} className={`p-6 flex flex-col justify-between h-36 relative ${className}`}>
-      <div className="flex items-start justify-between">
-        <span className="text-[12px] font-bold text-slate-400 uppercase tracking-wider">
-          {label}
-        </span>
-        {icon && (
-          <div className={`p-2 rounded-xl ${currentColor.bg} ${currentColor.icon}`}>
-            {icon}
+    <div className="card p-4 flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">{label}</span>
+        {Icon && (
+          <div className="p-1.5 rounded-md" style={{ backgroundColor: `${color}15`, color }}>
+            <Icon size={16} />
           </div>
         )}
       </div>
-
-      <div className="mt-2 space-y-1">
-        <h4 className="text-3xl font-extrabold text-slate-900 tracking-tight font-display">
-          {displayValue}
-        </h4>
-        
-        {delta && (
-          <div className="flex items-center gap-1 text-xs">
-            {isPositive ? (
-              <span className="inline-flex items-center text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded">
-                <ArrowUpRight className="w-3.5 h-3.5 mr-0.5 shrink-0" />
-                {deltaText}
-              </span>
-            ) : (
-              <span className="inline-flex items-center text-rose-600 font-semibold bg-rose-50 px-1.5 py-0.5 rounded">
-                <ArrowDownRight className="w-3.5 h-3.5 mr-0.5 shrink-0" />
-                {deltaText}
-              </span>
-            )}
-            <span className="text-slate-400 font-medium">vs baseline</span>
-          </div>
-        )}
+      <div className="text-2xl font-bold" style={{ color: color || 'var(--text-primary)' }}>
+        <AnimatedValue value={value} format={format} />
       </div>
-    </Card>
+      {delta && <span className={`text-xs font-medium ${deltaColor}`}>{delta}</span>}
+      <div className="h-8 -mx-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={spark}>
+            <Line type="monotone" dataKey="v" stroke={color || '#16a34a'} strokeWidth={1.5} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
-};
-
-export default StatCard;
+}

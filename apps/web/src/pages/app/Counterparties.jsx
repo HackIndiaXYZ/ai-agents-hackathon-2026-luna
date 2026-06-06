@@ -1,168 +1,81 @@
-import React, { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
-import { Users, Plus, RefreshCw, Shield, AlertTriangle } from 'lucide-react';
-
+import { useState } from 'react';
 import PageHeader from '../../components/ui/PageHeader';
-import Card from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
-import Button from '../../components/ui/Button';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import { demoCounterparties, demoDiscoveredCounterparties } from '../../data/demo';
+import { inr } from '../../lib/utils';
 
-import { getCounterparties, getCounterpartyRisk, createCounterparty } from '../../lib/api';
+export default function Counterparties() {
+  const [selected, setSelected] = useState(demoCounterparties[0]);
+  const [discovered, setDiscovered] = useState([]);
+  const all = [...demoCounterparties, ...discovered];
 
-export const Counterparties = () => {
-  const [counterparties, setCounterparties] = useState([]);
-  const [riskMap, setRiskMap] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: '', city: 'Nagpur', state: 'Maharashtra', type: 'both' });
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const list = await getCounterparties();
-      setCounterparties(list || []);
-      const risks = {};
-      await Promise.all(
-        (list || []).slice(0, 20).map(async (cp) => {
-          try {
-            risks[cp.id] = await getCounterpartyRisk(cp.id);
-          } catch {
-            risks[cp.id] = cp;
-          }
-        })
-      );
-      setRiskMap(risks);
-    } catch (e) {
-      toast.error('Failed to load counterparties');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    if (!form.name.trim()) {
-      toast.error('Name is required');
-      return;
-    }
-    try {
-      await createCounterparty(form);
-      toast.success('Counterparty added');
-      setShowForm(false);
-      setForm({ name: '', city: 'Nagpur', state: 'Maharashtra', type: 'both' });
-      loadData();
-    } catch {
-      toast.error('Could not create counterparty');
-    }
-  };
-
-  const riskVariant = (level) => {
-    const l = String(level || '').toLowerCase();
-    if (l.includes('high')) return 'danger';
-    if (l.includes('medium')) return 'warning';
-    return 'success';
-  };
+  const findNew = () => setDiscovered(demoDiscoveredCounterparties);
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6">
       <PageHeader
-        title="Counterparty CRM"
-        subtitle="Buyer and seller relationships with ML default-risk scoring"
-        action={
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" onClick={loadData}>
-              <RefreshCw className="w-4 h-4" />
-            </Button>
-            <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-              <Plus className="w-4 h-4 mr-1" /> Add
-            </Button>
-          </div>
+        title="Counterparties"
+        subtitle="Relationship intelligence and risk scoring"
+        actions={
+          <button onClick={findNew} className="px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg">
+            Find New Counterparties
+          </button>
         }
       />
 
-      {showForm && (
-        <Card className="p-5">
-          <form onSubmit={handleCreate} className="grid md:grid-cols-4 gap-4">
-            <input
-              className="border rounded-lg px-3 py-2 text-sm"
-              placeholder="Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
-            <input
-              className="border rounded-lg px-3 py-2 text-sm"
-              placeholder="City"
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-            />
-            <input
-              className="border rounded-lg px-3 py-2 text-sm"
-              placeholder="State"
-              value={form.state}
-              onChange={(e) => setForm({ ...form, state: e.target.value })}
-            />
-            <Button type="submit">Save Counterparty</Button>
-          </form>
-        </Card>
-      )}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="card p-3"><p className="text-xs text-gray-500">Total</p><p className="text-xl font-bold">{all.length}</p></div>
+        <div className="card p-3"><p className="text-xs text-gray-500">Avg Reliability</p><p className="text-xl font-bold">87%</p></div>
+        <div className="card p-3"><p className="text-xs text-gray-500">High Risk</p><p className="text-xl font-bold text-red-600">3</p></div>
+        <div className="card p-3"><p className="text-xs text-gray-500">Open Exposure</p><p className="text-xl font-bold">{inr(16175000)}</p></div>
+      </div>
 
-      <Card className="p-6">
-        {loading ? (
-          <LoadingSpinner />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs uppercase text-slate-400 border-b">
-                  <th className="py-3 px-4">Name</th>
-                  <th className="py-3 px-4">Type</th>
-                  <th className="py-3 px-4">Location</th>
-                  <th className="py-3 px-4">Reliability</th>
-                  <th className="py-3 px-4">Risk Level</th>
-                  <th className="py-3 px-4">Late Deliveries</th>
+      <div className="grid lg:grid-cols-[3fr_2fr] gap-4">
+        <div className="card overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-xs text-gray-500"><tr><th className="text-left p-3">Name</th><th>Type</th><th>Location</th><th>Reliability</th><th>Exposure</th><th>ML Risk</th></tr></thead>
+            <tbody>
+              {all.map((c) => (
+                <tr key={c.id} onClick={() => setSelected(c)} className={`border-t cursor-pointer hover:bg-green-50 ${selected?.id === c.id ? 'bg-green-50' : ''}`}>
+                  <td className="p-3">
+                    {c.name}
+                    {c.discovered && <span className="ml-1 text-[9px] px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded font-semibold">Discovered by Lucy AI</span>}
+                  </td>
+                  <td className="p-3 capitalize">{c.type}</td>
+                  <td className="p-3">{c.city}, {c.state}</td>
+                  <td className="p-3">{Math.round(c.reliability * 100)}%</td>
+                  <td className="p-3">{inr(c.openExposure)}</td>
+                  <td className="p-3">{Math.round(c.mlRisk * 100)}%</td>
                 </tr>
-              </thead>
-              <tbody>
-                {counterparties.map((cp) => {
-                  const risk = riskMap[cp.id] || cp;
-                  return (
-                    <tr key={cp.id} className="border-b border-slate-50 hover:bg-slate-50">
-                      <td className="py-3 px-4 font-semibold text-slate-800">{cp.name}</td>
-                      <td className="py-3 px-4 capitalize">{cp.type || 'both'}</td>
-                      <td className="py-3 px-4 text-slate-600">{cp.city}, {cp.state}</td>
-                      <td className="py-3 px-4">{risk.reliability ?? risk.payment_history_score ?? '—'}%</td>
-                      <td className="py-3 px-4">
-                        <Badge variant={riskVariant(risk.risk_level)}>
-                          {risk.risk_level || 'Low Risk'}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4">{risk.late_deliveries ?? 0}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {selected && (
+          <div className="card p-4 space-y-3">
+            <h3 className="font-bold">{selected.name}</h3>
+            <p className="text-sm text-gray-500 capitalize">{selected.type} · {selected.city}</p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span>Reliability</span><span className="font-semibold text-green-600">{Math.round(selected.reliability * 100)}%</span></div>
+              <div className="h-2 bg-gray-100 rounded"><div className="h-full bg-green-500 rounded" style={{ width: `${selected.reliability * 100}%` }} /></div>
+              <div className="flex justify-between"><span>ML Risk Score</span><span className={selected.mlRisk > 0.3 ? 'text-red-600' : 'text-green-600'}>{Math.round(selected.mlRisk * 100)}%</span></div>
+              <div className="flex justify-between"><span>Trades</span><span>{selected.trades}</span></div>
+              <div className="flex justify-between"><span>Open Exposure</span><span>{inr(selected.openExposure)}</span></div>
+            </div>
           </div>
         )}
-      </Card>
+      </div>
 
-      <Card className="p-5 flex items-start gap-3 bg-emerald-50 border-emerald-100">
-        <Shield className="w-5 h-5 text-emerald-600 mt-0.5" />
-        <div>
-          <p className="text-sm font-bold text-slate-800">XGBoost Counterparty Risk</p>
-          <p className="text-xs text-slate-600 mt-1">
-            Default probability is trained on delivery history, payment delays, and open exposure.
-            Scores refresh when contracts or dispatches change.
-          </p>
-        </div>
-      </Card>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          'Ramesh Farm Collective is your most reliable counterparty (95% on-time)',
+          '87% of your network maintains on-time deliveries',
+          '3 counterparties need attention due to risk signals',
+          '7 new high-potential partners identified in 3 states',
+        ].map((t) => (
+          <div key={t} className="card p-3 text-sm">{t}</div>
+        ))}
+      </div>
     </div>
   );
-};
-
-export default Counterparties;
+}

@@ -1,878 +1,262 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import toast from 'react-hot-toast';
-import { 
-  TrendingUp, 
-  BarChart3, 
-  Truck, 
-  AlertTriangle, 
-  Loader2, 
-  ChevronRight, 
-  ArrowRight, 
-  Activity, 
-  Plus, 
-  Check, 
-  ThumbsUp, 
-  ThumbsDown, 
-  Minus,
-  RefreshCw,
-  Send,
-  Sparkles
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  DollarSign, TrendingDown, BarChart3, Truck, AlertTriangle, CreditCard, RefreshCw,
 } from 'lucide-react';
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer, 
-  Tooltip,
-  Legend 
-} from 'recharts';
-
-// UI components
-import PageHeader from '../../components/ui/PageHeader';
-import Card from '../../components/ui/Card';
+import { PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
 import StatCard from '../../components/ui/StatCard';
-import Badge from '../../components/ui/Badge';
-import Button from '../../components/ui/Button';
+import ContractTypeBadge from '../../components/ui/ContractTypeBadge';
+import StatusBadge from '../../components/ui/StatusBadge';
+import PnLDisplay from '../../components/ui/PnLDisplay';
+import AgentBadge from '../../components/ui/AgentBadge';
+import IndiaMap from '../../components/ui/IndiaMap';
+import { useContractStore } from '../../store/contractStore';
+import {
+  demoStats, demoMandiPrices, demoOpportunities, demoAgentLog, demoPortfolioHistory, demoDispatches,
+} from '../../data/demo';
+import { inr, pct } from '../../lib/utils';
+import { useLucyStore } from '../../store/lucyStore';
 
-// Formatting helpers
-import { 
-  formatINR, 
-  formatQty, 
-  formatDate, 
-  formatPnL, 
-  getPnLColor, 
-  getStatusColor, 
-  getContractTypeColor 
-} from '../../utils/format';
+const EXPOSURE = [
+  { name: 'Chickpea', value: 35.6, amount: 9900000 },
+  { name: 'Cotton', value: 32.8, amount: 9120000 },
+  { name: 'Soybean', value: 18.7, amount: 5200000 },
+  { name: 'Wheat', value: 12.9, amount: 3600000 },
+];
+const COLORS = ['#16a34a', '#22c55e', '#4ade80', '#86efac'];
 
-// API client
-import { 
-  getPortfolioSummary, 
-  getMtmList, 
-  recalculateMtm, 
-  getRiskAlerts, 
-  getAgentActivity, 
-  getMacroSignals,
-  createContract,
-  parseFieldNote
-} from '../../lib/api';
+export default function Dashboard() {
+  const contracts = useContractStore((s) => s.contracts);
+  const openLucy = useLucyStore((s) => s.open);
+  const [expandedAgent, setExpandedAgent] = useState(null);
+  const sorted = [...contracts].sort((a, b) => a.pnl - b.pnl);
+  const worst = sorted[0];
+  const best = sorted[sorted.length - 1];
+  const netMtm = contracts.reduce((s, c) => s + c.pnl, 0);
 
-export const Dashboard = () => {
-  const navigate = useNavigate();
-  
-  // Real API states
-  const [summary, setSummary] = useState(null);
-  const [mtmRows, setMtmRows] = useState([]);
-  const [alerts, setAlerts] = useState([]);
-  const [activityLog, setActivityLog] = useState([]);
-  const [macroSignals, setMacroSignals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [recalculating, setRecalculating] = useState(false);
-
-  // Quick trade entry state
-  const [fieldNote, setFieldNote] = useState('');
-  const [parsingNote, setParsingNote] = useState(false);
-  const [parsedDraft, setParsedDraft] = useState(null);
-  const [creatingContract, setCreatingContract] = useState(false);
-
-  // Time state for header
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  // Pie chart colors
-  const PIE_COLORS = [
-    'var(--brand-green)', 
-    'var(--blue)', 
-    'var(--amber)', 
-    'var(--rose)', 
-    '#8b5cf6', 
-    '#06b6d4', 
-    '#ec4899', 
-    '#10b981'
-  ];
-
-  // Fetch all dashboard data
-  const fetchDashboardData = async (showSkeleton = true) => {
-    if (showSkeleton) setLoading(true);
-    try {
-      const [summaryData, mtmData, alertsData, activityData, signalsData] = await Promise.all([
-        getPortfolioSummary(),
-        getMtmList(),
-        getRiskAlerts(),
-        getAgentActivity(),
-        getMacroSignals()
-      ]);
-      setSummary(summaryData);
-      setMtmRows(mtmData);
-      setAlerts(alertsData);
-      setActivityLog(activityData);
-      setMacroSignals(signalsData);
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
-      toast.error('Failed to update live dashboard metrics. Using cache.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Initial fetch
-    fetchDashboardData(true);
-
-    // Live clock update every minute
-    const clockInterval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
-    // Agent activity auto-refresh every 5 minutes
-    const activityInterval = setInterval(() => {
-      fetchDashboardData(false);
-    }, 300000);
-
-    return () => {
-      clearInterval(clockInterval);
-      clearInterval(activityInterval);
-    };
-  }, []);
-
-  // Recalculate portfolio risk
-  const handleRecalculate = async () => {
-    setRecalculating(true);
-    toast.loading('Recalculating portfolio Mark-to-Market...', { id: 'recalc-mtm' });
-    try {
-      await recalculateMtm();
-      await fetchDashboardData(false);
-      toast.success('Portfolio metrics successfully updated!', { id: 'recalc-mtm' });
-    } catch (err) {
-      console.error('Recalculation error:', err);
-      toast.error('Unable to recalculate live MtM at this time.', { id: 'recalc-mtm' });
-    } finally {
-      setRecalculating(false);
-    }
-  };
-
-  // Dismiss a risk alert locally
-  const dismissAlert = (id) => {
-    setAlerts(prev => prev.filter(alert => alert.id !== id));
-    toast.success('Alert dismissed');
-  };
-
-  // Parse quick field note
-  const handleParseNote = async (e) => {
-    e.preventDefault();
-    if (!fieldNote.trim()) {
-      toast.error('Please enter a note to parse');
-      return;
-    }
-    setParsingNote(true);
-    try {
-      const res = await parseFieldNote(fieldNote);
-      setParsedDraft(res);
-      toast.success('Field note parsed successfully!');
-    } catch (err) {
-      console.error(err);
-      toast.error('AI parsing failed. Please verify your format.');
-    } finally {
-      setParsingNote(false);
-    }
-  };
-
-  // Create contract from parsed draft
-  const handleConfirmDraft = async () => {
-    if (!parsedDraft) return;
-    setCreatingContract(true);
-    try {
-      await createContract({
-        type: parsedDraft.action.toUpperCase(),
-        commodity: parsedDraft.commodity,
-        quantity: parsedDraft.quantity,
-        price: parsedDraft.price,
-        counterparty_name: parsedDraft.counterparty,
-        delivery_location: 'Nagpur Mandi',
-        delivery_date: new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString().split('T')[0],
-        unit: 'quintal'
-      });
-      toast.success(`Draft Contract created successfully!`);
-      setParsedDraft(null);
-      setFieldNote('');
-      // Reload dashboard data
-      fetchDashboardData(false);
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to create contract draft.');
-    } finally {
-      setCreatingContract(false);
-    }
-  };
-
-  // Prepare Pie Chart data (percentage value exposure per commodity)
-  const getPieData = () => {
-    if (!mtmRows || mtmRows.length === 0) return [];
-    
-    // Group open value by commodity
-    const grouped = {};
-    let totalValue = 0;
-    mtmRows.forEach(row => {
-      const value = row.quantity * row.contract_price;
-      grouped[row.commodity] = (grouped[row.commodity] || 0) + value;
-      totalValue += value;
-    });
-
-    if (totalValue === 0) return [];
-
-    return Object.keys(grouped).map(commodity => ({
-      name: commodity,
-      value: Math.round((grouped[commodity] / totalValue) * 100)
-    }));
-  };
-
-  const pieData = getPieData();
-
-  // Helper for active alert styling
-  const getAlertColor = (type) => {
-    switch (type) {
-      case 'risk': return 'bg-rose-500';
-      case 'demand_spike': return 'bg-amber-500';
-      case 'weather_risk': return 'bg-blue-500';
-      case 'sentiment': return 'bg-purple-500';
-      default: return 'bg-slate-400';
-    }
-  };
-
-  // Helper for agentActivity chips
-  const getAgentChipClasses = (agentName) => {
-    switch (agentName) {
-      case 'Risk Agent': return 'bg-blue-50 text-blue-600 border-blue-200';
-      case 'Weather Agent': return 'bg-teal-50 text-teal-600 border-teal-200';
-      case 'Macro Signal Agent': return 'bg-purple-50 text-purple-600 border-purple-200';
-      case 'Contract Agent': return 'bg-green-50 text-green-600 border-green-200';
-      case 'Ingestion Agent': return 'bg-orange-50 text-orange-600 border-orange-200';
-      default: return 'bg-slate-50 text-slate-600 border-slate-200';
-    }
-  };
-
-  // Sort MTM list by PnL ascending (losses first)
-  const sortedMtmRows = [...mtmRows].sort((a, b) => a.unrealized_pnl - b.unrealized_pnl);
-  const displayMtmRows = sortedMtmRows.slice(0, 8);
-
-  // Time formatter
-  const formattedDateTime = currentTime.toLocaleString('en-IN', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  });
+  const mapRoutes = demoDispatches.map((d) => ({
+    from: [d.originLng, d.originLat],
+    to: [d.destLng, d.destLat],
+    color: d.daysLate > 0 ? '#d97706' : '#16a34a',
+    animated: true,
+  }));
 
   return (
-    <div className="space-y-6">
-      {/* Header section */}
-      <PageHeader
-        title="Command Center"
-        subtitle={loading ? 'Live portfolio overview' : `Live portfolio overview — ${summary?.open_contracts_count || 0} open contracts`}
-        actions={
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg select-none">
-              ⏰ {formattedDateTime}
-            </span>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => fetchDashboardData(false)}
-              className="flex items-center gap-1.5"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-          </div>
-        }
-      />
-
-      {/* Row 1: Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {loading ? (
-          Array.from({ length: 4 }).map((_, idx) => (
-            <div key={idx} className="h-36 bg-white border border-slate-200 rounded-xl animate-pulse p-6 flex flex-col justify-between">
-              <div className="h-4 bg-slate-200 rounded w-1/3"></div>
-              <div className="h-8 bg-slate-200 rounded w-2/3"></div>
-              <div className="h-3 bg-slate-200 rounded w-1/2"></div>
-            </div>
-          ))
-        ) : (
-          <>
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.0 }}
-            >
-              <StatCard
-                label="Total Exposure"
-                value={formatINR(summary?.total_open_value || 0)}
-                delta={`+${summary?.open_contracts_count || 0} open`}
-                icon={<TrendingUp className="w-5 h-5" />}
-                color="blue"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-            >
-              <StatCard
-                label="Today's P&L"
-                value={formatPnL(summary?.total_unrealized_pnl || 0)}
-                delta={`${summary?.pnl_positive_count || 0} winning, ${summary?.pnl_negative_count || 0} losing`}
-                icon={<BarChart3 className="w-5 h-5" />}
-                color={(summary?.total_unrealized_pnl || 0) >= 0 ? 'green' : 'rose'}
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-            >
-              <StatCard
-                label="Dispatches In Transit"
-                value={String(summary?.in_transit_count || 0)}
-                delta={`Next ETA: ${summary?.nearest_eta || 'N/A'}`}
-                icon={<Truck className="w-5 h-5" />}
-                color="amber"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.3 }}
-            >
-              <StatCard
-                label="Risk Alerts"
-                value={String(alerts.filter(a => a.is_active).length)}
-                delta="Weather + market signals"
-                icon={<AlertTriangle className="w-5 h-5" />}
-                color={alerts.filter(a => a.is_active).length > 0 ? 'rose' : 'green'}
-              />
-            </motion.div>
-          </>
-        )}
+    <div className="space-y-6 max-w-[1600px]">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-xl font-bold">Good morning, Ramesh!</h1>
+          <p className="text-sm text-gray-500">Here's what's happening with your trading portfolio today.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600">Fri, Jun 5, 2026</span>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-50">
+            <RefreshCw size={14} /> Refresh
+          </button>
+        </div>
       </div>
 
-      {/* Row 2: Live MtM P&L Table */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900">Live Mark-to-Market Valuation</h3>
-            <p className="text-xs text-slate-400">Contracts active in portfolio, sorted by worst unrealized loss first</p>
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <StatCard label="Total Exposure" value={demoStats.totalExposure} delta="+2.35% ↑" deltaType="positive" icon={DollarSign} color="#16a34a" />
+        <StatCard label="Today's P&L" value={demoStats.todayPnL} delta="-3.1% ↓" deltaType="negative" icon={TrendingDown} color="#dc2626" />
+        <StatCard label="MTM P&L (Unrealized)" value={demoStats.mtmPnL} delta="-1.8% ↓" deltaType="negative" icon={BarChart3} color="#dc2626" />
+        <StatCard label="Dispatches In Transit" value={demoStats.dispatchesInTransit} delta="2 new" deltaType="neutral" icon={Truck} color="#d97706" />
+        <StatCard label="Risk Alerts" value={demoStats.riskAlerts} delta="1 critical" deltaType="negative" icon={AlertTriangle} color="#dc2626" />
+        <div className="card p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-500 uppercase">Available Credit</span>
+            <CreditCard size={16} className="text-green-600" />
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleRecalculate}
-            disabled={recalculating}
-            className="flex items-center gap-1.5"
-          >
-            {recalculating ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <RefreshCw className="w-3.5 h-3.5" />
-            )}
-            Recalculate
-          </Button>
+          <p className="text-2xl font-bold text-green-600">{inr(demoStats.availableCredit)}</p>
+          <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-full bg-green-500 rounded-full" style={{ width: `${(demoStats.availableCredit / demoStats.creditLimit) * 100}%` }} />
+          </div>
+          <p className="text-xs text-gray-400 mt-1">of {inr(demoStats.creditLimit)} limit</p>
         </div>
+      </div>
 
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 8 }).map((_, idx) => (
-                <div key={idx} className="h-12 bg-slate-50 border border-slate-100 rounded-lg animate-pulse flex items-center justify-between px-4">
-                  <div className="h-4 bg-slate-200 rounded w-1/6"></div>
-                  <div className="h-4 bg-slate-200 rounded w-1/12"></div>
-                  <div className="h-4 bg-slate-200 rounded w-1/6"></div>
-                  <div className="h-4 bg-slate-200 rounded w-1/12"></div>
-                  <div className="h-4 bg-slate-200 rounded w-1/6"></div>
-                </div>
-              ))}
+      <div className="grid lg:grid-cols-[5fr_3fr_3fr] gap-4">
+        <div className="card p-4 lg:col-span-1">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="font-semibold text-sm">Live Mark-to-Market Valuation</h3>
+              <p className="text-xs text-gray-500">Contracts sorted by worst unrealized P&L</p>
             </div>
-          ) : mtmRows.length === 0 ? (
-            <div className="py-8 text-center text-slate-400 text-sm">
-              No active contracts found in portfolio.
-            </div>
-          ) : (
-            <table className="w-full text-left border-collapse">
+            <Link to="/app/risk" className="text-xs text-green-600 font-medium">View All →</Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50/50 rounded-t-lg">
-                  <th className="py-3 px-4 rounded-l-lg">Contract ID</th>
-                  <th className="py-3 px-4">Type</th>
-                  <th className="py-3 px-4">Commodity</th>
-                  <th className="py-3 px-4 text-right">Quantity</th>
-                  <th className="py-3 px-4 text-right">Contract Price</th>
-                  <th className="py-3 px-4 text-right">Market Price</th>
-                  <th className="py-3 px-4 text-right">Unrealized P&L</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 rounded-r-lg text-right">Action</th>
+                <tr className="text-left text-gray-400 border-b">
+                  <th className="pb-2 pr-2">ID</th><th className="pb-2">Type</th><th className="pb-2">Commodity</th>
+                  <th className="pb-2">P&L</th><th className="pb-2">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {displayMtmRows.map((row) => {
-                  const isPositive = row.unrealized_pnl >= 0;
-                  const borderStyle = isPositive 
-                    ? 'border-l-[3px] border-l-green-500' 
-                    : 'border-l-[3px] border-l-red-500';
-
-                  return (
-                    <motion.tr
-                      key={row.id}
-                      onClick={() => navigate(`/app/contracts?id=${row.id}`)}
-                      whileHover={{ backgroundColor: 'var(--surface-alt)' }}
-                      className={`border-b border-slate-100 text-sm cursor-pointer transition-colors group ${borderStyle}`}
-                    >
-                      <td className="py-3 px-4 font-semibold text-slate-900">
-                        {row.contract_number}
-                      </td>
-                      <td className="py-3 px-4">
-                        <Badge variant={getContractTypeColor(row.type)}>
-                          {row.type}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4 font-medium text-slate-700">
-                        {row.commodity}
-                      </td>
-                      <td className="py-3 px-4 text-right font-medium text-slate-600">
-                        {formatQty(row.quantity, row.unit)}
-                      </td>
-                      <td className="py-3 px-4 text-right font-medium text-slate-700">
-                        {formatINR(row.contract_price)}
-                      </td>
-                      <td className="py-3 px-4 text-right font-medium text-slate-700">
-                        {formatINR(row.market_price)}
-                      </td>
-                      <td className={`py-3 px-4 text-right font-bold ${getPnLColor(row.unrealized_pnl)}`}>
-                        {formatPnL(row.unrealized_pnl)}
-                      </td>
-                      <td className="py-3 px-4">
-                        <Badge variant={getStatusColor(row.status)}>
-                          {row.status}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4 text-right text-slate-400 group-hover:text-brand-green transition-colors">
-                        <ChevronRight className="w-4 h-4 inline-block" />
-                      </td>
-                    </motion.tr>
-                  );
-                })}
+                {sorted.slice(0, 5).map((c) => (
+                  <tr key={c.id} className="border-b border-gray-50" style={{ borderLeft: `3px solid ${c.pnl >= 0 ? '#16a34a' : '#dc2626'}` }}>
+                    <td className="py-2 pr-2 font-mono">{c.id}</td>
+                    <td className="py-2"><ContractTypeBadge type={c.type} /></td>
+                    <td className="py-2">{c.commodity}</td>
+                    <td className="py-2"><PnLDisplay value={c.pnl} size="sm" /></td>
+                    <td className="py-2"><StatusBadge status={c.status} /></td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-          )}
+          </div>
+          <div className="flex flex-wrap gap-2 mt-3">
+            <span className="text-[10px] px-2 py-1 rounded bg-red-50 text-red-700">Worst: {inr(worst?.pnl)}</span>
+            <span className="text-[10px] px-2 py-1 rounded bg-green-50 text-green-700">Best: {inr(best?.pnl)}</span>
+            <span className="text-[10px] px-2 py-1 rounded bg-gray-50">{contracts.length} Contracts</span>
+            <span className="text-[10px] px-2 py-1 rounded bg-gray-50">Net: {inr(netMtm)}</span>
+          </div>
         </div>
 
-        <div className="mt-4 flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/app/contracts')}
-            className="text-xs flex items-center gap-1 text-slate-500 hover:text-slate-900"
-          >
-            View all in Contract Book
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Button>
-        </div>
-      </Card>
-
-      {/* Row 3: Active Alerts & Agent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left 60%: Active Alerts */}
-        <Card className="lg:col-span-3 p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">Active Signals & Alerts</h3>
-                <p className="text-xs text-slate-400">Aggregated weather anomalies and local mandi price alerts</p>
+        <div className="card p-4">
+          <h3 className="font-semibold text-sm mb-1">Portfolio Exposure</h3>
+          <p className="text-xs text-gray-500 mb-3">Value allocation by commodity</p>
+          <div className="relative h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={EXPOSURE} innerRadius={45} outerRadius={65} dataKey="value" paddingAngle={2}>
+                  {EXPOSURE.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center">
+                <p className="text-xs text-gray-500">Total</p>
+                <p className="text-sm font-bold">₹27.82L</p>
               </div>
-              <Badge variant={alerts.length > 0 ? 'danger' : 'neutral'}>
-                {alerts.length} Active
-              </Badge>
             </div>
+          </div>
+          <div className="space-y-1 mt-2">
+            {EXPOSURE.map((e, i) => (
+              <div key={e.name} className="flex justify-between text-xs">
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: COLORS[i] }} />{e.name}</span>
+                <span>{e.value}% · {inr(e.amount)}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-amber-600 mt-2 font-medium">Top: Chickpea 35.6% of portfolio</p>
+        </div>
 
-            <div className="space-y-3">
-              {loading ? (
-                Array.from({ length: 4 }).map((_, idx) => (
-                  <div key={idx} className="h-16 bg-slate-50 border border-slate-100 rounded-lg animate-pulse"></div>
-                ))
-              ) : alerts.length === 0 ? (
-                <div className="py-12 text-center text-slate-400 text-sm">
-                  🟢 Clear sky. No critical risks or market deviations found.
-                </div>
-              ) : (
-                alerts.slice(0, 8).map((alert) => (
-                  <div 
-                    key={alert.id} 
-                    className="flex items-start justify-between p-3.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-slate-100/50 transition-colors"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 mt-1.5 ${getAlertColor(alert.alert_type)}`} />
-                      <div>
-                        <p className="text-sm font-semibold text-slate-800">{alert.message}</p>
-                        <span className="text-[11px] text-slate-400 block mt-0.5">
-                          {formatDate(alert.created_at)} • Mandi: {alert.mandi_name || 'N/A'}
-                        </span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => dismissAlert(alert.id)}
-                      className="text-xs text-slate-400 hover:text-slate-700 font-medium px-2 py-1 rounded hover:bg-slate-200 transition-colors"
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
+        <div className="card p-4">
+          <div className="flex justify-between mb-3">
+            <h3 className="font-semibold text-sm">Market Snapshot</h3>
+            <Link to="/app/markets" className="text-xs text-green-600">View Markets →</Link>
           </div>
-          <div className="mt-4 flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/app/markets')}
-              className="text-xs flex items-center gap-1 text-slate-500 hover:text-slate-900"
-            >
-              View all Market Alerts
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Button>
-          </div>
-        </Card>
-
-        {/* Right 40%: Agent Activity */}
-        <Card className="lg:col-span-2 p-6 flex flex-col justify-between">
-          <div>
-            <div className="mb-4">
-              <h3 className="text-lg font-bold text-slate-900">Agent Activity</h3>
-              <p className="text-xs text-slate-400">This is what the AI has been doing while you work</p>
-            </div>
-
-            <div className="space-y-4 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
-              {loading ? (
-                Array.from({ length: 4 }).map((_, idx) => (
-                  <div key={idx} className="h-14 bg-slate-50 border border-slate-100 rounded-lg animate-pulse"></div>
-                ))
-              ) : activityLog.length === 0 ? (
-                <div className="py-12 text-center text-slate-400 text-sm">
-                  No recent AI operations recorded.
-                </div>
-              ) : (
-                activityLog.map((act) => (
-                  <div key={act.id} className="flex gap-3 text-sm">
-                    <Activity className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border shrink-0 uppercase tracking-wider ${getAgentChipClasses(act.agent_name)}`}>
-                          {act.agent_name}
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          {act.created_at ? new Date(act.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : 'Just now'}
-                        </span>
-                      </div>
-                      <p className="text-slate-700 text-xs font-medium leading-relaxed">
-                        {act.summary}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-          <div className="mt-4 border-t border-slate-50 pt-4 flex justify-between items-center text-xs text-slate-400">
-            <span>🔄 Auto-updates every 5 mins</span>
-          </div>
-        </Card>
+          <table className="w-full text-xs">
+            <thead><tr className="text-gray-400 border-b"><th className="pb-1 text-left">Commodity</th><th>State</th><th>Price</th><th>Δ</th></tr></thead>
+            <tbody>
+              {demoMandiPrices.slice(0, 5).map((m) => (
+                <tr key={m.mandi} className="border-b border-gray-50">
+                  <td className="py-1.5">{m.commodity}</td>
+                  <td className="py-1.5">{m.state}</td>
+                  <td className="py-1.5">₹{m.modal}</td>
+                  <td className={`py-1.5 font-medium ${m.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>{pct(m.change)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="text-xs mt-3 text-green-600 font-semibold">Market Sentiment: Bullish ↑</p>
+        </div>
       </div>
 
-      {/* Row 4: Commodity Exposure, Dispatches Progress, Market Sentiment */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Col 1: Commodity Exposure Pie Chart */}
-        <Card className="p-6">
-          <h3 className="text-base font-bold text-slate-900 mb-1">Commodity Exposure</h3>
-          <p className="text-xs text-slate-400 mb-4">Value allocation breakdown by crop category</p>
-
-          <div className="h-56 relative">
-            {pieData.length === 0 ? (
-              <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm">
-                No exposure records.
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="48%"
-                    innerRadius={50}
-                    outerRadius={75}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={PIE_COLORS[index % PIE_COLORS.length]} 
-                        className="cursor-pointer focus:outline-none"
-                        onClick={() => navigate(`/app/contracts?commodity=${entry.name}`)}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => `${value}%`} />
-                  <Legend 
-                    layout="horizontal" 
-                    verticalAlign="bottom" 
-                    align="center"
-                    iconSize={8}
-                    iconType="circle"
-                    wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </Card>
-
-        {/* Col 2: Recent Dispatches */}
-        <Card className="p-6 flex flex-col justify-between">
-          <div>
-            <h3 className="text-base font-bold text-slate-900 mb-1">Dispatches Progress</h3>
-            <p className="text-xs text-slate-400 mb-4">Fulfillment tracking of active dispatches</p>
-
-            <div className="space-y-4">
-              {loading ? (
-                Array.from({ length: 3 }).map((_, idx) => (
-                  <div key={idx} className="h-16 bg-slate-50 border border-slate-100 rounded-lg animate-pulse"></div>
-                ))
-              ) : mtmRows.filter(r => r.dispatches && r.dispatches.length > 0).length === 0 ? (
-                <div className="py-8 text-center text-slate-400 text-xs">
-                  No active transits booked.
+      <div className="grid lg:grid-cols-[4fr_4fr_3fr] gap-4">
+        <div className="card p-4">
+          <h3 className="font-semibold text-sm mb-3">Trade Opportunities</h3>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {demoOpportunities.slice(0, 2).map((o) => (
+              <div key={o.id} className="border rounded-lg p-3 text-xs space-y-2">
+                <span className="px-2 py-0.5 rounded bg-green-100 text-green-700 font-semibold text-[10px]">{o.type.replace('_', ' ')}</span>
+                <p className="font-semibold">{o.commodity}</p>
+                <p className="text-gray-500">{o.origin} → {o.destination}</p>
+                <p>{o.qty} {o.unit} · Margin: {o.margin}</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full"><div className="h-full bg-green-500 rounded-full" style={{ width: `${o.matchScore}%` }} /></div>
+                  <span className="text-green-600 font-semibold">{o.matchScore}%</span>
                 </div>
-              ) : (
-                // Extract active dispatches from contracts
-                mtmRows
-                  .filter(r => r.dispatches && r.dispatches.length > 0)
-                  .flatMap(r => r.dispatches.map(d => ({ ...d, commodity: r.commodity, contract_number: r.contract_number })))
-                  .slice(0, 3)
-                  .map((d, index) => {
-                    // Simple mock progress calculation: 50% for in_transit, 100% for delivered
-                    const progress = d.status === 'delivered' ? 100 : 55;
-                    return (
-                      <div key={d.id || index} className="space-y-1.5">
-                        <div className="flex items-center justify-between text-xs font-semibold">
-                          <span className="text-slate-800">{d.contract_number} ({d.commodity})</span>
-                          <span className="text-slate-500">{d.vehicle || 'Truck'}</span>
-                          <Badge variant={getStatusColor(d.status)}>
-                            {d.status}
-                          </Badge>
-                        </div>
-                        <div className="w-full bg-slate-100 rounded-full h-1.5">
-                          <div 
-                            className="bg-brand-green h-1.5 rounded-full transition-all duration-500" 
-                            style={{ width: `${progress}%` }} 
-                          />
-                        </div>
-                        <div className="flex justify-between text-[10px] text-slate-400">
-                          <span>Progress: {progress}%</span>
-                          <span>ETA: {d.eta || 'N/A'}</span>
-                        </div>
-                      </div>
-                    );
-                  })
-              )}
-            </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-slate-50">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => navigate('/app/dispatch')}
-              className="w-full text-xs flex items-center justify-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Schedule Dispatch
-            </Button>
-          </div>
-        </Card>
-
-        {/* Col 3: Market Sentiment */}
-        <Card className="p-6">
-          <h3 className="text-base font-bold text-slate-900 mb-1">Market Sentiment</h3>
-          <p className="text-xs text-slate-400 mb-4">Daily macro signals synthesized by AI scanner</p>
-
-          <div className="space-y-3.5">
-            {loading ? (
-              Array.from({ length: 4 }).map((_, idx) => (
-                <div key={idx} className="h-10 bg-slate-50 border border-slate-100 rounded animate-pulse"></div>
-              ))
-            ) : macroSignals.length === 0 ? (
-              <div className="py-12 text-center text-slate-400 text-xs">
-                No active sentiment signals parsed today.
               </div>
-            ) : (
-              macroSignals.map((sig) => (
-                <div key={sig.id} className="flex items-start gap-2.5 text-xs">
-                  {sig.sentiment === 'bull' ? (
-                    <span className="p-1 rounded bg-emerald-50 text-emerald-600 shrink-0">
-                      <ThumbsUp className="w-3.5 h-3.5" />
-                    </span>
-                  ) : sig.sentiment === 'bear' ? (
-                    <span className="p-1 rounded bg-rose-50 text-rose-600 shrink-0">
-                      <ThumbsDown className="w-3.5 h-3.5" />
-                    </span>
-                  ) : (
-                    <span className="p-1 rounded bg-slate-100 text-slate-500 shrink-0">
-                      <Minus className="w-3.5 h-3.5" />
-                    </span>
-                  )}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-800">{sig.commodity}</span>
-                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
-                        {sig.sentiment}
-                      </span>
-                    </div>
-                    <p className="text-slate-500 leading-tight mt-0.5">{sig.key_signal}</p>
-                  </div>
-                </div>
-              ))
-            )}
+            ))}
           </div>
-        </Card>
+        </div>
+
+        <div className="card p-4">
+          <h3 className="font-semibold text-sm mb-2">Dispatches Progress</h3>
+          <p className="text-3xl font-bold text-center my-2">12 <span className="text-sm font-normal text-gray-500">In Transit</span></p>
+          <div className="flex justify-center gap-4 text-[10px] mb-3">
+            <span><span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1" />2 Loading</span>
+            <span><span className="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1" />6 In Transit</span>
+            <span><span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1" />3 Delivery</span>
+          </div>
+          <IndiaMap routes={mapRoutes} height={160} markers={demoDispatches.flatMap((d) => [
+            { lat: d.originLat, lng: d.originLng, size: 5, color: '#16a34a' },
+            { lat: d.destLat, lng: d.destLng, size: 5, color: '#d97706' },
+          ])} />
+        </div>
+
+        <div className="card p-4">
+          <h3 className="font-semibold text-sm mb-3">AI Agent Activity</h3>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {demoAgentLog.map((a, i) => (
+              <div key={i} className="text-xs border-b border-gray-50 pb-2 cursor-pointer" onClick={() => setExpandedAgent(expandedAgent === i ? null : i)}>
+                <div className="flex items-center gap-2 mb-1">
+                  <AgentBadge agent={a.agent.split(' ')[0].toUpperCase()} color={a.color} />
+                  <span className="text-gray-400">{a.time}</span>
+                </div>
+                <p className={expandedAgent === i ? '' : 'line-clamp-2'}>{a.summary}</p>
+              </div>
+            ))}
+          </div>
+          <Link to="/app/learning" className="text-xs text-green-600 font-medium mt-2 inline-block">View All Activity →</Link>
+        </div>
       </div>
 
-      {/* Row 5: Quick Trade Entry */}
-      <Card className="p-6">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-5 h-5 text-brand-green" />
-          <h3 className="text-lg font-bold text-slate-900">Quick Trade Entry</h3>
+      <div className="grid lg:grid-cols-[3fr_2fr] gap-4">
+        <div className="card p-4">
+          <h3 className="font-semibold text-sm mb-3">Portfolio Performance</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart data={demoPortfolioHistory}>
+              <defs>
+                <linearGradient id="pnlGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#16a34a" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#16a34a" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} />
+              <Tooltip formatter={(v) => inr(v)} />
+              <Area type="monotone" dataKey="pnl" stroke="#16a34a" fill="url(#pnlGrad)" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 text-xs">
+            <div><p className="text-gray-500">All Time P&L</p><p className="font-bold text-green-600">+₹2,48,600</p></div>
+            <div><p className="text-gray-500">Volume</p><p className="font-bold">970 qtl</p></div>
+            <div><p className="text-gray-500">Avg Return</p><p className="font-bold">12.4%</p></div>
+            <div><p className="text-gray-500">Win Rate</p><p className="font-bold">62%</p></div>
+          </div>
         </div>
-        <p className="text-xs text-slate-400 mb-4">
-          Draft a formal purchase or sales contract instantly by typing or pasting a field note.
-        </p>
 
-        <form onSubmit={handleParseNote} className="space-y-4">
-          <div className="relative">
-            <textarea
-              value={fieldNote}
-              onChange={(e) => setFieldNote(e.target.value)}
-              placeholder="Try: Ramesh se 50 quintal kapas liya 6400 rupaye..."
-              rows={3}
-              className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent text-sm custom-scrollbar"
-            />
-            <span className="absolute bottom-3 right-3 text-[10px] text-slate-400">
-              Supports English, Hindi, Hinglish
-            </span>
+        <div className="rounded-xl p-5 text-white relative overflow-hidden" style={{ background: 'var(--green-950)' }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center text-xl font-bold">L</div>
+            <div>
+              <p className="font-semibold">Ask Lucy Anything</p>
+              <p className="text-xs text-green-300">Your AI trading assistant</p>
+            </div>
           </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-slate-400">
-              ⚡ Powered by Ingestion Agent
-            </span>
-            <Button
-              type="submit"
-              variant="primary"
-              size="md"
-              disabled={parsingNote || !fieldNote.trim()}
-              className="flex items-center gap-1.5"
-            >
-              {parsingNote ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Parsing...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  Parse & Create Draft
-                </>
-              )}
-            </Button>
+          <button onClick={openLucy} className="w-full px-4 py-2.5 rounded-lg bg-white/10 text-sm text-left text-green-100 hover:bg-white/20 mb-3">
+            Try: "What's my worst losing contract?"
+          </button>
+          <div className="flex flex-wrap gap-2">
+            {['P&L summary', 'Best mandi today', 'Risk alerts'].map((c) => (
+              <button key={c} onClick={openLucy} className="px-2.5 py-1 rounded-full bg-white/10 text-[11px] hover:bg-white/20">{c}</button>
+            ))}
           </div>
-        </form>
-
-        {/* Parsed Result Preview */}
-        <AnimatePresence>
-          {parsedDraft && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25 }}
-              className="mt-6 border-t border-slate-100 pt-6"
-            >
-              <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-brand-green animate-pulse" />
-                    <h4 className="text-sm font-bold text-slate-800">Parsed Extraction Preview</h4>
-                  </div>
-                  <Badge variant="success">
-                    Confidence: {Math.round(parsedDraft.confidence * 100)}%
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-5">
-                  <div className="p-3 bg-white rounded-lg border border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block tracking-wider mb-0.5">Type</span>
-                    <span className="font-semibold text-slate-800 uppercase">{parsedDraft.action}</span>
-                  </div>
-                  <div className="p-3 bg-white rounded-lg border border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block tracking-wider mb-0.5">Commodity</span>
-                    <span className="font-semibold text-slate-800">{parsedDraft.commodity}</span>
-                  </div>
-                  <div className="p-3 bg-white rounded-lg border border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block tracking-wider mb-0.5">Quantity</span>
-                    <span className="font-semibold text-slate-800">{formatQty(parsedDraft.quantity)}</span>
-                  </div>
-                  <div className="p-3 bg-white rounded-lg border border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block tracking-wider mb-0.5">Price</span>
-                    <span className="font-semibold text-slate-800">{formatINR(parsedDraft.price)} / quintal</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2.5">
-                  <div className="text-xs text-slate-400 shrink-0">
-                    Counterparty: <span className="font-semibold text-slate-700">{parsedDraft.counterparty}</span>
-                  </div>
-                  <div className="flex-grow border-b border-dashed border-slate-200" />
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setParsedDraft(null)}
-                      className="text-xs"
-                    >
-                      Clear
-                    </Button>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={handleConfirmDraft}
-                      disabled={creatingContract}
-                      className="text-xs flex items-center gap-1 bg-brand-green text-white"
-                    >
-                      {creatingContract ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Check className="w-3.5 h-3.5" />
-                      )}
-                      Confirm & Create Contract
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Card>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

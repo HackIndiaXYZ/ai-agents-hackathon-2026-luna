@@ -1,140 +1,106 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useStore } from '../../store';
+import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  TrendingUp,
-  Truck,
-  Handshake,
-  FileText,
-  Brain,
-  Settings,
-  LogOut,
-  Compass,
-  ClipboardCheck,
-  Network,
-  BarChart3,
-  FileStack,
-  Shield,
-  Package,
-  Users,
-  GraduationCap,
+  LayoutDashboard, FileText, Truck, Package, TrendingUp, BarChart2,
+  Handshake, Users, FileCheck, Star, Network, PieChart, Sparkles, Settings,
 } from 'lucide-react';
+import { useLucyStore } from '../../store/lucyStore';
 
-export const Sidebar = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { setAuthenticated, demoUser } = useStore();
+const groups = [
+  {
+    label: 'Operations',
+    items: [
+      { to: '/app/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      { to: '/app/contracts', icon: FileText, label: 'Contracts' },
+      { to: '/app/dispatch', icon: Truck, label: 'Dispatch' },
+      { to: '/app/inventory', icon: Package, label: 'Inventory' },
+    ],
+  },
+  {
+    label: 'Risk & P&L',
+    items: [
+      { to: '/app/risk', icon: TrendingUp, label: 'Risk & P&L' },
+      { to: '/app/markets', icon: BarChart2, label: 'Markets' },
+    ],
+  },
+  {
+    label: 'Relationships',
+    items: [
+      { to: '/app/opportunities', icon: Handshake, label: 'Opportunities' },
+      { to: '/app/counterparties', icon: Users, label: 'Counterparties' },
+    ],
+  },
+  {
+    label: 'Compliance',
+    items: [
+      { to: '/app/compliance', icon: FileCheck, label: 'Compliance' },
+      { to: '/app/quality', icon: Star, label: 'Quality Lots' },
+    ],
+  },
+  {
+    label: 'AI Intelligence',
+    items: [
+      { to: '/app/network', icon: Network, label: 'Supply Network' },
+      { to: '/app/analytics', icon: PieChart, label: 'Analytics' },
+      { to: '/app/learning', icon: Sparkles, label: 'Adaptive Learning' },
+    ],
+  },
+];
 
-  const navItems = [
-    { path: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/app/contracts', label: 'Contracts', icon: FileStack },
-    { path: '/app/inventory', label: 'Inventory', icon: Package },
-    { path: '/app/dispatch', label: 'Dispatch', icon: Truck },
-    { path: '/app/markets', label: 'Markets', icon: TrendingUp },
-    { path: '/app/risk', label: 'Risk & P&L', icon: Shield },
-    { path: '/app/opportunities', label: 'Opportunities', icon: Handshake },
-    { path: '/app/counterparties', label: 'Counterparties', icon: Users },
-    { path: '/app/compliance', label: 'Compliance', icon: FileText },
-    { path: '/app/quality', label: 'Quality Lots', icon: ClipboardCheck },
-    { path: '/app/network', label: 'Network', icon: Network },
-    { path: '/app/analytics', label: 'Analytics', icon: BarChart3 },
-    { path: '/app/advisor', label: 'Trade Advisor', icon: Brain },
-    { path: '/app/learning', label: 'Learning', icon: GraduationCap },
-  ];
+const linkClass = ({ isActive }) =>
+  `flex items-center gap-3 px-5 py-2.5 text-sm transition-colors border-l-[3px] ${
+    isActive
+      ? 'bg-green-500/15 border-green-500 text-green-400'
+      : 'border-transparent text-green-50/80 hover:bg-white/5'
+  }`;
 
-  const handleLogout = () => {
-    setAuthenticated(false);
-    navigate('/');
-  };
+export default function Sidebar() {
+  const open = useLucyStore((s) => s.open);
 
   return (
-    <aside className="fixed top-0 left-0 bottom-0 z-30 w-16 md:w-[240px] bg-white border-r flex flex-col justify-between py-6 transition-all duration-300" style={{ borderColor: 'var(--border)' }}>
-      <div className="space-y-8">
-        {/* Brand Logo Header */}
-        <div className="px-3 md:px-6 flex items-center gap-2.5">
-          <div className="p-2 rounded-xl" style={{ backgroundColor: 'var(--brand-green-light)' }}>
-            <Compass className="w-5 h-5" style={{ color: 'var(--brand-green)' }} />
-          </div>
-          <span className="hidden md:inline text-lg font-extrabold tracking-tight text-slate-900 font-display">
-            TradeNexus
-          </span>
-        </div>
-
-        {/* Links Navigation */}
-        <nav className="px-2 md:px-3 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname.startsWith(item.path);
-            
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3.5 px-3 md:px-4 py-3 rounded-lg text-sm font-semibold transition-all relative ${
-                  isActive
-                    ? 'text-emerald-700 font-bold'
-                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-                }`}
-                style={isActive ? { backgroundColor: 'var(--brand-green-light)' } : {}}
-              >
-                <Icon className="w-5 h-5 shrink-0" style={isActive ? { color: 'var(--brand-green)' } : {}} />
-                <span className="hidden md:inline">{item.label}</span>
-                
-                {/* Left Active border indicator */}
-                {isActive && (
-                  <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-md" style={{ backgroundColor: 'var(--brand-green)' }} />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+    <aside
+      className="fixed left-0 top-0 bottom-0 z-40 flex flex-col"
+      style={{ width: 'var(--sidebar-width)', background: 'var(--sidebar-bg)' }}
+    >
+      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-white/10">
+        <div className="w-8 h-8 rounded-md bg-green-600 flex items-center justify-center font-bold text-white text-sm">N</div>
+        <span className="text-white font-semibold text-lg tracking-tight">TradeNexus</span>
       </div>
 
-      {/* Footer Area with profile info */}
-      <div className="px-2 md:px-4 space-y-4">
-        {/* Profile Card */}
-        <div className="hidden md:flex items-center gap-3 p-3 bg-slate-50 border rounded-xl" style={{ borderColor: 'var(--border)' }}>
-          <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
-            {demoUser.name.charAt(0)}
+      <nav className="flex-1 overflow-y-auto py-2">
+        {groups.map((g) => (
+          <div key={g.label}>
+            <p className="text-[10px] font-semibold tracking-widest uppercase px-5 pt-4 pb-1.5 text-white/35">
+              {g.label}
+            </p>
+            {g.items.map((item) => (
+              <NavLink key={item.to} to={item.to} className={linkClass}>
+                <item.icon size={18} />
+                {item.label}
+              </NavLink>
+            ))}
           </div>
-          <div className="min-w-0">
-            <p className="text-xs font-bold text-slate-800 truncate leading-none">
-              {demoUser.name}
+        ))}
+      </nav>
+
+      <button
+        onClick={open}
+        className="mx-4 mb-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-left"
+      >
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white text-sm font-bold">L</div>
+          <div>
+            <p className="text-sm text-white font-medium flex items-center gap-1.5">
+              Lucy AI <span className="w-1.5 h-1.5 rounded-full bg-green-400" /> Active
             </p>
-            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
-              {demoUser.email}
-            </p>
+            <p className="text-[11px] text-white/50">Your Trading Assistant</p>
           </div>
         </div>
+      </button>
 
-        <div className="space-y-1">
-          {/* Settings Link */}
-          <Link
-            to="/app/settings"
-            className={`flex items-center gap-3.5 px-3 md:px-4 py-2.5 rounded-lg text-xs font-bold transition-colors ${
-              location.pathname === '/app/settings'
-                ? 'text-emerald-700 font-bold'
-                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-            }`}
-            style={location.pathname === '/app/settings' ? { backgroundColor: 'var(--brand-green-light)' } : {}}
-          >
-            <Settings className="w-4.5 h-4.5 shrink-0" />
-            <span className="hidden md:inline">Settings</span>
-          </Link>
-
-          {/* Logout Trigger */}
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3.5 px-3 md:px-4 py-2.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
-          >
-            <LogOut className="w-4.5 h-4.5 shrink-0" />
-            <span className="hidden md:inline">Logout</span>
-          </button>
-        </div>
-      </div>
+      <NavLink to="/app/settings" className={linkClass}>
+        <Settings size={18} />
+        Settings
+      </NavLink>
     </aside>
   );
-};
-
-export default Sidebar;
+}

@@ -1,612 +1,173 @@
-// TradeNexus High-Fidelity Demo Data
-
-export const demoAlerts = [
-  {
-    id: "a1",
-    commodity_id: "c1",
-    alert_type: "demand_spike",
-    mandi_name: "Nagpur",
-    state: "Maharashtra",
-    message: "Cotton prices in Nagpur (Maharashtra) are 18% above the 10-day average. Modal price: ₹7,250/quintal.",
-    price_delta_pct: 18.2,
-    confidence_score: 0.94,
-    is_active: true,
-    created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString() // 2 hours ago
-  },
-  {
-    id: "a2",
-    commodity_id: "c2",
-    alert_type: "price_drop",
-    mandi_name: "Indore",
-    state: "Madhya Pradesh",
-    message: "Soybean prices in Indore (Madhya Pradesh) are 12% below the 10-day average. Modal price: ₹4,800/quintal.",
-    price_delta_pct: -12.4,
-    confidence_score: 0.88,
-    is_active: true,
-    created_at: new Date(Date.now() - 5 * 3600 * 1000).toISOString() // 5 hours ago
-  },
-  {
-    id: "a3",
-    commodity_id: "c3",
-    alert_type: "demand_spike",
-    mandi_name: "Azadpur",
-    state: "Delhi",
-    message: "Onion prices in Azadpur (Delhi) are 24% above the 10-day average. Modal price: ₹2,400/quintal.",
-    price_delta_pct: 24.1,
-    confidence_score: 0.96,
-    is_active: true,
-    created_at: new Date(Date.now() - 8 * 3600 * 1000).toISOString() // 8 hours ago
-  },
-  {
-    id: "a4",
-    commodity_id: "c4",
-    alert_type: "price_drop",
-    mandi_name: "Guntur",
-    state: "Andhra Pradesh",
-    message: "Chilli prices in Guntur (Andhra Pradesh) are 9% below the 10-day average. Modal price: ₹18,500/quintal.",
-    price_delta_pct: -9.2,
-    confidence_score: 0.85,
-    is_active: true,
-    created_at: new Date(Date.now() - 14 * 3600 * 1000).toISOString()
-  },
-  {
-    id: "a5",
-    commodity_id: "c5",
-    alert_type: "demand_spike",
-    mandi_name: "Rajkot",
-    state: "Gujarat",
-    message: "Groundnut prices in Rajkot (Gujarat) are 15% above the 10-day average. Modal price: ₹6,900/quintal.",
-    price_delta_pct: 15.0,
-    confidence_score: 0.91,
-    is_active: true,
-    created_at: new Date(Date.now() - 20 * 3600 * 1000).toISOString()
-  }
-];
-
-export const demoPrices = [
-  { id: "p1", mandi_name: "Nagpur", state: "Maharashtra", min_price: 6800, max_price: 7500, modal_price: 7250, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: true, anomaly_score: 1.8, trend_pct: 18.2, status: "spike" },
-  { id: "p2", mandi_name: "Amravati", state: "Maharashtra", min_price: 6700, max_price: 7300, modal_price: 7100, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: false, anomaly_score: 0.8, trend_pct: 5.4, status: "normal" },
-  { id: "p3", mandi_name: "Yavatmal", state: "Maharashtra", min_price: 6600, max_price: 7200, modal_price: 6950, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: false, anomaly_score: 0.3, trend_pct: 2.1, status: "normal" },
-  { id: "p4", mandi_name: "Rajkot", state: "Gujarat", min_price: 6800, max_price: 7400, modal_price: 7200, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: false, anomaly_score: 1.1, trend_pct: 8.5, status: "normal" },
-  { id: "p5", mandi_name: "Ahmedabad", state: "Gujarat", min_price: 6900, max_price: 7600, modal_price: 7350, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: true, anomaly_score: 2.1, trend_pct: 14.3, status: "spike" },
-  { id: "p6", mandi_name: "Indore", state: "Madhya Pradesh", min_price: 6400, max_price: 7000, modal_price: 6800, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: false, anomaly_score: -0.4, trend_pct: -1.2, status: "normal" },
-  { id: "p7", mandi_name: "Kurnool", state: "Andhra Pradesh", min_price: 6500, max_price: 7100, modal_price: 6900, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: false, anomaly_score: 0.1, trend_pct: 0.5, status: "normal" },
-  { id: "p8", mandi_name: "Adoni", state: "Andhra Pradesh", min_price: 6300, max_price: 6900, modal_price: 6700, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: false, anomaly_score: -0.8, trend_pct: -3.4, status: "normal" },
-  { id: "p9", mandi_name: "Guntur", state: "Andhra Pradesh", min_price: 6600, max_price: 7200, modal_price: 7000, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: false, anomaly_score: 0.4, trend_pct: 1.8, status: "normal" },
-  { id: "p10", mandi_name: "Warangal", state: "Telangana", min_price: 6700, max_price: 7300, modal_price: 7150, unit: "quintal", data_as_of: "2026-05-30", is_anomaly: false, anomaly_score: 0.9, trend_pct: 6.2, status: "normal" }
-];
-
-export const demoLearningStats = {
-  total_resolutions: 1842,
-  tier_breakdown: {
-    exact: 1245,
-    trigram: 382,
-    embedding: 147,
-    llm: 54,
-    unknown: 14
-  },
-  corrections_this_week: 47,
-  aliases_total: 637,
-  languages_covered: 9,
-  recent_activity: [
-    { date: "2026-05-24", count: 240 },
-    { date: "2026-05-25", count: 258 },
-    { date: "2026-05-26", count: 247 },
-    { date: "2026-05-27", count: 290 },
-    { date: "2026-05-28", count: 312 },
-    { date: "2026-05-29", count: 325 },
-    { date: "2026-05-30", count: 350 }
-  ]
+export const demoStats = {
+  totalExposure: 27820000,
+  todayPnL: -1733450,
+  mtmPnL: -713450,
+  dispatchesInTransit: 12,
+  riskAlerts: 4,
+  availableCredit: 18400000,
+  creditLimit: 25000000,
 };
-
-export const demoCorridors = [
-  { origin: "Amravati", destination: "Nagpur", distance_km: 156, typical_duration_hours: 3.2, reliability_score: 0.87, delay_risk: "low", last_updated: "1 hour ago" },
-  { origin: "Bhopal", destination: "Surat", distance_km: 590, typical_duration_hours: 11.5, reliability_score: 0.74, delay_risk: "medium", last_updated: "3 hours ago" },
-  { origin: "Delhi", destination: "Ludhiana", distance_km: 310, typical_duration_hours: 5.8, reliability_score: 0.91, delay_risk: "low", last_updated: "30 mins ago" },
-  { origin: "Nagpur", destination: "Ahmedabad", distance_km: 845, typical_duration_hours: 16.5, reliability_score: 0.78, delay_risk: "medium", last_updated: "2 hours ago" },
-  { origin: "Indore", destination: "Mumbai", distance_km: 585, typical_duration_hours: 11.2, reliability_score: 0.82, delay_risk: "low", last_updated: "4 hours ago" }
-];
-
-export const demoOpportunities = [
-  {
-    id: "opp1",
-    commodity_name: "Cotton",
-    origin: "Amravati",
-    destination: "Nagpur",
-    quantity: 120,
-    unit: "quintals",
-    is_return_load: false,
-    contact_info: "Rajesh Patil (+91 98765 43210)",
-    created_at: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
-    available_from: "2026-06-01"
-  },
-  {
-    id: "opp2",
-    commodity_name: "Soybean",
-    origin: "Indore",
-    destination: "Mumbai",
-    quantity: 250,
-    unit: "quintals",
-    is_return_load: true,
-    contact_info: "Karan Transport (+91 88776 55443)",
-    created_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-    available_from: "2026-06-02"
-  },
-  {
-    id: "opp3",
-    commodity_name: "Wheat",
-    origin: "Bhopal",
-    destination: "Surat",
-    quantity: 400,
-    unit: "quintals",
-    is_return_load: false,
-    contact_info: "Surat Agro Products (+91 94432 10101)",
-    created_at: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
-    available_from: "2026-05-31"
-  },
-  {
-    id: "opp4",
-    commodity_name: "Mustard",
-    origin: "Jaipur",
-    destination: "Delhi",
-    quantity: 180,
-    unit: "quintals",
-    is_return_load: true,
-    contact_info: "Delhi Logistics Corp (+91 90123 45678)",
-    created_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-    available_from: "2026-06-03"
-  }
-];
-
-export const demoRecommendation = {
-  commodity: "Cotton",
-  resolution_tier: "embedding",
-  top_markets: [
-    { mandi: "Nagpur", state: "Maharashtra", modal_price: 7250, unit: "quintal", anomaly_flag: true },
-    { mandi: "Ahmedabad", state: "Gujarat", modal_price: 7120, unit: "quintal", anomaly_flag: false },
-    { mandi: "Indore", state: "Madhya Pradesh", modal_price: 6900, unit: "quintal", anomaly_flag: false }
-  ],
-  best_route: {
-    origin: "Amravati",
-    destination: "Nagpur, Maharashtra",
-    distance_km: 156,
-    estimated_hours: 3.2,
-    confidence_score: 0.87,
-    delay_risk: "low",
-    recent_reports_count: 0,
-    typical_hours: 3.2
-  },
-  active_alerts: [
-    { mandi_name: "Nagpur", alert_type: "demand_spike", message: "Cotton prices in Nagpur (Maharashtra) are 18% above the 10-day average." }
-  ],
-  ai_recommendation: "We recommend routing Cotton from Amravati to Nagpur immediately. The Nagpur mandi is offering a premium modal price of ₹7,250/quintal, showing an active demand spike of 18% above the historical baseline. The 156 km transit corridor via NH-53 reports low delay risk with an 87% reliability rating. To maximize return on transport, coordinate with local carriers for empty backhauls out of Nagpur.",
-  confidence_score: 0.91,
-  data_freshness: "Live (today)"
-};
-
-export const demoPortfolioSummary = {
-  total_open_value: 5242000,
-  total_unrealized_pnl: 147800,
-  open_contracts_count: 8,
-  pnl_positive_count: 5,
-  pnl_negative_count: 3,
-  in_transit_count: 2,
-  nearest_eta: "06 Jun 2026",
-  active_alerts_count: 2
-};
-
-export const demoCounterparties = [
-  { id: "cp1", name: "Ramesh Cotton Traders", reliability: 87, risk_level: "Low Risk", late_deliveries: 0, payment_delay_days: 2 },
-  { id: "cp2", name: "Balaji Agro Industries", reliability: 94, risk_level: "Low Risk", late_deliveries: 0, payment_delay_days: 1 },
-  { id: "cp3", name: "Guntur Chilli Exporters", reliability: 65, risk_level: "High Risk", late_deliveries: 3, payment_delay_days: 12 },
-  { id: "cp4", name: "Sai Kripa Warehousing", reliability: 99, risk_level: "Low Risk", late_deliveries: 0, payment_delay_days: 0 },
-  { id: "cp5", name: "Vikas Grain Co.", reliability: 78, risk_level: "Medium Risk", late_deliveries: 1, payment_delay_days: 6 }
-];
-
-export const demoDispatches = [
-  {
-    id: "DSP-001",
-    contract_id: "CTR-2026-001",
-    status: "in_transit",
-    vehicle_number: "MH-31-AG-5432",
-    dispatch_date: "2026-06-01",
-    estimated_arrival: "2026-06-06",
-    origin: "Amravati",
-    destination: "Nagpur",
-    driver_phone: "+91 98765 43210"
-  },
-  {
-    id: "DSP-002",
-    contract_id: "CTR-2026-003",
-    status: "in_transit",
-    vehicle_number: "MP-09-BC-9876",
-    dispatch_date: "2026-06-02",
-    estimated_arrival: "2026-06-08",
-    origin: "Indore",
-    destination: "Mumbai",
-    driver_phone: "+91 88888 99999"
-  },
-  {
-    id: "DSP-003",
-    contract_id: "CTR-2026-002",
-    status: "delivered",
-    vehicle_number: "GJ-01-XX-1122",
-    dispatch_date: "2026-05-20",
-    estimated_arrival: "2026-05-24",
-    origin: "Rajkot",
-    destination: "Ahmedabad",
-    driver_phone: "+91 77777 66666"
-  }
-];
 
 export const demoContracts = [
-  {
-    id: "CTR-2026-001",
-    contract_number: "CTR-2026-001",
-    contract_date: "2026-05-15",
-    type: "BUY",
-    commodity: "Cotton",
-    counterparty_id: "cp1",
-    counterparty_name: "Ramesh Cotton Traders",
-    quantity: 50,
-    unit: "quintal",
-    contract_price: 6400,
-    market_price: 6800,
-    unrealized_pnl: 20000, // (6800 - 6400) * 50 = +20,000
-    status: "confirmed",
-    delivery_date: "2026-06-15",
-    delivery_location: "Nagpur Mandi",
-    notes: "Payment: 15 days net. Quality standard grade A.",
-    history_7d: [6350, 6380, 6400, 6420, 6500, 6650, 6800],
-    lifecycle: ["draft", "confirmed"],
-    dispatches: [
-      { id: "DSP-001", status: "in_transit", vehicle: "MH-31-AG-5432", eta: "06 Jun 2026" }
-    ],
-    quality_lot: { moisture: 8.5, grade: "A", foreign_matter: 1.2, price_adjustment: 0 }
-  },
-  {
-    id: "CTR-2026-002",
-    contract_number: "CTR-2026-002",
-    contract_date: "2026-05-18",
-    type: "SELL",
-    commodity: "Groundnut",
-    counterparty_id: "cp2",
-    counterparty_name: "Balaji Agro Industries",
-    quantity: 120,
-    unit: "quintal",
-    contract_price: 7000,
-    market_price: 6900,
-    unrealized_pnl: 12000, // SELL: (7000 - 6900) * 120 = +12,000
-    status: "delivered",
-    delivery_date: "2026-05-24",
-    delivery_location: "Ahmedabad Mandi",
-    notes: "Direct mandi dispatch.",
-    history_7d: [7050, 7030, 7010, 7000, 6980, 6950, 6900],
-    lifecycle: ["draft", "confirmed", "in_transit", "delivered"],
-    dispatches: [
-      { id: "DSP-003", status: "delivered", vehicle: "GJ-01-XX-1122", eta: "24 May 2026" }
-    ],
-    quality_lot: { moisture: 7.2, grade: "Premium", foreign_matter: 0.8, price_adjustment: 150 }
-  },
-  {
-    id: "CTR-2026-003",
-    contract_number: "CTR-2026-003",
-    contract_date: "2026-05-22",
-    type: "BUY",
-    commodity: "Soybean",
-    counterparty_id: "cp5",
-    counterparty_name: "Vikas Grain Co.",
-    quantity: 150,
-    unit: "quintal",
-    contract_price: 4900,
-    market_price: 4800,
-    unrealized_pnl: -15000, // BUY: (4800 - 4900) * 150 = -15,000
-    status: "in_transit",
-    delivery_date: "2026-06-08",
-    delivery_location: "Mumbai Port",
-    notes: "Requires dry container booking.",
-    history_7d: [4950, 4920, 4900, 4880, 4850, 4820, 4800],
-    lifecycle: ["draft", "confirmed", "in_transit"],
-    dispatches: [
-      { id: "DSP-002", status: "in_transit", vehicle: "MP-09-BC-9876", eta: "08 Jun 2026" }
-    ],
-    quality_lot: { moisture: 9.8, grade: "B", foreign_matter: 2.1, price_adjustment: -50 }
-  },
-  {
-    id: "CTR-2026-004",
-    contract_number: "CTR-2026-004",
-    contract_date: "2026-05-25",
-    type: "SELL",
-    commodity: "Onion",
-    counterparty_id: "cp4",
-    counterparty_name: "Sai Kripa Warehousing",
-    quantity: 300,
-    unit: "quintal",
-    contract_price: 2200,
-    market_price: 2400,
-    unrealized_pnl: -60000, // SELL: (2200 - 2400) * 300 = -60,000
-    status: "confirmed",
-    delivery_date: "2026-06-18",
-    delivery_location: "Delhi Mandi",
-    notes: "Cold storage grade.",
-    history_7d: [2100, 2150, 2200, 2250, 2300, 2350, 2400],
-    lifecycle: ["draft", "confirmed"],
-    dispatches: [],
-    quality_lot: null
-  },
-  {
-    id: "CTR-2026-005",
-    contract_number: "CTR-2026-005",
-    contract_date: "2026-05-28",
-    type: "BUY",
-    commodity: "Chilli",
-    counterparty_id: "cp3",
-    counterparty_name: "Guntur Chilli Exporters",
-    quantity: 80,
-    unit: "quintal",
-    contract_price: 19000,
-    market_price: 18500,
-    unrealized_pnl: -40000, // BUY: (18500 - 19000) * 80 = -40,000
-    status: "draft",
-    delivery_date: "2026-06-25",
-    delivery_location: "Guntur Yard",
-    notes: "Quality standard grade B-3.",
-    history_7d: [19200, 19100, 19000, 18900, 18700, 18600, 18500],
-    lifecycle: ["draft"],
-    dispatches: [],
-    quality_lot: null
-  },
-  {
-    id: "CTR-2026-006",
-    contract_number: "CTR-2026-006",
-    contract_date: "2026-05-29",
-    type: "SELL",
-    commodity: "Wheat",
-    counterparty_id: "cp2",
-    counterparty_name: "Balaji Agro Industries",
-    quantity: 200,
-    unit: "quintal",
-    contract_price: 2350,
-    market_price: 2450,
-    unrealized_pnl: -20000, // SELL: (2350 - 2450) * 200 = -20,000
-    status: "settled",
-    delivery_date: "2026-05-31",
-    delivery_location: "Ludhiana Mandi",
-    notes: "Settled and invoiced.",
-    history_7d: [2300, 2320, 2350, 2370, 2400, 2420, 2450],
-    lifecycle: ["draft", "confirmed", "in_transit", "delivered", "settled"],
-    dispatches: [],
-    quality_lot: { moisture: 8.0, grade: "A+", foreign_matter: 0.5, price_adjustment: 80 }
-  },
-  {
-    id: "CTR-2026-007",
-    contract_number: "CTR-2026-007",
-    contract_date: "2026-06-01",
-    type: "BUY",
-    commodity: "Cotton",
-    counterparty_id: "cp1",
-    counterparty_name: "Ramesh Cotton Traders",
-    quantity: 80,
-    unit: "quintal",
-    contract_price: 6500,
-    market_price: 6800,
-    unrealized_pnl: 24000, // BUY: (6800 - 6500) * 80 = +24,000
-    status: "confirmed",
-    delivery_date: "2026-06-20",
-    delivery_location: "Nagpur Mandi",
-    notes: "Additional lot.",
-    history_7d: [6400, 6420, 6500, 6550, 6600, 6720, 6800],
-    lifecycle: ["draft", "confirmed"],
-    dispatches: [],
-    quality_lot: null
-  },
-  {
-    id: "CTR-2026-008",
-    contract_number: "CTR-2026-008",
-    contract_date: "2026-06-02",
-    type: "SELL",
-    commodity: "Mustard",
-    counterparty_id: "cp5",
-    counterparty_name: "Vikas Grain Co.",
-    quantity: 110,
-    unit: "quintal",
-    contract_price: 5600,
-    market_price: 5400,
-    unrealized_pnl: 22000, // SELL: (5600 - 5400) * 110 = +22,000
-    status: "confirmed",
-    delivery_date: "2026-06-28",
-    delivery_location: "Jaipur Mandi",
-    notes: "High oil content lot.",
-    history_7d: [5650, 5620, 5600, 5550, 5500, 5450, 5400],
-    lifecycle: ["draft", "confirmed"],
-    dispatches: [],
-    quality_lot: { moisture: 6.8, grade: "A", foreign_matter: 1.0, price_adjustment: 0 }
-  }
-];
-
-export const demoMtmRows = demoContracts.map(c => ({
-  contract_number: c.contract_number,
-  type: c.type,
-  commodity: c.commodity,
-  quantity: c.quantity,
-  unit: c.unit,
-  contract_price: c.contract_price,
-  market_price: c.market_price,
-  unrealized_pnl: c.unrealized_pnl,
-  status: c.status,
-  id: c.id
-}));
-
-export const demoAgentActivity = [
-  {
-    id: "act-1",
-    agent_name: "Risk Agent",
-    summary: "Re-calculated portfolio MtM values for 8 contracts. Identified 3 high-loss items.",
-    created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString() // 15 mins ago
-  },
-  {
-    id: "act-2",
-    agent_name: "Weather Agent",
-    summary: "Precipitation spike (42mm) detected in Amravati. Logged potential transport delay for CTR-2026-001.",
-    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString() // 45 mins ago
-  },
-  {
-    id: "act-3",
-    agent_name: "Macro Signal Agent",
-    summary: "Scanned Google News and AGMARKNET. Found bullish market sentiment for Cotton due to unseasonal rains.",
-    created_at: new Date(Date.now() - 3 * 3600 * 1000).toISOString() // 3 hours ago
-  },
-  {
-    id: "act-4",
-    agent_name: "Contract Agent",
-    summary: "Parsed and created draft contract CTR-2026-008 from voice recording note.",
-    created_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString() // 6 hours ago
-  },
-  {
-    id: "act-5",
-    agent_name: "Ingestion Agent",
-    summary: "Extracted structure fields from uploaded PDF receipt from Balaji Agro Industries.",
-    created_at: new Date(Date.now() - 8 * 3600 * 1000).toISOString() // 8 hours ago
-  }
-];
-
-export const demoMacroSignals = [
-  { id: "sig-1", commodity: "Cotton", sentiment: "bull", key_signal: "Unseasonal rains in Vidarbha crop zone likely to shrink production yields by 12%.", updated_at: "2h ago", confidence_score: 0.88, affected_contracts_count: 2 },
-  { id: "sig-2", commodity: "Soybean", sentiment: "bear", key_signal: "Aggressive domestic sowing reports and high import supply from South America.", updated_at: "4h ago", confidence_score: 0.74, affected_contracts_count: 1 },
-  { id: "sig-3", commodity: "Groundnut", sentiment: "neutral", key_signal: "Market arrivals align perfectly with seasonal demand averages.", updated_at: "1h ago", confidence_score: 0.55, affected_contracts_count: 1 },
-  { id: "sig-4", commodity: "Onion", sentiment: "bull", key_signal: "Mandi supply cuts across Lasalgaon due to export tariff relaxations.", updated_at: "3h ago", confidence_score: 0.91, affected_contracts_count: 1 },
-  { id: "sig-5", commodity: "Chilli", sentiment: "bear", key_signal: "Bumper harvest output reports in Guntur markets suppressing spot prices.", updated_at: "5h ago", confidence_score: 0.82, affected_contracts_count: 1 }
+  { id: 'TN-2026-0008', type: 'SELL', commodity: 'Chickpea', qty: 300, unit: 'qtl', contractPrice: 5000, marketPrice: 5000, pnl: -15000000, status: 'DRAFT', counterparty: 'Shree Cotton Mills', deliveryDate: '2026-06-15', location: 'Nagpur', buyer: 'Shree Cotton Mills', seller: 'Ramesh Patil', startDate: '2026-06-01', endDate: '2026-06-15' },
+  { id: 'TN-2026-0006', type: 'SELL', commodity: 'Cotton', qty: 50, unit: 'qtl', contractPrice: 0, marketPrice: 7018, pnl: -3550906, status: 'DRAFT', counterparty: 'Nagpur Mills', deliveryDate: '2026-06-20', location: 'Nagpur', buyer: 'Nagpur Mills', seller: 'Ramesh Patil', startDate: '2026-06-05', endDate: '2026-06-20' },
+  { id: 'TN-2026-0007', type: 'SELL', commodity: 'Cotton', qty: 50, unit: 'qtl', contractPrice: 0, marketPrice: 7018, pnl: -3550906, status: 'DRAFT', counterparty: 'Akola Traders', deliveryDate: '2026-06-18', location: 'Akola', buyer: 'Akola Traders', seller: 'Ramesh Patil', startDate: '2026-06-04', endDate: '2026-06-18' },
+  { id: 'TN-2026-0002', type: 'SELL', commodity: 'Cotton', qty: 100, unit: 'qtl', contractPrice: 6800, marketPrice: 7018, pnl: -218000, status: 'CONFIRMED', counterparty: 'Bharat Agro', deliveryDate: '2026-06-10', location: 'Indore', buyer: 'Bharat Agro', seller: 'Ramesh Patil', startDate: '2026-05-28', endDate: '2026-06-10' },
+  { id: 'TN-2026-0005', type: 'BUY', commodity: 'Cotton', qty: 80, unit: 'qtl', contractPrice: 7200, marketPrice: 7018, pnl: -14560, status: 'IN_TRANSIT', counterparty: 'Ramesh Farm Collective', deliveryDate: '2026-06-08', location: 'Amravati', buyer: 'Ramesh Patil', seller: 'Ramesh Farm Collective', startDate: '2026-05-30', endDate: '2026-06-08' },
+  { id: 'TN-2026-0004', type: 'BUY', commodity: 'Cotton', qty: 60, unit: 'qtl', contractPrice: 6500, marketPrice: 7018, pnl: 310800, status: 'CONFIRMED', counterparty: 'Wardha Cotton Coop', deliveryDate: '2026-06-12', location: 'Wardha', buyer: 'Ramesh Patil', seller: 'Wardha Cotton Coop', startDate: '2026-05-25', endDate: '2026-06-12' },
 ];
 
 export const demoInventory = [
-  { id: "inv-1", commodity_id: "c1", canonical_name: "Cotton", quantity: 600.0, unit: "quintal", notes: "Vidarbha region stock", updated_at: "2026-06-03T10:00:00Z" },
-  { id: "inv-2", commodity_id: "c3", canonical_name: "Onion", quantity: 200.0, unit: "quintal", notes: "Nashik procurement", updated_at: "2026-06-03T11:30:00Z" },
-  { id: "inv-3", commodity_id: "c6", canonical_name: "Wheat", quantity: 150.0, unit: "quintal", notes: "MP procurement", updated_at: "2026-06-02T16:45:00Z" },
-  { id: "inv-4", commodity_id: "c2", canonical_name: "Soybean", quantity: 120.0, unit: "quintal", notes: "Current season harvest", updated_at: "2026-06-03T09:15:00Z" },
-  { id: "inv-5", commodity_id: "c7", canonical_name: "Pigeon Pea", quantity: 80.0, unit: "quintal", notes: "Stored from last season", updated_at: "2026-06-01T14:00:00Z" }
+  { commodity: 'Cotton', qty: 600, unit: 'qtl', marketPrice: 7018, updatedAt: '2026-06-04T09:00:00Z' },
+  { commodity: 'Soybean', qty: 120, unit: 'qtl', marketPrice: 4820, updatedAt: '2026-06-04T08:30:00Z' },
+  { commodity: 'Pigeon Pea', qty: 80, unit: 'qtl', marketPrice: 6200, updatedAt: '2026-06-03T18:00:00Z' },
+  { commodity: 'Onion', qty: 200, unit: 'qtl', marketPrice: 1840, updatedAt: '2026-06-04T07:00:00Z' },
+  { commodity: 'Wheat', qty: 150, unit: 'qtl', marketPrice: 2350, updatedAt: '2026-06-03T20:00:00Z' },
 ];
 
-export const demoWeatherForecasts = {
-  "amravati": {
-    region: "Amravati",
-    risk_level: "high",
-    description: "Severe weather alert: Thunderstorms & 42mm precipitation forecast for Vidarbha transport corridor.",
-    forecast: [
-      { date: "04 Jun", day: "Thu", temp: "31°C", condition: "Stormy", risk: "high", pop: "90%" },
-      { date: "05 Jun", day: "Fri", temp: "32°C", condition: "Heavy Rain", risk: "high", pop: "85%" },
-      { date: "06 Jun", day: "Sat", temp: "33°C", condition: "Rainy", risk: "low", pop: "50%" },
-      { date: "07 Jun", day: "Sun", temp: "34°C", condition: "Cloudy", risk: "none", pop: "20%" },
-      { date: "08 Jun", day: "Mon", temp: "35°C", condition: "Clear", risk: "none", pop: "10%" },
-      { date: "09 Jun", day: "Tue", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "10 Jun", day: "Wed", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" }
-    ]
-  },
-  "nagpur": {
-    region: "Nagpur",
-    risk_level: "low",
-    description: "Occasional light rain showers.",
-    forecast: [
-      { date: "04 Jun", day: "Thu", temp: "33°C", condition: "Light Rain", risk: "low", pop: "40%" },
-      { date: "05 Jun", day: "Fri", temp: "34°C", condition: "Cloudy", risk: "none", pop: "20%" },
-      { date: "06 Jun", day: "Sat", temp: "34°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "07 Jun", day: "Sun", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "08 Jun", day: "Mon", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "09 Jun", day: "Tue", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "10 Jun", day: "Wed", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" }
-    ]
-  },
-  "bhopal": {
-    region: "Bhopal",
-    risk_level: "low",
-    description: "Light monsoon showers expected along NH-46 corridor.",
-    forecast: [
-      { date: "04 Jun", day: "Thu", temp: "33°C", condition: "Light Rain", risk: "low", pop: "40%" },
-      { date: "05 Jun", day: "Fri", temp: "33°C", condition: "Light Rain", risk: "low", pop: "35%" },
-      { date: "06 Jun", day: "Sat", temp: "34°C", condition: "Cloudy", risk: "none", pop: "20%" },
-      { date: "07 Jun", day: "Sun", temp: "34°C", condition: "Partly Cloudy", risk: "none", pop: "15%" },
-      { date: "08 Jun", day: "Mon", temp: "35°C", condition: "Sunny", risk: "none", pop: "5%" },
-      { date: "09 Jun", day: "Tue", temp: "35°C", condition: "Sunny", risk: "none", pop: "5%" },
-      { date: "10 Jun", day: "Wed", temp: "36°C", condition: "Sunny", risk: "none", pop: "5%" }
-    ]
-  },
-  "indore": {
-    region: "Indore",
-    risk_level: "none",
-    description: "Clear weather, optimal driving conditions.",
-    forecast: [
-      { date: "04 Jun", day: "Thu", temp: "34°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "05 Jun", day: "Fri", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "06 Jun", day: "Sat", temp: "35°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "07 Jun", day: "Sun", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "08 Jun", day: "Mon", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "09 Jun", day: "Tue", temp: "37°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "10 Jun", day: "Wed", temp: "37°C", condition: "Clear", risk: "none", pop: "5%" }
-    ]
-  },
-  "rajkot": {
-    region: "Rajkot",
-    risk_level: "none",
-    description: "Clear and sunny skies.",
-    forecast: [
-      { date: "04 Jun", day: "Thu", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "05 Jun", day: "Fri", temp: "36°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "06 Jun", day: "Sat", temp: "37°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "07 Jun", day: "Sun", temp: "37°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "08 Jun", day: "Mon", temp: "38°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "09 Jun", day: "Tue", temp: "38°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "10 Jun", day: "Wed", temp: "39°C", condition: "Clear", risk: "none", pop: "5%" }
-    ]
-  },
-  "guntur": {
-    region: "Guntur",
-    risk_level: "none",
-    description: "Humid but clear weather.",
-    forecast: [
-      { date: "04 Jun", day: "Thu", temp: "37°C", condition: "Clear", risk: "none", pop: "10%" },
-      { date: "05 Jun", day: "Fri", temp: "37°C", condition: "Clear", risk: "none", pop: "10%" },
-      { date: "06 Jun", day: "Sat", temp: "38°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "07 Jun", day: "Sun", temp: "38°C", condition: "Clear", risk: "none", pop: "5%" },
-      { date: "08 Jun", day: "Mon", temp: "39°C", condition: "Clear", risk: "none", pop: "5%" }
-    ]
-  },
-  "jaipur": {
-    region: "Jaipur",
-    risk_level: "none",
-    description: "Hot and dry conditions.",
-    forecast: [
-      { date: "04 Jun", day: "Thu", temp: "41°C", condition: "Clear", risk: "none", pop: "0%" },
-      { date: "05 Jun", day: "Fri", temp: "42°C", condition: "Clear", risk: "none", pop: "0%" },
-      { date: "06 Jun", day: "Sat", temp: "42°C", condition: "Clear", risk: "none", pop: "0%" },
-      { date: "07 Jun", day: "Sun", temp: "43°C", condition: "Clear", risk: "none", pop: "0%" }
-    ]
-  }
+export const demoMandiPrices = [
+  { mandi: 'Indore', state: 'MP', commodity: 'Cotton', modal: 7260, change: 3.24, lat: 22.72, lng: 75.86, isAnomaly: true },
+  { mandi: 'Dewas', state: 'MP', commodity: 'Cotton', modal: 7050, change: 2.81, lat: 22.96, lng: 76.05, isAnomaly: false },
+  { mandi: 'Nagpur', state: 'Maharashtra', commodity: 'Cotton', modal: 6820, change: 2.17, lat: 21.15, lng: 79.09, isAnomaly: true },
+  { mandi: 'Rajkot', state: 'Gujarat', commodity: 'Cotton', modal: 6430, change: 1.92, lat: 22.30, lng: 70.80, isAnomaly: false },
+  { mandi: 'Jalgaon', state: 'Maharashtra', commodity: 'Cotton', modal: 6210, change: 1.35, lat: 21.01, lng: 75.56, isAnomaly: false },
+  { mandi: 'Akola', state: 'Maharashtra', commodity: 'Cotton', modal: 6680, change: 1.90, lat: 20.71, lng: 77.00, isAnomaly: true },
+  { mandi: 'Amravati', state: 'Maharashtra', commodity: 'Cotton', modal: 6540, change: 1.70, lat: 20.93, lng: 77.75, isAnomaly: false },
+  { mandi: 'Ahmedabad', state: 'Gujarat', commodity: 'Soybean', modal: 4820, change: -0.45, lat: 23.03, lng: 72.58, isAnomaly: false },
+  { mandi: 'Latur', state: 'Maharashtra', commodity: 'Pigeon Pea', modal: 6200, change: -1.20, lat: 18.40, lng: 76.56, isAnomaly: false },
+  { mandi: 'Bhopal', state: 'MP', commodity: 'Soybean', modal: 4880, change: 0.80, lat: 23.26, lng: 77.41, isAnomaly: false },
+  { mandi: 'Solapur', state: 'Maharashtra', commodity: 'Cotton', modal: 6380, change: 0.95, lat: 17.68, lng: 75.90, isAnomaly: false },
+  { mandi: 'Nashik', state: 'Maharashtra', commodity: 'Onion', modal: 1840, change: -2.10, lat: 20.01, lng: 73.79, isAnomaly: false },
+  { mandi: 'Surat', state: 'Gujarat', commodity: 'Cotton', modal: 6510, change: 1.45, lat: 21.17, lng: 72.83, isAnomaly: false },
+  { mandi: 'Hyderabad', state: 'Telangana', commodity: 'Soybean', modal: 4750, change: 0.30, lat: 17.39, lng: 78.49, isAnomaly: false },
+  { mandi: 'Delhi', state: 'Delhi', commodity: 'Wheat', modal: 2420, change: 0.55, lat: 28.61, lng: 77.21, isAnomaly: false },
+  { mandi: 'Ludhiana', state: 'Punjab', commodity: 'Wheat', modal: 2380, change: 0.40, lat: 30.90, lng: 75.85, isAnomaly: false },
+  { mandi: 'Pune', state: 'Maharashtra', commodity: 'Soybean', modal: 4790, change: -0.20, lat: 18.52, lng: 73.86, isAnomaly: false },
+  { mandi: 'Wardha', state: 'Maharashtra', commodity: 'Cotton', modal: 6490, change: 1.10, lat: 20.74, lng: 78.60, isAnomaly: false },
+  { mandi: 'Mumbai', state: 'Maharashtra', commodity: 'Soybean', modal: 4900, change: 0.65, lat: 19.08, lng: 72.88, isAnomaly: false },
+  { mandi: 'Chennai', state: 'Tamil Nadu', commodity: 'Cotton', modal: 7120, change: 1.80, lat: 13.08, lng: 80.28, isAnomaly: false },
+];
+
+export const demoDispatches = [
+  { id: 'TND-001', contractId: 'TN-2026-0002', commodity: 'Cotton', qty: 100, origin: 'Amravati', destination: 'Nagpur', status: 'IN_TRANSIT', dispatchDate: '2026-06-03', eta: '2026-06-07', vehicle: 'MH-31-AB-1234', confidence: 0.87, weatherRisk: 'low', daysLate: 0, originLat: 20.93, originLng: 77.75, destLat: 21.15, destLng: 79.09 },
+  { id: 'TND-002', contractId: 'TN-2026-0005', commodity: 'Soybean', qty: 250, origin: 'Bhopal', destination: 'Mumbai', status: 'IN_TRANSIT', dispatchDate: '2026-06-02', eta: '2026-06-06', vehicle: 'MP-09-CD-5678', confidence: 0.74, weatherRisk: 'medium', daysLate: 1, originLat: 23.26, originLng: 77.41, destLat: 19.08, destLng: 72.88 },
+  { id: 'TND-003', contractId: 'TN-2026-0004', commodity: 'Cotton', qty: 60, origin: 'Wardha', destination: 'Indore', status: 'LOADING', dispatchDate: '2026-06-05', eta: '2026-06-09', vehicle: 'MH-27-EF-9012', confidence: 0.91, weatherRisk: 'low', daysLate: 0, originLat: 20.74, originLng: 78.60, destLat: 22.72, destLng: 75.86 },
+];
+
+export const demoCounterparties = [
+  { id: 'cp-1', name: 'Nagpur Cotton Mills', type: 'buyer', city: 'Nagpur', state: 'Maharashtra', reliability: 0.92, trades: 28, openExposure: 4875000, mlRisk: 0.12, onTime: 0.94 },
+  { id: 'cp-2', name: 'Akola Textile Industries', type: 'buyer', city: 'Akola', state: 'Maharashtra', reliability: 0.76, trades: 14, openExposure: 2100000, mlRisk: 0.34, onTime: 0.78 },
+  { id: 'cp-3', name: 'Bharat Agro', type: 'both', city: 'Indore', state: 'MP', reliability: 0.88, trades: 32, openExposure: 6200000, mlRisk: 0.18, onTime: 0.91 },
+  { id: 'cp-4', name: 'Ramesh Farm Collective', type: 'seller', city: 'Amravati', state: 'Maharashtra', reliability: 0.95, trades: 19, openExposure: 1800000, mlRisk: 0.08, onTime: 0.96 },
+  { id: 'cp-5', name: 'Wardha Cotton Coop', type: 'seller', city: 'Wardha', state: 'Maharashtra', reliability: 0.84, trades: 11, openExposure: 1200000, mlRisk: 0.22, onTime: 0.85 },
+];
+
+export const demoDiscoveredCounterparties = [
+  { id: 'cp-d1', name: 'Green Harvest Traders', type: 'buyer', city: 'Nagpur', state: 'Maharashtra', reliability: 0.81, trades: 6, openExposure: 0, mlRisk: 0.28, discovered: true },
+  { id: 'cp-d2', name: 'AgriCorp Vidarbha', type: 'buyer', city: 'Akola', state: 'Maharashtra', reliability: 0.77, trades: 4, openExposure: 0, mlRisk: 0.31, discovered: true },
+  { id: 'cp-d3', name: 'Shree Cotton Mills', type: 'buyer', city: 'Nagpur', state: 'Maharashtra', reliability: 0.89, trades: 12, openExposure: 0, mlRisk: 0.15, discovered: true },
+];
+
+export const demoOpportunities = [
+  { id: 'opp-1', type: 'FORWARD_LOAD', commodity: 'Cotton', origin: 'Amravati', destination: 'Nagpur', qty: 120, unit: 'qtl', margin: '₹18,600', matchScore: 92, availableFrom: '2026-06-08' },
+  { id: 'opp-2', type: 'RETURN_LOAD', commodity: 'Soybean', origin: 'Mumbai', destination: 'Bhopal', qty: 250, unit: 'qtl', margin: '₹24,000', matchScore: 87, availableFrom: '2026-06-09' },
+  { id: 'opp-3', type: 'FORWARD_LOAD', commodity: 'Wheat', origin: 'Ludhiana', destination: 'Delhi', qty: 400, unit: 'qtl', margin: '₹31,500', matchScore: 83, availableFrom: '2026-06-10' },
+];
+
+export const demoAlerts = [
+  { id: 'a-1', type: 'demand_spike', commodity: 'Cotton', mandi: 'Nagpur', message: 'Cotton prices in Nagpur are 18% above 10-day average. Modal: ₹6,820/qtl.', pctChange: 18.2, time: '2026-06-04T07:42:00Z' },
+  { id: 'a-2', type: 'weather_risk', commodity: null, mandi: null, message: 'Heavy rainfall forecast for Amravati region Tuesday. 2 active dispatches flagged.', time: '2026-06-04T06:15:00Z' },
+  { id: 'a-3', type: 'demand_spike', commodity: 'Cotton', mandi: 'Akola', message: 'Cotton prices in Akola 14% above average. Modal: ₹6,680/qtl.', pctChange: 14.1, time: '2026-06-04T05:30:00Z' },
+  { id: 'a-4', type: 'sentiment', commodity: 'Cotton', mandi: null, message: 'Bullish sentiment detected for Cotton. Export demand from SE Asia rising.', time: '2026-06-03T22:00:00Z' },
+  { id: 'a-5', type: 'price_drop', commodity: 'Pigeon Pea', mandi: 'Latur', message: 'Pigeon Pea prices dropped 12% in Latur. Bumper harvest expected.', pctChange: -12.0, time: '2026-06-03T18:00:00Z' },
+];
+
+export const demoAgentLog = [
+  { agent: 'Risk Agent', color: '#2563eb', time: '09:42 AM', summary: 'MtM calculated for 8 contracts. Best: TN-2026-0004 +₹4.8L. Worst: TN-2026-0008 -₹15L.' },
+  { agent: 'Market Agent', color: '#16a34a', time: '09:26 AM', summary: 'Cotton prices up 3.24% in Indore market due to higher demand and low arrivals.' },
+  { agent: 'Opportunity Agent', color: '#d97706', time: '08:55 AM', summary: 'New high-margin opportunity found: Soybean return load Indore → Mumbai. Est margin ₹24K.' },
+  { agent: 'Inventory Agent', color: '#7c3aed', time: '01:23 AM', summary: 'Warehouse stock updated. Cotton inventory at 62% capacity.' },
+  { agent: 'Weather Agent', color: '#0891b2', time: '07:00 AM', summary: 'Heavy rain warning Amravati region. 2 dispatches on Amravati→Nagpur flagged for delay.' },
+  { agent: 'Adaptive Learning', color: '#d97706', time: '12:00 AM', summary: 'Processed 34 alias resolutions. 3 new aliases learned. Corpus: 847 entries.' },
+];
+
+export const demoPortfolioHistory = [
+  { date: 'Jan 26', pnl: 82000 }, { date: 'Feb 26', pnl: 145000 },
+  { date: 'Mar 26', pnl: -23000 }, { date: 'Apr 26', pnl: 198000 },
+  { date: 'May 26', pnl: 267000 }, { date: 'Jun 26', pnl: 248600 },
+];
+
+export const demoPriceHistory = {
+  Cotton: [
+    { date: 'May 29', price: 6420 }, { date: 'May 30', price: 6510 },
+    { date: 'May 31', price: 6480 }, { date: 'Jun 1', price: 6620 },
+    { date: 'Jun 2', price: 6750 }, { date: 'Jun 3', price: 6780 },
+    { date: 'Jun 4', price: 6820, forecast: true },
+    { date: 'Jun 5', price: 6890, forecast: true, lower: 6780, upper: 7010 },
+    { date: 'Jun 6', price: 6950, forecast: true, lower: 6810, upper: 7100 },
+    { date: 'Jun 7', price: 7020, forecast: true, lower: 6840, upper: 7200 },
+    { date: 'Jun 8', price: 7080, forecast: true, lower: 6860, upper: 7290 },
+    { date: 'Jun 9', price: 7110, forecast: true, lower: 6870, upper: 7350 },
+    { date: 'Jun 10', price: 7150, forecast: true, lower: 6900, upper: 7400 },
+  ],
 };
 
-export const demoWeatherSignals = [
-  {
-    id: "ws-1",
-    region: "Amravati",
-    risk_level: "high",
-    description: "Thunderstorms & 42mm precipitation forecast for Vidarbha corridor.",
-    affected_dispatches_count: 2,
-    forecast: demoWeatherForecasts["amravati"].forecast
-  },
-  {
-    id: "ws-2",
-    region: "Bhopal",
-    risk_level: "low",
-    description: "Light monsoon showers expected along NH-46.",
-    affected_dispatches_count: 1,
-    forecast: demoWeatherForecasts["bhopal"].forecast
-  }
+export const demoMacroSignals = [
+  { commodity: 'Cotton', sentiment: 'bullish', confidence: 0.82, keySignal: 'Export demand from SE Asian textile hubs rising. MSP unchanged.', urgency: 'this_week' },
+  { commodity: 'Soybean', sentiment: 'neutral', confidence: 0.61, keySignal: 'Stable crushing margins keeping prices range-bound.', urgency: 'this_month' },
+  { commodity: 'Pigeon Pea', sentiment: 'bearish', confidence: 0.74, keySignal: 'Bumper kharif harvest expected — downward price pressure likely.', urgency: 'this_week' },
 ];
 
-export const demoPositions = [
-  { commodity: "Cotton", total_bought: 130, total_sold: 0, net_position: 130, avg_buy_price: 6462, avg_sell_price: 0, net_pnl: 44000 },
-  { commodity: "Soybean", total_bought: 150, total_sold: 0, net_position: 150, avg_buy_price: 4900, avg_sell_price: 0, net_pnl: -15000 },
-  { commodity: "Onion", total_bought: 0, total_sold: 300, net_position: -300, avg_buy_price: 0, avg_sell_price: 2200, net_pnl: -60000 },
-  { commodity: "Groundnut", total_bought: 0, total_sold: 120, net_position: -120, avg_buy_price: 0, avg_sell_price: 7000, net_pnl: 12000 },
-  { commodity: "Mustard", total_bought: 0, total_sold: 110, net_position: -110, avg_buy_price: 0, avg_sell_price: 5600, net_pnl: 22000 }
+export const demoMLModels = {
+  Cotton: { modelType: 'lstm', realRows: 847, realDataPct: 100, mape: 4.2, trainingPeriod: '2022–2026', dataSources: ['CEDA Ashoka', 'data.gov.in'] },
+  Soybean: { modelType: 'lstm', realRows: 412, realDataPct: 100, mape: 5.8, trainingPeriod: '2023–2026', dataSources: ['data.gov.in'] },
+  PigeonPea: { modelType: 'prophet', realRows: 156, realDataPct: 100, mape: 7.1, trainingPeriod: '2024–2026', dataSources: ['data.gov.in'] },
+  Wheat: { modelType: 'xgboost', realRows: 89, realDataPct: 100, mape: 8.4, trainingPeriod: '2024–2026', dataSources: ['data.gov.in'] },
+};
+
+export const MANDI_COORDS = {
+  Nagpur: [79.09, 21.15], Indore: [75.86, 22.72], Bhopal: [77.41, 23.26],
+  Mumbai: [72.88, 19.08], Pune: [73.86, 18.52], Latur: [76.56, 18.40],
+  Amravati: [77.75, 20.93], Akola: [77.00, 20.71], Wardha: [78.60, 20.74],
+  Nashik: [73.79, 20.01], Surat: [72.83, 21.17], Rajkot: [70.80, 22.30],
+  Ahmedabad: [72.58, 23.03], Delhi: [77.21, 28.61], Ludhiana: [75.85, 30.90],
+  Jalgaon: [75.56, 21.01], Dewas: [76.05, 22.96], Solapur: [75.90, 17.68],
+  Hyderabad: [78.49, 17.39], Chennai: [80.28, 13.08],
+};
+
+export const demoContractOverview = {
+  total: 1248, active: 892, totalValue: 13420000000, expiringSoon: 43,
+};
+
+export const demoNetworkEvents = [
+  { type: 'contract', text: 'Contract Updated — TN-2026-0014 updated. New price: 500 quintals of Cotton', time: '2h ago' },
+  { type: 'alert', text: 'High Alert — TN-2026-0008 Flagged High Risk (82% reliability, 10-day delay)', time: '4h ago' },
+  { type: 'dispatch', text: 'Dispatch Created — New dispatch created for Bharat Agro. ETA: 30 Jun 2026', time: '6h ago' },
+  { type: 'payment', text: 'Payment Received — Payment of ₹1,26,000 received from Nagpur Mills', time: '1d ago' },
 ];
 
+export const demoCorridors = [
+  { route: 'Amravati → Nagpur', reliability: 0.92, weather: 'Clear', volume: 340 },
+  { route: 'Bhopal → Mumbai', reliability: 0.78, weather: 'Rain expected', volume: 280 },
+  { route: 'Indore → Surat', reliability: 0.85, weather: 'Clear', volume: 190 },
+  { route: 'Nagpur → Pune', reliability: 0.88, weather: 'Partly cloudy', volume: 220 },
+  { route: 'Wardha → Indore', reliability: 0.91, weather: 'Clear', volume: 150 },
+];
 
+export const demoInventoryChanges = [
+  { text: 'Cotton +50 qtl added via Lucy', time: '2 hours ago' },
+  { text: 'Soybean -30 qtl dispatched', time: '1 day ago' },
+  { text: 'Wheat +20 qtl received', time: '2 days ago' },
+];
+
+export const COMMODITY_ALIASES = {
+  kapas: { commodity: 'Cotton', tier: 'embedding', confidence: 94 },
+  cotton: { commodity: 'Cotton', tier: 'exact', confidence: 100 },
+  soybean: { commodity: 'Soybean', tier: 'exact', confidence: 100 },
+};
+
+export default {
+  demoStats, demoContracts, demoInventory, demoMandiPrices, demoDispatches,
+  demoCounterparties, demoOpportunities, demoAlerts, demoAgentLog,
+  demoPortfolioHistory, demoPriceHistory, demoMacroSignals, demoMLModels, MANDI_COORDS,
+};

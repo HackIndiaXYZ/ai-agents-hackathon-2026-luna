@@ -1,45 +1,28 @@
 import { create } from 'zustand';
 
-/**
- * Lucy State Store — manages full-screen LUCY mode, conversational turns,
- * and state variables.
- */
 export const useLucyStore = create((set) => ({
-  sessionId: null,
-  messages: [],
   isOpen: false,
+  open: () => set({ isOpen: true }),
+  close: () => set({ isOpen: false }),
+  toggle: () => set((s) => ({ isOpen: !s.isOpen })),
+  messages: [],
+  sessionId: null,
   voiceEnabled: true,
   isListening: false,
   isProcessing: false,
   currentSteps: [],
-  context: {},
-
-  // Visibility actions
-  open: () => set({ isOpen: true }),
-  close: () => set({ isOpen: false }),
-  toggle: () => set((state) => ({ isOpen: !state.isOpen })),
-
-  // State setters
+  pendingQuery: '',
+  pendingNavigation: null,
+  pendingFormPrefill: null,
+  showInventoryBanner: true,
+  addMessage: (msg) => set((s) => ({ messages: [...s.messages, { ...msg, id: Date.now() + Math.random() }] })),
+  setProcessing: (v) => set({ isProcessing: v }),
+  setListening: (v) => set({ isListening: v }),
+  setSteps: (steps) => set({ currentSteps: steps }),
   setSessionId: (id) => set({ sessionId: id }),
-  setMessages: (messages) => set({ messages }),
-  addMessage: (msg) => set((state) => ({ messages: [...state.messages, msg] })),
-  setVoiceEnabled: (val) => set({ voiceEnabled: val }),
-  setListening: (val) => set({ isListening: val }),
-  setProcessing: (val) => set({ isProcessing: val }),
-  setCurrentSteps: (steps) => set({ currentSteps: steps }),
-  setContext: (ctx) => set({ context: ctx }),
-
-  // Master reset
-  reset: () =>
-    set({
-      sessionId: null,
-      messages: [],
-      isOpen: false,
-      isListening: false,
-      isProcessing: false,
-      currentSteps: [],
-      context: {},
-    }),
+  setPendingQuery: (q) => set({ pendingQuery: q }),
+  setPendingNavigation: (nav) => set({ pendingNavigation: nav }),
+  setPendingFormPrefill: (data) => set({ pendingFormPrefill: data }),
+  dismissInventoryBanner: () => set({ showInventoryBanner: false }),
+  reset: () => set({ messages: [], sessionId: null, currentSteps: [], pendingQuery: '', pendingNavigation: null, pendingFormPrefill: null }),
 }));
-
-export default useLucyStore;
